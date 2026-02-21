@@ -19,6 +19,7 @@ actual fun getPlatform(): Platform = JVMPlatform()
 
 actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     return withContext(Dispatchers.IO) {
+        println("desktop getloginurl")
         val userHome = System.getProperty("user.home")
         Files.writeString(
             Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"),

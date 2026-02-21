@@ -34,11 +34,15 @@ data object StartNavKey : NavKey
 @Serializable
 data object LoginNavKey : NavKey
 
+@Serializable
+data object AfterLoginNavKey : NavKey
+
 private val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
             subclass(StartNavKey::class, StartNavKey.serializer())
             subclass(LoginNavKey::class, LoginNavKey.serializer())
+            subclass(AfterLoginNavKey::class, AfterLoginNavKey.serializer())
         }
     }
 }
@@ -54,6 +58,9 @@ fun App(uri: String? = null) {
         }
         entry<LoginNavKey> {
             BeforeLogin(backStack)
+        }
+        entry<AfterLoginNavKey> {
+            AfterLogin(backStack)
         }
     }
     NavDisplay(

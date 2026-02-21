@@ -34,18 +34,20 @@ fun BeforeLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) b
     val snackbarHostState = remember { SnackbarHostState() }
     val uriHandler = LocalUriHandler.current
     LaunchedEffect(Unit) {
-        getLoginUrl(uriHandler)
+        val result = getLoginUrl(uriHandler)
+        backStack.add(AfterLoginNavKey)
     }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
         SnackbarHost(hostState = snackbarHostState)
     }) { innerPadding ->
         Column(
             Modifier
-                .padding(innerPadding)
-                .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(innerPadding).fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) { LoadingIndicator() }
+            LoadingIndicator()
+            Text("Wartet auf Anmeldung im Browser")
         }
     }
 }
