@@ -34,7 +34,7 @@ fun App() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Button(onClick = {
-                writeDesktopFile(uriHandler)
+                getLoginUrl(uriHandler)
                 showContent = !showContent
             }) {
                 Text("Click me!")

@@ -15,7 +15,7 @@ class JVMPlatform : Platform {
 
 actual fun getPlatform(): Platform = JVMPlatform()
 
-actual fun writeDesktopFile(uriHandler: UriHandler) {
+actual fun getLoginUrl(uriHandler: UriHandler): String {
     val userHome = System.getProperty("user.home")
     Files.writeString(Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"), "[Desktop Entry]\n" +
             "Exec=printf %u | socat UNIX-CONNECT:/run/user/1000/tucanplus -\n" +
@@ -39,4 +39,5 @@ actual fun writeDesktopFile(uriHandler: UriHandler) {
     println("bytes $bytes")
     val newContent: String = Charsets.UTF_8.decode(buffer.slice(0, bytes)).toString()
     println(newContent)
+    return newContent
 }

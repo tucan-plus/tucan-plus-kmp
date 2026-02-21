@@ -8,4 +8,4 @@ interface Platform {
 
 expect fun getPlatform(): Platform
 
-expect fun writeDesktopFile(uriHandler: UriHandler)
+expect fun getLoginUrl(uriHandler: UriHandler)
