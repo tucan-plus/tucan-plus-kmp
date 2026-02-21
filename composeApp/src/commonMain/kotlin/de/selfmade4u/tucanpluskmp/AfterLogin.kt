@@ -29,10 +29,24 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.parameter
+import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.Url
 import io.ktor.http.parameters
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNamingStrategy
 
+@Serializable
+data class TokenResponse(
+                        @SerialName("id_token") val idToken: String,
+                        @SerialName("access_token") val accessToken: String,
+                        @SerialName("expires_in") val expiresIn: Int,
+                        @SerialName("token_type") val tokenType: String,
+                        @SerialName("refresh_token") val refreshToken: String,
+                        val scope: String)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -56,6 +70,8 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
             }
         )
         println(response)
+        val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
+        println(tokenResponse)
     }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
@@ -69,7 +85,6 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         ) {
             LoadingIndicator()
             Text("Anmeldung wird durchgeführt...")
-            Text(code)
         }
     }
 }
