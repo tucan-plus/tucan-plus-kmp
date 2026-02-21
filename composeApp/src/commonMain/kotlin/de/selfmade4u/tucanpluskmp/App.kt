@@ -15,14 +15,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
+import androidx.savedstate.serialization.SavedStateConfiguration
 import org.jetbrains.compose.resources.painterResource
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 
 import tucanpluskmp.composeapp.generated.resources.Res
 import tucanpluskmp.composeapp.generated.resources.compose_multiplatform
 
+@Serializable
+data object MainNavKey : NavKey
+
+@Serializable
+data object LoginNavKey : NavKey
+
+private val config = SavedStateConfiguration {
+    serializersModule = SerializersModule {
+        polymorphic(NavKey::class) {
+            subclass(MainNavKey::class, MainNavKey.serializer())
+            subclass(LoginNavKey::class, LoginNavKey.serializer())
+        }
+    }
+}
+
 @Composable
 @Preview
 fun App() {
+    val backStack = rememberNavBackStack(config, LoginNavKey)
+    val entryProvider = entryProvider {
+        entry<MainNavKey> {
+            Main(backStack)
+        }
+        entry<LoginNavKey> {
+            LoginForm(backStack)
+        }
+    }
+    NavDisplay(
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryProvider = entryProvider
+    )
+}
+
+@Composable
+@Preview
+fun Login() {
     val uriHandler = LocalUriHandler.current
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
