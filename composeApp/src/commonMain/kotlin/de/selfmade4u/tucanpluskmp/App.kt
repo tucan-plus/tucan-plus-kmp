@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -44,7 +45,8 @@ private val config = SavedStateConfiguration {
 
 @Composable
 @Preview
-fun App() {
+fun App(uri: String? = null) {
+    println("uri $uri")
     val backStack = rememberNavBackStack(config, LoginNavKey)
     val entryProvider = entryProvider {
         entry<StartNavKey> {
