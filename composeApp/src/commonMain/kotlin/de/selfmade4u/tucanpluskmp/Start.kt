@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun Main(backStack: NavBackStack<NavKey>) {
+fun Start(backStack: NavBackStack<NavKey>) {
    // val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     // TODO https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary all material expressive?

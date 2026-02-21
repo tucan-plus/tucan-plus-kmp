@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
@@ -29,7 +28,7 @@ import tucanpluskmp.composeapp.generated.resources.Res
 import tucanpluskmp.composeapp.generated.resources.compose_multiplatform
 
 @Serializable
-data object MainNavKey : NavKey
+data object StartNavKey : NavKey
 
 @Serializable
 data object LoginNavKey : NavKey
@@ -37,7 +36,7 @@ data object LoginNavKey : NavKey
 private val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
-            subclass(MainNavKey::class, MainNavKey.serializer())
+            subclass(StartNavKey::class, StartNavKey.serializer())
             subclass(LoginNavKey::class, LoginNavKey.serializer())
         }
     }
@@ -48,11 +47,11 @@ private val config = SavedStateConfiguration {
 fun App() {
     val backStack = rememberNavBackStack(config, LoginNavKey)
     val entryProvider = entryProvider {
-        entry<MainNavKey> {
-            Main(backStack)
+        entry<StartNavKey> {
+            Start(backStack)
         }
         entry<LoginNavKey> {
-            LoginForm(backStack)
+            BeforeLogin(backStack)
         }
     }
     NavDisplay(
@@ -65,7 +64,6 @@ fun App() {
 @Composable
 @Preview
 fun Login() {
-    val uriHandler = LocalUriHandler.current
     MaterialTheme {
         var showContent by remember { mutableStateOf(false) }
         Column(
@@ -76,7 +74,6 @@ fun Login() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Button(onClick = {
-                getLoginUrl(uriHandler)
                 showContent = !showContent
             }) {
                 Text("Click me!")
