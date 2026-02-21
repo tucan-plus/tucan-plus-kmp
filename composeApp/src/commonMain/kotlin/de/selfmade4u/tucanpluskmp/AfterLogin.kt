@@ -22,10 +22,16 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.request
 import io.ktor.http.Url
+import io.ktor.http.parameters
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -34,15 +40,21 @@ import io.ktor.http.Url
 fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, uri: String = "") {
     val code = Url(uri).parameters["code"]!!
     println(code)
-    val client = HttpClient()
-    LaunchedEffect(Unit) {
-        val response = client.submitForm("https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token") {
-            parameter("client_id", "MobileApp")
-            parameter("code", code)
-            parameter("grant_type", "authorization_code")
-            parameter("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
+    val client = HttpClient() {
+        install(Logging) {
+            logger = Logger.SIMPLE
+            level = LogLevel.ALL
         }
-        println(response.request)
+    }
+    LaunchedEffect(Unit) {
+        val response = client.submitForm(url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
+            formParameters = parameters {
+                append("client_id", "MobileApp")
+                append("code", code)
+                append("grant_type", "authorization_code")
+                append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
+            }
+        )
         println(response)
     }
     val snackbarHostState = remember { SnackbarHostState() }

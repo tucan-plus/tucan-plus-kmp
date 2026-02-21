@@ -64,6 +64,7 @@ kotlin {
             implementation(libs.jetbrains.material3.adaptiveNavigation3)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.logging)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
