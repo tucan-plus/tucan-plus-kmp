@@ -24,7 +24,7 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
         Files.writeString(
             Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"),
             "[Desktop Entry]\n" +
-                    "Exec=printf %u | socat UNIX-CONNECT:/run/user/1000/tucanplus -\n" +
+                    "Exec=sh -c 'printf \"%s\" \"$1\" | socat UNIX-CONNECT:/run/user/1000/tucanplus -' _ %u\n" +
                     "Type=Application\n" +
                     "Name=tucanplus.desktop\n" +
                     "MimeType=x-scheme-handler/de.datenlotsen.campusnet.tuda\n"
