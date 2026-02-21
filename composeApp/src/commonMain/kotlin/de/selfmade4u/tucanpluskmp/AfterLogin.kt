@@ -26,7 +26,7 @@ import androidx.navigation3.runtime.NavKey
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
-fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>) {
+fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, uri: String = "") {
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
         SnackbarHost(hostState = snackbarHostState)
@@ -39,6 +39,7 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         ) {
             LoadingIndicator()
             Text("Anmeldung wird durchgeführt...")
+            Text(uri)
         }
     }
 }

@@ -35,7 +35,7 @@ data object StartNavKey : NavKey
 data object LoginNavKey : NavKey
 
 @Serializable
-data object AfterLoginNavKey : NavKey
+data class AfterLoginNavKey(val uri: String) : NavKey
 
 private val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
@@ -51,7 +51,12 @@ private val config = SavedStateConfiguration {
 @Preview
 fun App(uri: String? = null) {
     println("uri $uri")
-    val backStack = rememberNavBackStack(config, LoginNavKey)
+    val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
+        AfterLoginNavKey(uri)
+    } else {
+        LoginNavKey
+    }
+    val backStack = rememberNavBackStack(config, initialNav)
     val entryProvider = entryProvider {
         entry<StartNavKey> {
             Start(backStack)
@@ -59,8 +64,8 @@ fun App(uri: String? = null) {
         entry<LoginNavKey> {
             BeforeLogin(backStack)
         }
-        entry<AfterLoginNavKey> {
-            AfterLogin(backStack)
+        entry<AfterLoginNavKey> { key ->
+            AfterLogin(backStack, key.uri)
         }
     }
     NavDisplay(

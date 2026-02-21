@@ -9,7 +9,7 @@ class AndroidPlatform : Platform {
 
 actual fun getPlatform(): Platform = AndroidPlatform()
 
-actual fun getLoginUrl(uriHandler: UriHandler): String {
+actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     val url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
     uriHandler.openUri(url)
 
