@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.UserAgent
 import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -55,13 +56,16 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
     val code = Url(uri).parameters["code"]!!
     println(code)
     val client = HttpClient() {
+        install(UserAgent) {
+            agent = "https://github.com/tucan-plus/tucan-plus-kmp Moritz.Hedtke@t-online.de"
+        }
         install(Logging) {
             logger = Logger.SIMPLE
             level = LogLevel.ALL
         }
     }
     LaunchedEffect(Unit) {
-        val response = client.submitForm(url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
+        var response = client.submitForm(url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
             formParameters = parameters {
                 append("client_id", "MobileApp")
                 append("code", code)
@@ -72,6 +76,17 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         println(response)
         val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
         println(tokenResponse)
+        // now do the logincheck with that
+        response = client.submitForm("https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll", parameters {
+            append("access_token", tokenResponse.accessToken)
+            append("ARGUMENTS", "-N000000000000001,ids_mode")
+            append("APPNAME", "CampusNet")
+            append("PRGNAME", "LOGINCHECK")
+            append("ids_mode", "M")
+        })
+        println(response)
+        val body = response.bodyAsText()
+        println(body)
     }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
