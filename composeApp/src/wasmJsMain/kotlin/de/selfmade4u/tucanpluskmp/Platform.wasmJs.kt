@@ -15,7 +15,7 @@ fun registerProtocolHandler(): Unit = js(
 }"""
 )
 
-actual fun getLoginUrl(uriHandler: UriHandler): String {
+actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     registerProtocolHandler()
     return "Test"
 }
