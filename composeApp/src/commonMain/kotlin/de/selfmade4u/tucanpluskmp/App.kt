@@ -14,16 +14,24 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.okio.OkioStorage
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import kotlinx.io.files.Path
 import org.jetbrains.compose.resources.painterResource
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
+import okio.ByteString
+import okio.Path.Companion.toPath
+import okio.fakefilesystem.FakeFileSystem
 
 import tucanpluskmp.composeapp.generated.resources.Res
 import tucanpluskmp.composeapp.generated.resources.compose_multiplatform
@@ -48,8 +56,7 @@ private val config = SavedStateConfiguration {
 }
 
 @Composable
-@Preview
-fun App(uri: String? = null) {
+fun App(uri: String? = null, dataStore: DataStore<Preferences>) {
     println("uri $uri")
     val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
         AfterLoginNavKey(uri)

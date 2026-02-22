@@ -12,10 +12,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        createDataStore(this)
+        val dataStore = createDataStore(this)
 
         setContent {
-            App(intent.data.toString())
+            App(intent.data.toString(), dataStore)
         }
     }
 }
@@ -23,5 +23,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App(null)
+    App()
 }
