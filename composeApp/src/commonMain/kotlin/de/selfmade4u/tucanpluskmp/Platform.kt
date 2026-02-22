@@ -13,11 +13,11 @@ expect fun getPlatform(): Platform
 
 expect suspend fun getLoginUrl(uriHandler: UriHandler): String
 
-object FakeDataStore : DataStore<Preferences> {
-    override val data: Flow<Preferences>
+object FakeDataStore : DataStore<TokenResponse> {
+    override val data: Flow<TokenResponse>
         get() = TODO("Not yet implemented")
 
-    override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences): Preferences {
+    override suspend fun updateData(transform: suspend (t: TokenResponse) -> TokenResponse): TokenResponse {
         TODO("Not yet implemented")
     }
 }

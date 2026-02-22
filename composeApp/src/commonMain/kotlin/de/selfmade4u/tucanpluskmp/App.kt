@@ -59,7 +59,7 @@ private val config = SavedStateConfiguration {
 }
 
 @Composable
-fun App(uri: String? = null, dataStore: DataStore<Preferences> = FakeDataStore) {
+fun App(uri: String? = null, dataStore: DataStore<TokenResponse> = FakeDataStore) {
     println("uri $uri")
     val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
         AfterLoginNavKey(uri)

@@ -39,7 +39,7 @@ kotlin {
         implementation(libs.compose.uiToolingPreview)
         debugImplementation(libs.compose.uiTooling)
         implementation(libs.androidx.activity.compose)
-        implementation(libs.androidx.datastore.core)
-        implementation(libs.androidx.datastore.preferences.core)
+        implementation(libs.androidx.datastore)
+        implementation(libs.androidx.datastore.preferences)
     }
 }

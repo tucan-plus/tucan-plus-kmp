@@ -2,10 +2,21 @@ package de.selfmade4u.tucanpluskmp
 
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.FileStorage
+import androidx.datastore.core.okio.OkioSerializer
+import androidx.datastore.core.okio.OkioStorage
 import androidx.datastore.preferences.core.Preferences
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okio.BufferedSink
+import okio.BufferedSource
+import okio.FileSystem
+import okio.Path.Companion.toOkioPath
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.StandardProtocolFamily
 import java.net.UnixDomainSocketAddress
 import java.nio.ByteBuffer
@@ -53,9 +64,13 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     }
 }
 
-fun createDataStore(): DataStore<Preferences> = createDataStore(
-    producePath = {
-        val file = File(System.getProperty("java.io.tmpdir"), dataStoreFileName)
-        file.absolutePath
-    }
+fun createDataStore(): DataStore<TokenResponse> = DataStoreFactory.create(
+    storage =
+        OkioStorage(
+            FileSystem.SYSTEM, TokenResponseSerializer,
+            producePath = {
+                val file = File(System.getProperty("java.io.tmpdir"), "tucanplus-config.json")
+                file.toOkioPath()
+            }
+        ),
 )

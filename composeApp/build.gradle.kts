@@ -66,6 +66,7 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.logging)
             implementation(libs.serialization.json)
+            implementation(libs.kotlinx.serialization.json.okio)
             implementation(libs.androidx.datastore.core)
             implementation(libs.androidx.datastore.preferences.core)
             implementation(libs.okio.fakefilesystem)

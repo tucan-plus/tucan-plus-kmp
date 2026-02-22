@@ -4,7 +4,13 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.okio.OkioStorage
 import androidx.datastore.preferences.core.Preferences
+import kotlinx.coroutines.CoroutineScope
+import okio.FileSystem
+import okio.Path.Companion.toOkioPath
+import java.io.File
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -19,6 +25,14 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     return "Test"
 }
 
-fun createDataStore(context: Context): DataStore<Preferences> = createDataStore(
-    producePath = { context.filesDir.resolve(dataStoreFileName).absolutePath }
+fun createDataStore(context: Context): DataStore<TokenResponse> = DataStoreFactory.create(
+    storage =
+        OkioStorage(
+            FileSystem.SYSTEM, TokenResponseSerializer,
+            producePath = {
+                val file = context.filesDir.resolve("tucanplus-config.json")
+                file.toOkioPath()
+            }
+        ),
+    migrations = listOf(),
 )

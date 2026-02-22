@@ -15,34 +15,36 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.UserAgent
-import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.forms.submitForm
-import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsText
-import io.ktor.client.statement.request
 import io.ktor.http.Url
 import io.ktor.http.parameters
-import kotlinx.coroutines.flow.Flow
+import io.ktor.utils.io.core.readBytes
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNamingStrategy
+import kotlinx.serialization.json.okio.decodeFromBufferedSource
+import kotlinx.serialization.json.okio.encodeToBufferedSink
+import okio.BufferedSink
+import okio.BufferedSource
 
 @Serializable
 data class TokenResponse(
@@ -53,10 +55,28 @@ data class TokenResponse(
                         @SerialName("refresh_token") val refreshToken: String,
                         val scope: String)
 
+object TokenResponseSerializer : OkioSerializer<TokenResponse> {
+
+    override val defaultValue: TokenResponse = TODO()
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override suspend fun readFrom(source: BufferedSource): TokenResponse =
+        try {
+            Json.decodeFromBufferedSource<TokenResponse>(source)
+        } catch (serialization: SerializationException) {
+            throw CorruptionException("Unable to read Settings", serialization)
+        }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    override suspend fun writeTo(t: TokenResponse, sink: BufferedSink) {
+        Json.encodeToBufferedSink(t, sink)
+    }
+}
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
-fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<Preferences> = FakeDataStore, uri: String = "https://localhost/?code=test") {
+fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<TokenResponse> = FakeDataStore, uri: String = "https://localhost/?code=test") {
     val code = Url(uri).parameters["code"]!!
     println(code)
     val client = HttpClient() {
@@ -101,8 +121,7 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         println(sessionId)
         println(cookie)
         dataStore.updateData {
-            it.toMutablePreferences()[stringPreferencesKey("session_id")] = sessionId
-            it
+            it.copy(idToken = "test")
         }
     }
     val snackbarHostState = remember { SnackbarHostState() }
