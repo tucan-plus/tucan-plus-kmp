@@ -1,7 +1,10 @@
 package de.selfmade4u.tucanpluskmp
 
+import android.content.Context
 import android.os.Build
 import androidx.compose.ui.platform.UriHandler
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -15,3 +18,7 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
 
     return "Test"
 }
+
+fun createDataStore(context: Context): DataStore<Preferences> = createDataStore(
+    producePath = { context.filesDir.resolve(dataStoreFileName).absolutePath }
+)

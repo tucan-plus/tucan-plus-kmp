@@ -85,9 +85,17 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
             append("ids_mode", "M")
         })
         println(response)
-        println(response.headers["REFRESH"])
         val body = response.bodyAsText()
         println(body)
+        val cookie = response.headers["Set-cookie"]!!.removePrefix("cnsc =")
+        val refreshHeader = response.headers["REFRESH"]!!
+        val sessionIdMatch =
+            Regex("""0; URL=/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=STARTPAGE_DISPATCH&ARGUMENTS=-N(\d+),-N000(019|350),-N000000000000000""").matchEntire(
+                refreshHeader
+            )!!
+        val sessionId = sessionIdMatch.groupValues[1]
+        println(sessionId)
+        println(cookie)
     }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {

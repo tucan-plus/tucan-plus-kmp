@@ -1,8 +1,11 @@
 package de.selfmade4u.tucanpluskmp
 
 import androidx.compose.ui.platform.UriHandler
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.net.StandardProtocolFamily
 import java.net.UnixDomainSocketAddress
 import java.nio.ByteBuffer
@@ -49,3 +52,10 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
         return@withContext newContent
     }
 }
+
+fun createDataStore(): DataStore<Preferences> = createDataStore(
+    producePath = {
+        val file = File(System.getProperty("java.io.tmpdir"), dataStoreFileName)
+        file.absolutePath
+    }
+)
