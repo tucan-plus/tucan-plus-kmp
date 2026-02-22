@@ -68,7 +68,7 @@ kotlin {
             implementation(libs.serialization.json)
             implementation(libs.kotlinx.serialization.json.okio)
             implementation(libs.androidx.datastore.core)
-            implementation(libs.androidx.datastore.preferences.core)
+            implementation(libs.androidx.datastore.core.okio)
             implementation(libs.okio.fakefilesystem)
         }
         commonTest.dependencies {

@@ -6,7 +6,6 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
-import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.CoroutineScope
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
