@@ -76,7 +76,7 @@ object ModuleResultsConnector {
 
     data class ModuleResultsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var modules: List<Module>)
 
-    /*suspend fun getModuleResultsUncached(
+    suspend fun getModuleResultsUncached(
         credentialSettingsDataStore: DataStore<TokenResponse?>,
         semester: String?
     ): AuthenticatedResponse<ModuleResultsResponse> {
@@ -85,7 +85,7 @@ object ModuleResultsConnector {
             { sessionId -> "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=-N$sessionId,-N000324,${if (semester != null) { "-N$semester" } else { "" }}" },
             parser = { sessionId, menuLocalizer, response -> parseModuleResponse("000324", sessionId, menuLocalizer, response) }
         )
-    }*/
+    }
 
     suspend fun parseModuleResponse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<ModuleResultsResponse> {
         return response(response) {
