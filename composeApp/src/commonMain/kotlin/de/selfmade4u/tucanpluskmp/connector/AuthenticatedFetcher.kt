@@ -2,11 +2,13 @@ package de.selfmade4u.tucanpluskmp.connector
 
 import androidx.datastore.core.DataStore
 import de.selfmade4u.tucanpluskmp.Localizer
+import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TokenResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.flow.first
 import kotlinx.io.IOException
 import kotlin.time.Clock
 
@@ -80,19 +82,19 @@ suspend fun fetchAuthenticated(sessionCookie: String, url: String): Authenticate
     return AuthenticatedHttpResponse.Success(r)
 }
 
-suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataStore: DataStore<TokenResponse?>, url: (sessionId: String) -> String, parser: suspend (sessionId: String, menuLocalizer: Localizer, response: HttpResponse) -> ParserResponse<T>): AuthenticatedResponse<T> {
+suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataStore: DataStore<Settings?>, url: (sessionId: String) -> String, parser: suspend (sessionId: String, menuLocalizer: Localizer, response: HttpResponse) -> ParserResponse<T>): AuthenticatedResponse<T> {
     val client = HttpClient()
     var settings = credentialSettingsDataStore.data.first()
     //if (Clock.System.now() < settings.lastRequestTime + 30*60*1000) {
         val response = fetchAuthenticated(
-            settings.sessionCookie, url(settings.sessionId)
+            settings!!.sessionCookie, url(settings.sessionId)
         )
         when (response) {
             is AuthenticatedHttpResponse.Success<HttpResponse> -> {
                 when (val parserResponse = parser(settings.sessionId, settings.menuLocalizer, response.response)) {
                     is ParserResponse.Success<T> -> {
                         credentialSettingsDataStore.updateData { currentSettings ->
-                            OptionalCredentialSettings(settings.copy(lastRequestTime = System.currentTimeMillis()))
+                            settings?.copy(lastRequestTime = Clock.System.now())
                         }
                         return AuthenticatedResponse.Success<T>(parserResponse.response)
                     }

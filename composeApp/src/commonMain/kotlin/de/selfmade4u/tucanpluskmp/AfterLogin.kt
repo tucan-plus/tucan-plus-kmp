@@ -43,6 +43,11 @@ import kotlinx.serialization.json.okio.decodeFromBufferedSource
 import kotlinx.serialization.json.okio.encodeToBufferedSink
 import okio.BufferedSink
 import okio.BufferedSource
+import kotlin.time.Clock
+import kotlin.time.Instant
+
+@Serializable
+data class Settings(val tokenResponse: TokenResponse, val sessionId: String, val sessionCookie: String, val lastRequestTime: Instant, val menuLocalizer: Localizer) {}
 
 @Serializable
 data class TokenResponse(
@@ -74,7 +79,7 @@ object TokenResponseSerializer : OkioSerializer<TokenResponse?> {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
-fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<TokenResponse?> = FakeDataStore, uri: String = "https://localhost/?code=test") {
+fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<Settings?> = FakeDataStore, uri: String = "https://localhost/?code=test") {
     val code = Url(uri).parameters["code"]!!
     println(code)
     val client = HttpClient() {
@@ -119,7 +124,7 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         println(sessionId)
         println(cookie)
         dataStore.updateData {
-            tokenResponse
+            Settings(tokenResponse, sessionId, cookie, Clock.System.now(), GermanLocalizer)
         }
         backStack[backStack.size - 1] = StartNavKey
     }

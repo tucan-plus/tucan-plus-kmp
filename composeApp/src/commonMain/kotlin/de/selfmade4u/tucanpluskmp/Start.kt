@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun Start(backStack: NavBackStack<NavKey>, dataStore: DataStore<TokenResponse?>) {
+fun Start(backStack: NavBackStack<NavKey>, dataStore: DataStore<Settings?>) {
     val value by dataStore.data.collectAsStateWithLifecycle(null)
     LaunchedEffect(Unit) {
         if (dataStore.data.first() == null) {

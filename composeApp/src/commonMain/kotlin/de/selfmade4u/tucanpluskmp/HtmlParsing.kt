@@ -28,8 +28,8 @@ import kotlin.uuid.ExperimentalUuidApi
 // https://github.com/skrapeit/skrape.it - no multiplatform yet
 // https://github.com/MohamedRejeb/Ksoup https://github.com/MohamedRejeb/Ksoup/issues/26 seems like it only has a event based api
 
-fun String.hashedWithSha256() =
-    encodeUtf8().sha256()
+fun String.hashedWithSha256(): String =
+    encodeUtf8().sha256().hex()
 
 @DslMarker
 annotation class HtmlTagMarker
