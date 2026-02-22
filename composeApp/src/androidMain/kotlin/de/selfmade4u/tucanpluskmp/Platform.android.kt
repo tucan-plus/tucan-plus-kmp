@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioStorage
 import kotlinx.coroutines.CoroutineScope
 import okio.FileSystem
@@ -34,4 +35,7 @@ fun createDataStore(context: Context): DataStore<Settings?> = DataStoreFactory.c
             }
         ),
     migrations = listOf(),
+    corruptionHandler = ReplaceFileCorruptionHandler { ex ->
+        null
+    }
 )

@@ -84,17 +84,17 @@ suspend fun fetchAuthenticated(sessionCookie: String, url: String): Authenticate
 
 suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataStore: DataStore<Settings?>, url: (sessionId: String) -> String, parser: suspend (sessionId: String, menuLocalizer: Localizer, response: HttpResponse) -> ParserResponse<T>): AuthenticatedResponse<T> {
     val client = HttpClient()
-    val settings = credentialSettingsDataStore.data.first()
+    val settings = credentialSettingsDataStore.data.first()!!
     //if (Clock.System.now() < settings.lastRequestTime + 30*60*1000) {
         val response = fetchAuthenticated(
-            settings!!.sessionCookie, url(settings.sessionId)
+            settings.sessionCookie, url(settings.sessionId)
         )
         when (response) {
             is AuthenticatedHttpResponse.Success<HttpResponse> -> {
                 when (val parserResponse = parser(settings.sessionId, settings.menuLocalizer, response.response)) {
                     is ParserResponse.Success<T> -> {
                         credentialSettingsDataStore.updateData { currentSettings ->
-                            settings?.copy(lastRequestTime = Clock.System.now())
+                            settings.copy(lastRequestTime = Clock.System.now())
                         }
                         return AuthenticatedResponse.Success<T>(parserResponse.response)
                     }
