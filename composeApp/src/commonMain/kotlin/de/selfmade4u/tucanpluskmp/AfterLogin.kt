@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import io.ktor.client.HttpClient
@@ -99,6 +100,10 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         val sessionId = sessionIdMatch.groupValues[1]
         println(sessionId)
         println(cookie)
+        dataStore.updateData {
+            it.toMutablePreferences()[stringPreferencesKey("session_id")] = sessionId
+            it
+        }
     }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
