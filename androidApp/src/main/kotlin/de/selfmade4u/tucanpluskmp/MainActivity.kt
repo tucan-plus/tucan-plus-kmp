@@ -7,13 +7,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val dataStore = createDataStore(this)
+        val dataStore = createDataStore(this, lifecycleScope)
 
         setContent {
             App(intent.data.toString(), dataStore)
@@ -25,5 +30,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppAndroidPreview() {
     val context = LocalContext.current
-    App(null, createDataStore(context))
+    val lifecycleOwner = LocalLifecycleOwner.current
+    App(null, createDataStore(context, lifecycleOwner.lifecycleScope))
 }

@@ -6,6 +6,8 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,7 +32,7 @@ class JVMPlatform : Platform {
 
 actual fun getPlatform(): Platform = JVMPlatform()
 
-actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
+actual suspend fun getLoginUrl(uriHandler: UriHandler, backStack: NavBackStack<NavKey>) {
     return withContext(Dispatchers.IO) {
         println("desktop getloginurl")
         val userHome = System.getProperty("user.home")
@@ -59,7 +61,7 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
         println("bytes $bytes")
         val newContent: String = Charsets.UTF_8.decode(buffer.slice(0, bytes)).toString()
         println(newContent)
-        return@withContext newContent
+        backStack.add(AfterLoginNavKey(newContent))
     }
 }
 

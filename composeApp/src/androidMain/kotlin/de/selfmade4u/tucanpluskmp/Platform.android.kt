@@ -25,7 +25,7 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     return "Test"
 }
 
-fun createDataStore(context: Context): DataStore<Settings?> = DataStoreFactory.create(
+fun createDataStore(context: Context, scope: CoroutineScope): DataStore<Settings?> = DataStoreFactory.create(
     storage =
         OkioStorage(
             FileSystem.SYSTEM, SettingsSerializer,
@@ -37,5 +37,6 @@ fun createDataStore(context: Context): DataStore<Settings?> = DataStoreFactory.c
     migrations = listOf(),
     corruptionHandler = ReplaceFileCorruptionHandler { ex ->
         null
-    }
+    },
+    scope = scope
 )

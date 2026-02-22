@@ -34,8 +34,7 @@ fun BeforeLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) b
     val snackbarHostState = remember { SnackbarHostState() }
     val uriHandler = LocalUriHandler.current
     LaunchedEffect(Unit) {
-        val result = getLoginUrl(uriHandler)
-        backStack.add(AfterLoginNavKey(result))
+        getLoginUrl(uriHandler)
     }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
         SnackbarHost(hostState = snackbarHostState)
