@@ -84,7 +84,7 @@ suspend fun fetchAuthenticated(sessionCookie: String, url: String): Authenticate
 
 suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataStore: DataStore<Settings?>, url: (sessionId: String) -> String, parser: suspend (sessionId: String, menuLocalizer: Localizer, response: HttpResponse) -> ParserResponse<T>): AuthenticatedResponse<T> {
     val client = HttpClient()
-    var settings = credentialSettingsDataStore.data.first()
+    val settings = credentialSettingsDataStore.data.first()
     //if (Clock.System.now() < settings.lastRequestTime + 30*60*1000) {
         val response = fetchAuthenticated(
             settings!!.sessionCookie, url(settings.sessionId)
@@ -107,7 +107,7 @@ suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataSto
         }
     //} else {
     //}
-    val loginResponse: TucanLogin.LoginResponse
+    /*val loginResponse: TucanLogin.LoginResponse
     try {
         loginResponse = TucanLogin.doLogin(
             client,
@@ -161,5 +161,6 @@ suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataSto
             // bad
             return AuthenticatedResponse.TooManyAttempts()
         }
-    }
+    }*/
+    return AuthenticatedResponse.TooManyAttempts()
 }

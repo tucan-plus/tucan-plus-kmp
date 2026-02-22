@@ -3,6 +3,7 @@ package de.selfmade4u.tucanpluskmp.connector
 import androidx.datastore.core.DataStore
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
+import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TokenResponse
 import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
@@ -77,7 +78,7 @@ object ModuleResultsConnector {
     data class ModuleResultsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var modules: List<Module>)
 
     suspend fun getModuleResultsUncached(
-        credentialSettingsDataStore: DataStore<TokenResponse?>,
+        credentialSettingsDataStore: DataStore<Settings?>,
         semester: String?
     ): AuthenticatedResponse<ModuleResultsResponse> {
         return fetchAuthenticatedWithReauthentication(

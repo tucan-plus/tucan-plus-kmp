@@ -58,12 +58,12 @@ data class TokenResponse(
                         @SerialName("refresh_token") val refreshToken: String,
                         val scope: String)
 
-object TokenResponseSerializer : OkioSerializer<TokenResponse?> {
+object SettingsSerializer : OkioSerializer<Settings?> {
 
-    override val defaultValue: TokenResponse? = null
+    override val defaultValue: Settings? = null
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun readFrom(source: BufferedSource): TokenResponse? =
+    override suspend fun readFrom(source: BufferedSource): Settings? =
         try {
             Json.decodeFromBufferedSource(source)
         } catch (serialization: SerializationException) {
@@ -71,7 +71,7 @@ object TokenResponseSerializer : OkioSerializer<TokenResponse?> {
         }
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun writeTo(t: TokenResponse?, sink: BufferedSink) {
+    override suspend fun writeTo(t: Settings?, sink: BufferedSink) {
         Json.encodeToBufferedSink(t, sink)
     }
 }

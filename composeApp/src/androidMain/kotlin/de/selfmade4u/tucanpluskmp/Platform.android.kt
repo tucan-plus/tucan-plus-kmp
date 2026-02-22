@@ -24,10 +24,10 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     return "Test"
 }
 
-fun createDataStore(context: Context): DataStore<TokenResponse?> = DataStoreFactory.create(
+fun createDataStore(context: Context): DataStore<Settings?> = DataStoreFactory.create(
     storage =
         OkioStorage(
-            FileSystem.SYSTEM, TokenResponseSerializer,
+            FileSystem.SYSTEM, SettingsSerializer,
             producePath = {
                 val file = context.filesDir.resolve("tucanplus-config.json")
                 file.toOkioPath()
