@@ -33,6 +33,10 @@ in your IDE’s toolbar or run it directly from the terminal:
 
 - on macOS/Linux
   ```shell
+  # PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+  # password: changeme
+  keytool -importcert -file www.tucan.tu-darmstadt.pem -keystore ~/.gradle/jdks/jetbrains_s_r_o_-25-amd64-linux.2/lib/security/cacerts
+  
   ./gradlew :composeApp:run
   ```
 - on Windows

@@ -12,7 +12,10 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+        vendor = JvmVendorSpec.JETBRAINS
+    }
 
     android {
         namespace = "de.selfmade4u.tucanpluskmp.library"
