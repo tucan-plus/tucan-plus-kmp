@@ -55,7 +55,7 @@ data class TokenResponse(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
-fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<Preferences> = FakeDataStore, uri: String = "") {
+fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<Preferences> = FakeDataStore, uri: String = "https://localhost/?code=test") {
     val code = Url(uri).parameters["code"]!!
     println(code)
     val client = HttpClient() {
