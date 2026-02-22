@@ -2,7 +2,6 @@ package de.selfmade4u.tucanpluskmp
 
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

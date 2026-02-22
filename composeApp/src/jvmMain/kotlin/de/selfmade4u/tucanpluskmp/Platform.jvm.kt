@@ -6,7 +6,6 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
-import androidx.datastore.preferences.core.Preferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -64,7 +63,7 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     }
 }
 
-fun createDataStore(): DataStore<TokenResponse> = DataStoreFactory.create(
+fun createDataStore(): DataStore<TokenResponse?> = DataStoreFactory.create(
     storage =
         OkioStorage(
             FileSystem.SYSTEM, TokenResponseSerializer,

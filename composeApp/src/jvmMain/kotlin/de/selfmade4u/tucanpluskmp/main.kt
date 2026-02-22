@@ -9,6 +9,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "tucanpluskmp",
     ) {
-        App(dataStore = createDataStore())
+        App(null, dataStore = createDataStore())
     }
 }

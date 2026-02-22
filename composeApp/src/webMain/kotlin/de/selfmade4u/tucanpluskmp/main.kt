@@ -17,7 +17,7 @@ fun main() {
     }
 }
 
-fun createDataStore(): DataStore<TokenResponse> = DataStoreFactory.create(
+fun createDataStore(): DataStore<TokenResponse?> = DataStoreFactory.create(
     storage =
         WebStorage(
             serializer = TokenResponseSerializer,
