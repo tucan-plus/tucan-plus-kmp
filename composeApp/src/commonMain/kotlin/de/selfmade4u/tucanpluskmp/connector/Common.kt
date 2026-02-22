@@ -1,8 +1,12 @@
 package de.selfmade4u.tucanpluskmp.connector
 
 import de.selfmade4u.tucanpluskmp.Body
+import de.selfmade4u.tucanpluskmp.EnglishLocalizer
+import de.selfmade4u.tucanpluskmp.GermanLocalizer
 import de.selfmade4u.tucanpluskmp.Head
+import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
+import de.selfmade4u.tucanpluskmp.TextAndId
 import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.body
@@ -24,6 +28,11 @@ import de.selfmade4u.tucanpluskmp.script
 import de.selfmade4u.tucanpluskmp.span
 import de.selfmade4u.tucanpluskmp.title
 import de.selfmade4u.tucanpluskmp.ul
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.Month
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 object Common {
     fun <T> Root.parseBase(
@@ -939,7 +948,8 @@ object Common {
     }
 
     fun currentSemester(): Int {
-        val dateTime = LocalDateTime.now()
+        val test = Clock.System.now()
+        val dateTime = test.toLocalDateTime(TimeZone.UTC)
         val year = dateTime.year
         val month = dateTime.month
         val offset = if (Month.APRIL <= month && month <= Month.OCTOBER) {
