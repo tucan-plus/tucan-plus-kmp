@@ -1,8 +1,13 @@
+import java.net.URI
+
 rootProject.name = "tucanpluskmp"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
+        maven {
+            url = uri("https://androidx.dev/snapshots/builds/14919321/artifacts/repository")
+        }
         google {
             mavenContent {
                 includeGroupAndSubgroups("androidx")
@@ -17,6 +22,9 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
+        maven {
+            url = uri("https://androidx.dev/snapshots/builds/14919321/artifacts/repository")
+        }
         google {
             mavenContent {
                 includeGroupAndSubgroups("androidx")

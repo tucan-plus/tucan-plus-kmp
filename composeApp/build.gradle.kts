@@ -31,15 +31,15 @@ kotlin {
         }
     }
 
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
+    /*listOf(
+        //iosArm64(),
+        //iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
         }
-    }
+    }*/
 
     jvm()
 
@@ -76,8 +76,7 @@ kotlin {
             implementation(libs.okio.fakefilesystem)
             implementation(libs.okio)
             implementation(libs.ksoup)
-            //implementation(libs.androidx.room.runtime)
-            implementation(libs.androidx.sqlite.bundled)
+            implementation(libs.androidx.room.runtime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -91,14 +90,10 @@ kotlin {
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
-    //add("kspAndroid", libs.androidx.room.compiler)
+    add("kspAndroid", libs.androidx.room.compiler)
     //add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     //add("kspIosArm64", libs.androidx.room.compiler)
 }
-
-/*room {
-    schemaDirectory("$projectDir/schemas")
-}*/
 
 compose.desktop {
     application {
