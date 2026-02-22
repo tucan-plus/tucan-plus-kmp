@@ -23,6 +23,9 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigationevent.NavigationEventDispatcher
+import androidx.navigationevent.NavigationEventDispatcherOwner
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.io.files.Path
 import org.jetbrains.compose.resources.painterResource
@@ -56,7 +59,7 @@ private val config = SavedStateConfiguration {
 }
 
 @Composable
-fun App(uri: String? = null, dataStore: DataStore<Preferences>) {
+fun App(uri: String? = null, dataStore: DataStore<Preferences>? = null) {
     println("uri $uri")
     val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
         AfterLoginNavKey(uri)
