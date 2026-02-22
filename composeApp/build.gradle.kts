@@ -73,6 +73,8 @@ kotlin {
             implementation(libs.androidx.datastore.core)
             implementation(libs.androidx.datastore.core.okio)
             implementation(libs.okio.fakefilesystem)
+            implementation(libs.okio)
+            implementation(libs.ksoup)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
