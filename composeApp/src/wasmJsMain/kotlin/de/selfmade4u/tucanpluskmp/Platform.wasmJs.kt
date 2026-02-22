@@ -16,6 +16,5 @@ fun registerProtocolHandler(): Unit = js(
 )
 
 actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
-    registerProtocolHandler()
-    return "Test"
+    return "https://localhost/?code=test"
 }

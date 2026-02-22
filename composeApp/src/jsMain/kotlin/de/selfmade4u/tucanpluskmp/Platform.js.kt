@@ -9,5 +9,5 @@ class JsPlatform : Platform {
 actual fun getPlatform(): Platform = JsPlatform()
 
 actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
-    return "Test"
+    return "https://localhost/?code=test"
 }
