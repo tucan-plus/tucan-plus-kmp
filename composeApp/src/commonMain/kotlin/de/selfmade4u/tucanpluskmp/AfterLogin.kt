@@ -55,20 +55,20 @@ data class TokenResponse(
                         @SerialName("refresh_token") val refreshToken: String,
                         val scope: String)
 
-object TokenResponseSerializer : OkioSerializer<TokenResponse> {
+object TokenResponseSerializer : OkioSerializer<TokenResponse?> {
 
-    override val defaultValue: TokenResponse = TODO()
+    override val defaultValue: TokenResponse? = null
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun readFrom(source: BufferedSource): TokenResponse =
+    override suspend fun readFrom(source: BufferedSource): TokenResponse? =
         try {
-            Json.decodeFromBufferedSource<TokenResponse>(source)
+            Json.decodeFromBufferedSource(source)
         } catch (serialization: SerializationException) {
             throw CorruptionException("Unable to read Settings", serialization)
         }
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun writeTo(t: TokenResponse, sink: BufferedSink) {
+    override suspend fun writeTo(t: TokenResponse?, sink: BufferedSink) {
         Json.encodeToBufferedSink(t, sink)
     }
 }
@@ -76,7 +76,7 @@ object TokenResponseSerializer : OkioSerializer<TokenResponse> {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
-fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<TokenResponse> = FakeDataStore, uri: String = "https://localhost/?code=test") {
+fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<TokenResponse?> = FakeDataStore, uri: String = "https://localhost/?code=test") {
     val code = Url(uri).parameters["code"]!!
     println(code)
     val client = HttpClient() {
@@ -121,8 +121,9 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         println(sessionId)
         println(cookie)
         dataStore.updateData {
-            it.copy(idToken = "test")
+            tokenResponse
         }
+        backStack[backStack.size - 1] = StartNavKey
     }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {

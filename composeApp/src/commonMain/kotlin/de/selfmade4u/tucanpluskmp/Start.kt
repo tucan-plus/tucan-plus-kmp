@@ -26,7 +26,6 @@ fun Start(backStack: NavBackStack<NavKey>) {
             modifier = Modifier.padding(innerPadding),
             onClick = {
                 coroutineScope.launch {
-
                     backStack[backStack.size - 1] = LoginNavKey
                 }
             }) { Text("Logout") }
