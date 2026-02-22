@@ -59,7 +59,7 @@ private val config = SavedStateConfiguration {
 }
 
 @Composable
-fun App(uri: String? = null, dataStore: DataStore<Preferences>? = null) {
+fun App(uri: String? = null, dataStore: DataStore<Preferences> = FakeDataStore) {
     println("uri $uri")
     val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
         AfterLoginNavKey(uri)
@@ -75,7 +75,7 @@ fun App(uri: String? = null, dataStore: DataStore<Preferences>? = null) {
             BeforeLogin(backStack)
         }
         entry<AfterLoginNavKey> { key ->
-            AfterLogin(backStack, key.uri)
+            AfterLogin(backStack, dataStore, key.uri)
         }
     }
     NavDisplay(

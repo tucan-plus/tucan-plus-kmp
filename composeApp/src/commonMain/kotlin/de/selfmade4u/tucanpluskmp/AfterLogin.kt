@@ -19,6 +19,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import io.ktor.client.HttpClient
@@ -34,6 +36,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.Url
 import io.ktor.http.parameters
+import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -52,7 +55,7 @@ data class TokenResponse(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
-fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, uri: String = "") {
+fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<Preferences> = FakeDataStore, uri: String = "") {
     val code = Url(uri).parameters["code"]!!
     println(code)
     val client = HttpClient() {
