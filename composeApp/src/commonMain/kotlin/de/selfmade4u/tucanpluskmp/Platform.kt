@@ -2,6 +2,7 @@ package de.selfmade4u.tucanpluskmp
 
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
+import androidx.room3.RoomDatabase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -12,6 +13,8 @@ interface Platform {
 expect fun getPlatform(): Platform
 
 expect suspend fun getLoginUrl(uriHandler: UriHandler): String
+
+expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
 
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>

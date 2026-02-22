@@ -1,6 +1,8 @@
 package de.selfmade4u.tucanpluskmp
 
 import androidx.compose.ui.platform.UriHandler
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
 
 class WasmPlatform : Platform {
     override val name: String = "Web with Kotlin/Wasm"
@@ -17,4 +19,10 @@ fun registerProtocolHandler(): Unit = js(
 
 actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     return "https://localhost/?code=test"
+}
+
+actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
+    return Room.databaseBuilder<AppDatabase>(
+        name = "test",
+    )
 }
