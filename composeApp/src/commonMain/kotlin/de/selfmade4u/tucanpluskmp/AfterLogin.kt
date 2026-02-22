@@ -85,6 +85,7 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
             append("ids_mode", "M")
         })
         println(response)
+        println(response.headers["REFRESH"])
         val body = response.bodyAsText()
         println(body)
     }
