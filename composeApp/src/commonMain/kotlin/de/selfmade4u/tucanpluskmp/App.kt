@@ -15,24 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.core.okio.OkioStorage
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigationevent.NavigationEventDispatcher
-import androidx.navigationevent.NavigationEventDispatcherOwner
-import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.savedstate.serialization.SavedStateConfiguration
-import kotlinx.io.files.Path
 import org.jetbrains.compose.resources.painterResource
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import okio.ByteString
-import okio.Path.Companion.toPath
-import okio.fakefilesystem.FakeFileSystem
 
 import tucanpluskmp.composeapp.generated.resources.Res
 import tucanpluskmp.composeapp.generated.resources.compose_multiplatform
@@ -62,12 +53,12 @@ fun App(uri: String?, dataStore: DataStore<TokenResponse?> = FakeDataStore) {
     val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
         AfterLoginNavKey(uri)
     } else {
-        LoginNavKey
+        StartNavKey
     }
     val backStack = rememberNavBackStack(config, initialNav)
     val entryProvider = entryProvider {
         entry<StartNavKey> {
-            Start(backStack)
+            Start(backStack, dataStore)
         }
         entry<LoginNavKey> {
             BeforeLogin(backStack)
