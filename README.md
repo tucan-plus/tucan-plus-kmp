@@ -33,6 +33,10 @@ in your IDE’s toolbar or run it directly from the terminal:
 
 - on macOS/Linux
   ```shell
+  # PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+  # password: changeme
+  keytool -importcert -file www.tucan.tu-darmstadt.pem -keystore ~/.gradle/jdks/jetbrains_s_r_o_-25-amd64-linux.2/lib/security/cacerts
+  
   ./gradlew :composeApp:run
   ```
 - on Windows
@@ -78,3 +82,10 @@ Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-mu
 We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack
 channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
 If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
+
+### Try Room3
+
+```bash
+./gradlew core:core:publish
+
+```

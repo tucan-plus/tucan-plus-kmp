@@ -5,15 +5,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import de.selfmade4u.tucanpluskmp.getDatabaseBuilder
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        val dataStore = createDataStore(this, lifecycleScope)
+        val database = getRoomDatabase(getDatabaseBuilder(this))
+
         setContent {
-            App()
+            App(intent.data.toString(), dataStore, database)
         }
     }
 }
@@ -21,5 +31,7 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App()
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    App(null, createDataStore(context, lifecycleOwner.lifecycleScope), null!!)
 }

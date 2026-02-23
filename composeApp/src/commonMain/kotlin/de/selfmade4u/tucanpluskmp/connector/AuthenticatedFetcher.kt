@@ -1,0 +1,116 @@
+package de.selfmade4u.tucanpluskmp.connector
+
+import androidx.datastore.core.DataStore
+import de.selfmade4u.tucanpluskmp.Localizer
+import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TokenResponse
+import de.selfmade4u.tucanpluskmp.loginTucan
+import io.ktor.client.HttpClient
+import io.ktor.client.request.cookie
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.flow.first
+import kotlinx.io.IOException
+import kotlin.time.Clock
+
+sealed class AuthenticatedHttpResponse<T> {
+    data class Success<T>(var response: T) :
+        AuthenticatedHttpResponse<T>()
+    class NetworkLikelyTooSlow<T>() : AuthenticatedHttpResponse<T>()
+
+    fun <O> map(): AuthenticatedResponse<O> {
+        return when (this) {
+            is Success<*> -> throw UnsupportedOperationException()
+            is NetworkLikelyTooSlow<*> -> AuthenticatedResponse.NetworkLikelyTooSlow()
+        }
+    }
+}
+
+sealed class ParserResponse<T> {
+    data class Success<T>(var response: T) :
+        ParserResponse<T>()
+    class SessionTimeout<T>() : ParserResponse<T>()
+
+    /** Map errors to other type */
+    fun <O> map(): AuthenticatedResponse<O> {
+        return when (this) {
+            is Success<*> -> throw UnsupportedOperationException()
+            is SessionTimeout<*> -> AuthenticatedResponse.SessionTimeout()
+        }
+    }
+}
+
+sealed class AuthenticatedResponse<T> {
+    data class Success<T>(var response: T) :
+        AuthenticatedResponse<T>()
+
+    class SessionTimeout<T>() : AuthenticatedResponse<T>()
+
+    class InvalidCredentials<T>() : AuthenticatedResponse<T>()
+
+    class TooManyAttempts<T>() : AuthenticatedResponse<T>()
+    class NetworkLikelyTooSlow<T>() : AuthenticatedResponse<T>()
+
+    fun <O> map(): AuthenticatedResponse<O> {
+        return when (this) {
+            is Success<*> -> throw UnsupportedOperationException()
+            is SessionTimeout<*> -> SessionTimeout()
+            is InvalidCredentials<*> -> InvalidCredentials()
+            is TooManyAttempts<*> -> TooManyAttempts()
+            is NetworkLikelyTooSlow<*> -> NetworkLikelyTooSlow()
+        }
+    }
+}
+
+suspend fun fetchAuthenticated(sessionCookie: String, url: String): AuthenticatedHttpResponse<HttpResponse> {
+    val client = HttpClient()
+    val r = try {
+        client.get(url) {
+            cookie("cnsc", sessionCookie)
+        }
+    } catch (e: IllegalStateException) {
+        if (e.message?.contains("Content-Length mismatch") ?: true) {
+            return AuthenticatedHttpResponse.NetworkLikelyTooSlow()
+        }
+        return AuthenticatedHttpResponse.NetworkLikelyTooSlow()
+    } catch (e: IOException) {
+        println("Request failed $e")
+        return AuthenticatedHttpResponse.NetworkLikelyTooSlow()
+    } catch (e: Throwable) {
+        println("Request failed $e")
+        return AuthenticatedHttpResponse.NetworkLikelyTooSlow()
+    }
+    return AuthenticatedHttpResponse.Success(r)
+}
+
+suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataStore: DataStore<Settings?>, url: (sessionId: String) -> String, parser: suspend (sessionId: String, menuLocalizer: Localizer, response: HttpResponse) -> ParserResponse<T>): AuthenticatedResponse<T> {
+    val client = HttpClient()
+    // TODO if greater than 30 minutes, directly reauthentiate
+    for (i in 0..2){
+        val settings = credentialSettingsDataStore.data.first()!!
+        println(settings.sessionId)
+        val response = fetchAuthenticated(
+            settings.sessionCookie, url(settings.sessionId)
+        )
+        // access_denied
+        when (response) {
+            is AuthenticatedHttpResponse.Success<HttpResponse> -> {
+                when (val parserResponse =
+                    parser(settings.sessionId, settings.menuLocalizer, response.response)) {
+                    is ParserResponse.Success<T> -> {
+                        credentialSettingsDataStore.updateData { currentSettings ->
+                            settings.copy(lastRequestTime = Clock.System.now())
+                        }
+                        return AuthenticatedResponse.Success<T>(parserResponse.response)
+                    }
+                    is ParserResponse.SessionTimeout<*> -> {
+                        // fall through
+                    }
+                }
+            }
+            is AuthenticatedHttpResponse.NetworkLikelyTooSlow<*> -> return AuthenticatedResponse.NetworkLikelyTooSlow<T>()
+        }
+        loginTucan(client, settings.tokenResponse, credentialSettingsDataStore)
+    }
+    return AuthenticatedResponse.InvalidCredentials()
+}

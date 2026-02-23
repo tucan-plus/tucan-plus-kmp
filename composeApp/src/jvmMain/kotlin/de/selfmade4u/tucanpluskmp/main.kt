@@ -1,5 +1,6 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 
@@ -8,6 +9,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "tucanpluskmp",
     ) {
-        App()
+        App(null, dataStore = createDataStore())
     }
 }

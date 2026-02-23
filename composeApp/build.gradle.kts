@@ -8,10 +8,16 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+        vendor = JvmVendorSpec.JETBRAINS
+    }
 
     android {
         namespace = "de.selfmade4u.tucanpluskmp.library"
@@ -26,15 +32,15 @@ kotlin {
         }
     }
 
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
+    /*listOf(
+        //iosArm64(),
+        //iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
         }
-    }
+    }*/
 
     jvm()
 
@@ -59,6 +65,19 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.jetbrains.navigation3.ui)
+            implementation(libs.jetbrains.material3.adaptiveNavigation3)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.serialization.json)
+            implementation(libs.kotlinx.serialization.json.okio)
+            implementation(libs.androidx.datastore.core)
+            implementation(libs.androidx.datastore.core.okio)
+            implementation(libs.okio.fakefilesystem)
+            implementation(libs.okio)
+            implementation(libs.ksoup)
+            implementation(libs.androidx.room.runtime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -67,11 +86,26 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
+        androidMain.dependencies {
+            implementation(libs.androidx.sqlite.bundled)
+        }
+        webMain.dependencies {
+            implementation(libs.androidx.sqlite.web)
+            implementation(npm(project.file("sqlite-web-worker")))
+        }
     }
+}
+
+room3 {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspWasmJs", libs.androidx.room.compiler)
+    //add("kspIosSimulatorArm64", libs.androidx.room.compiler)
+    //add("kspIosArm64", libs.androidx.room.compiler)
 }
 
 compose.desktop {

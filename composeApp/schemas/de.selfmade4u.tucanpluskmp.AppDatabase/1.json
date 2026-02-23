@@ -1,0 +1,132 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "b40956c2c86281d466ea26f7bf129d8a",
+    "entities": [
+      {
+        "tableName": "TodoEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ModuleResultsEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ModuleResultEntity",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleResultsId` INTEGER NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `grade` TEXT, `credits` INTEGER NOT NULL, `resultdetailsUrl` TEXT, `gradeoverviewUrl` TEXT, `semester_id` INTEGER NOT NULL, `semester_year` INTEGER NOT NULL, `semester_semester` TEXT NOT NULL, PRIMARY KEY(`moduleResultsId`, `id`, `semester_id`))",
+        "fields": [
+          {
+            "fieldPath": "moduleResultsId",
+            "columnName": "moduleResultsId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "grade",
+            "columnName": "grade",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "credits",
+            "columnName": "credits",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resultdetailsUrl",
+            "columnName": "resultdetailsUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "gradeoverviewUrl",
+            "columnName": "gradeoverviewUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "semester.id",
+            "columnName": "semester_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "semester.year",
+            "columnName": "semester_year",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "semester.semester",
+            "columnName": "semester_semester",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "moduleResultsId",
+            "id",
+            "semester_id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b40956c2c86281d466ea26f7bf129d8a')"
+    ]
+  }
+}

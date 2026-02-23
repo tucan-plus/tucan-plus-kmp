@@ -1,5 +1,5 @@
 [versions]
-agp = "9.1.0-rc01"
+agp = "9.0.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
@@ -7,16 +7,28 @@ androidx-activity = "1.12.4"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.9.6"
+androidx-lifecycle = "2.10.0-alpha08"
 androidx-testExt = "1.3.0"
-composeHotReload = "1.0.0"
-composeMultiplatform = "1.10.1"
+composeHotReload = "1.1.0-alpha05"
+composeMultiplatform = "1.11.0-alpha02"
+datastore = "1.3.0-alpha05"
 junit = "4.13.2"
 kotlin = "2.3.20-RC"
 kotlinx-coroutines = "1.10.2"
-material3 = "1.10.0-alpha05"
+kotlinxSerializationJson = "1.10.0"
+material3 = "1.11.0-alpha02"
+multiplatform-nav3-ui = "1.1.0-alpha02"
+compose-multiplatform-adaptive = "1.3.0-alpha04"
+ktor = "3.4.0"
+okio = "3.16.4"
+ksoup = "0.2.6"
+room = "3.0.0-SNAPSHOT"
+ksp = "2.3.6"
+sqlite = "2.7.0-SNAPSHOT"
 
 [libraries]
+androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
+androidx-datastore-core-okio = { module = "androidx.datastore:datastore-core-okio", version.ref = "datastore" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -35,6 +47,20 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+jetbrains-navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "multiplatform-nav3-ui" }
+jetbrains-material3-adaptiveNavigation3 = { module = "org.jetbrains.compose.material3.adaptive:adaptive-navigation3", version.ref = "compose-multiplatform-adaptive" }
+kotlinx-serialization-json-okio = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json-okio", version.ref = "kotlinxSerializationJson" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+okio-fakefilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
+androidx-room-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+androidx-sqlite-web = { module = "androidx.sqlite:sqlite-web", version.ref = "sqlite" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -44,3 +70,6 @@ composeHotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "com
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+androidx-room = { id = "androidx.room3", version.ref = "room" }
