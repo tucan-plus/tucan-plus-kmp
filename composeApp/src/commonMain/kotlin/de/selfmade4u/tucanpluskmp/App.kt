@@ -59,7 +59,7 @@ fun App(uri: String?, dataStore: DataStore<Settings?> = FakeDataStore, database:
     val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
         AfterLoginNavKey(uri)
     } else {
-        ModuleResultsKey // StartNavKey
+        StartNavKey
     }
     val backStack = rememberNavBackStack(config, initialNav)
     val entryProvider = entryProvider {
