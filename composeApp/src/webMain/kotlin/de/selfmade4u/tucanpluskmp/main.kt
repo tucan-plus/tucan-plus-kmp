@@ -8,16 +8,20 @@ import androidx.datastore.core.okio.OkioStorage
 import androidx.datastore.core.okio.WebStorage
 import androidx.datastore.core.okio.WebStorageType
 import androidx.room3.RoomDatabase
-import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okio.FileSystem
+import org.w3c.dom.Worker
+import kotlin.js.js
+
+public expect fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver
 
 fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
-        .setDriver(SQLiteDriver())
+        .setDriver(createDefaultWebWorkerDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()
 }
