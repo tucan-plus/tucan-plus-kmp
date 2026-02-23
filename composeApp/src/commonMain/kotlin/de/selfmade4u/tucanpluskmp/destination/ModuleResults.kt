@@ -34,9 +34,13 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.datastore.core.DataStore
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import de.selfmade4u.tucanpluskmp.AppDatabase
 import de.selfmade4u.tucanpluskmp.DetailedDrawerExample
+import de.selfmade4u.tucanpluskmp.FakeDataStore
+import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.Semester
@@ -48,14 +52,13 @@ import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-@Preview
-fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), isLoading: MutableState<Boolean> = mutableStateOf(false)) {
+fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
     var isRefreshing by remember { mutableStateOf(false) }
     var updateCounter by remember { mutableStateOf(false) }
     val modules by produceState<AuthenticatedResponse<ModuleResults>?>(initialValue = null, updateCounter) {
-        getCached(MyDatabaseProvider.getDatabase(context))?.let { value = AuthenticatedResponse.Success(it) }
+        getCached(database)?.let { value = AuthenticatedResponse.Success(it) }
         isLoading.value = false
-        value = refreshModuleResults(context.credentialSettingsDataStore, MyDatabaseProvider.getDatabase(context))
+        value = refreshModuleResults(dataStore, database)
         isRefreshing = false
     }
     val state = rememberPullToRefreshState()
