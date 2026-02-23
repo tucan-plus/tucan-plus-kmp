@@ -41,7 +41,10 @@ import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.Semester
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
+import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
 import de.selfmade4u.tucanpluskmp.database.ModuleResults
+import de.selfmade4u.tucanpluskmp.database.getCached
+import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -50,9 +53,9 @@ fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), is
     var isRefreshing by remember { mutableStateOf(false) }
     var updateCounter by remember { mutableStateOf(false) }
     val modules by produceState<AuthenticatedResponse<ModuleResults>?>(initialValue = null, updateCounter) {
-        ModuleResults.getCached(MyDatabaseProvider.getDatabase(context))?.let { value = AuthenticatedResponse.Success(it) }
+        getCached(MyDatabaseProvider.getDatabase(context))?.let { value = AuthenticatedResponse.Success(it) }
         isLoading.value = false
-        value = ModuleResults.refreshModuleResults(context.credentialSettingsDataStore, MyDatabaseProvider.getDatabase(context))
+        value = refreshModuleResults(context.credentialSettingsDataStore, MyDatabaseProvider.getDatabase(context))
         isRefreshing = false
     }
     val state = rememberPullToRefreshState()
@@ -89,10 +92,10 @@ private fun BoxScope.LoadingIndicator(
     )
 }
 
-/*
+
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun RenderModuleResults(modules: AuthenticatedResponse<ModuleResults.ModuleResultWithModules>?) {
+private fun RenderModuleResults(modules: AuthenticatedResponse<ModuleResults>?) {
     Column(Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())) {
@@ -112,7 +115,7 @@ private fun RenderModuleResults(modules: AuthenticatedResponse<ModuleResults.Mod
             }
 
             is AuthenticatedResponse.Success -> {
-                value.response.modules.forEach { module ->
+                value.response.moduleResults.forEach { module ->
                     key(module.id) {
                         ModuleComposable(module)
                     }
@@ -126,10 +129,10 @@ private fun RenderModuleResults(modules: AuthenticatedResponse<ModuleResults.Mod
     }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, widthDp = 200)
+@Preview(widthDp = 200)
 @Composable
 fun ModuleComposable(
-    module: ModuleResults.ModuleResultModule = ModuleResults.ModuleResultModule(
+    module: ModuleResultEntity = ModuleResultEntity(
         42,
         Semesterauswahl(1, 2025, Semester.Wintersemester),
         "id",
@@ -152,4 +155,3 @@ fun ModuleComposable(
         }
     }
 }
- */
