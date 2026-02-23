@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TokenResponse
+import de.selfmade4u.tucanpluskmp.loginTucan
 import io.ktor.client.HttpClient
 import io.ktor.client.request.cookie
 import io.ktor.client.request.get
@@ -84,14 +85,16 @@ suspend fun fetchAuthenticated(sessionCookie: String, url: String): Authenticate
 
 suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataStore: DataStore<Settings?>, url: (sessionId: String) -> String, parser: suspend (sessionId: String, menuLocalizer: Localizer, response: HttpResponse) -> ParserResponse<T>): AuthenticatedResponse<T> {
     val client = HttpClient()
-    val settings = credentialSettingsDataStore.data.first()!!
-    //if (Clock.System.now() < settings.lastRequestTime + 30*60*1000) {
+    // TODO if greater than 30 minutes, directly reauthentiate
+    for (i in 0..2){
+        val settings = credentialSettingsDataStore.data.first()!!
         val response = fetchAuthenticated(
             settings.sessionCookie, url(settings.sessionId)
         )
         when (response) {
             is AuthenticatedHttpResponse.Success<HttpResponse> -> {
-                when (val parserResponse = parser(settings.sessionId, settings.menuLocalizer, response.response)) {
+                when (val parserResponse =
+                    parser(settings.sessionId, settings.menuLocalizer, response.response)) {
                     is ParserResponse.Success<T> -> {
                         credentialSettingsDataStore.updateData { currentSettings ->
                             settings.copy(lastRequestTime = Clock.System.now())
@@ -103,64 +106,9 @@ suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataSto
                     }
                 }
             }
-            is AuthenticatedHttpResponse.NetworkLikelyTooSlow<*> -> AuthenticatedResponse.NetworkLikelyTooSlow<T>()
+            is AuthenticatedHttpResponse.NetworkLikelyTooSlow<*> -> return AuthenticatedResponse.NetworkLikelyTooSlow<T>()
         }
-    //} else {
-    //}
-    /*val loginResponse: TucanLogin.LoginResponse
-    try {
-        loginResponse = TucanLogin.doLogin(
-            client,
-            settings.username,
-            settings.password,
-        )
-    } catch (e: Throwable) {
-        return AuthenticatedResponse.NetworkLikelyTooSlow<T>()
+        loginTucan(client, settings.tokenResponse, credentialSettingsDataStore)
     }
-    when (loginResponse) {
-        is TucanLogin.LoginResponse.InvalidCredentials -> {
-            // backStack[backStack.size - 1] = MainNavKey
-            // TODO clear store
-            return AuthenticatedResponse.InvalidCredentials()
-        }
-        is TucanLogin.LoginResponse.Success -> {
-            settings = CredentialSettings(
-                username = settings.username,
-                password = settings.password,
-                sessionId = loginResponse.sessionId,
-                sessionCookie = loginResponse.sessionCookie,
-                lastRequestTime = System.currentTimeMillis(),
-                menuLocalizer = loginResponse.menuLocalizer
-            )
-            credentialSettingsDataStore.updateData { currentSettings ->
-                OptionalCredentialSettings(
-                    settings
-                )
-            }
-            val response = fetchAuthenticated(
-                loginResponse.sessionCookie, url(loginResponse.sessionId)
-            )
-            return when (response) {
-                is AuthenticatedHttpResponse.Success<HttpResponse> -> {
-                    when (val parserResponse = parser( loginResponse.sessionId, loginResponse.menuLocalizer, response.response)) {
-                        is ParserResponse.Success<T> -> {
-                            credentialSettingsDataStore.updateData { currentSettings ->
-                                OptionalCredentialSettings(settings.copy(lastRequestTime = System.currentTimeMillis()))
-                            }
-                            return AuthenticatedResponse.Success<T>(parserResponse.response)
-                        }
-                        is ParserResponse.SessionTimeout<*> -> {
-                            return AuthenticatedResponse.SessionTimeout() // should be unreachable
-                        }
-                    }
-                }
-                is AuthenticatedHttpResponse.NetworkLikelyTooSlow<*> -> AuthenticatedResponse.NetworkLikelyTooSlow<T>()
-            }
-        }
-        is TucanLogin.LoginResponse.TooManyAttempts -> {
-            // bad
-            return AuthenticatedResponse.TooManyAttempts()
-        }
-    }*/
-    return AuthenticatedResponse.TooManyAttempts()
+    return AuthenticatedResponse.InvalidCredentials()
 }

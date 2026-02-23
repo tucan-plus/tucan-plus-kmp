@@ -30,10 +30,10 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Url
 import io.ktor.http.parameters
-import io.ktor.utils.io.core.readBytes
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -104,28 +104,7 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
         println(tokenResponse)
         // now do the logincheck with that
-        response = client.submitForm("https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll", parameters {
-            append("access_token", tokenResponse.accessToken)
-            append("ARGUMENTS", "-N000000000000001,ids_mode")
-            append("APPNAME", "CampusNet")
-            append("PRGNAME", "LOGINCHECK")
-            append("ids_mode", "M")
-        })
-        println(response)
-        val body = response.bodyAsText()
-        println(body)
-        val cookie = response.headers["Set-cookie"]!!.removePrefix("cnsc =")
-        val refreshHeader = response.headers["REFRESH"]!!
-        val sessionIdMatch =
-            Regex("""0; URL=/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=STARTPAGE_DISPATCH&ARGUMENTS=-N(\d+),-N000(019|350),-N000000000000000""").matchEntire(
-                refreshHeader
-            )!!
-        val sessionId = sessionIdMatch.groupValues[1]
-        println(sessionId)
-        println(cookie)
-        dataStore.updateData {
-            Settings(tokenResponse, sessionId, cookie, Clock.System.now(), GermanLocalizer)
-        }
+        loginTucan(client, tokenResponse, dataStore)
         backStack[backStack.size - 1] = StartNavKey
     }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -141,5 +120,35 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
             LoadingIndicator()
             Text("Anmeldung wird durchgeführt...")
         }
+    }
+}
+
+suspend fun loginTucan(
+    client: HttpClient,
+    tokenResponse: TokenResponse,
+    dataStore: DataStore<Settings?>
+) {
+    val response =
+        client.submitForm("https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll", parameters {
+            append("access_token", tokenResponse.accessToken)
+            append("ARGUMENTS", "-N000000000000001,ids_mode")
+            append("APPNAME", "CampusNet")
+            append("PRGNAME", "LOGINCHECK")
+            append("ids_mode", "M")
+        })
+    println(response)
+    val body = response.bodyAsText()
+    println(body)
+    val cookie = response.headers["Set-cookie"]!!.removePrefix("cnsc =")
+    val refreshHeader = response.headers["REFRESH"]!!
+    val sessionIdMatch =
+        Regex("""0; URL=/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=STARTPAGE_DISPATCH&ARGUMENTS=-N(\d+),-N000(019|350),-N000000000000000""").matchEntire(
+            refreshHeader
+        )!!
+    val sessionId = sessionIdMatch.groupValues[1]
+    println(sessionId)
+    println(cookie)
+    dataStore.updateData {
+        Settings(tokenResponse, sessionId, cookie, Clock.System.now(), GermanLocalizer)
     }
 }
