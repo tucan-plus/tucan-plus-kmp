@@ -51,7 +51,7 @@ fun DetailedDrawerExample(
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                               // backStack.add(ModuleResultsNavKey)
+                                backStack.add(ModuleResultsKey)
                             }
                         }
                     )

@@ -7,6 +7,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioStorage
+import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
@@ -27,6 +28,13 @@ actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
     uriHandler.openUri(url)
 
     return "Test"
+}
+
+fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
+    return Room.databaseBuilder<AppDatabase>(
+        name = "test",
+        context = context,
+    )
 }
 
 fun getRoomDatabase(

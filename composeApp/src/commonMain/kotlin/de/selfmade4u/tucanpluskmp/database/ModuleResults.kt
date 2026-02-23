@@ -8,6 +8,7 @@ import androidx.room3.Insert
 import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Relation
+import androidx.room3.Transaction
 import androidx.room3.immediateTransaction
 import androidx.room3.useWriterConnection
 import de.selfmade4u.tucanpluskmp.AppDatabase
@@ -102,12 +103,14 @@ interface ModuleResultsDao {
     @Query("SELECT * FROM ModuleResultsEntity")
     suspend fun getAll(): List<ModuleResultsEntity>
 
+    @Transaction
     @Query("SELECT * FROM ModuleResultsEntity")
     suspend fun getModuleResultsWithModules(): List<ModuleResults>
 
     @Insert
     suspend fun insert(moduleResultsEntity: ModuleResultsEntity): Long
 
+    @Transaction
     @Query("SELECT * FROM ModuleResultsEntity ORDER BY id DESC LIMIT 1")
     suspend fun getLast(): ModuleResults?
 }

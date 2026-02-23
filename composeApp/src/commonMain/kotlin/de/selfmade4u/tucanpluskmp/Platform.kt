@@ -14,8 +14,6 @@ expect fun getPlatform(): Platform
 
 expect suspend fun getLoginUrl(uriHandler: UriHandler): String
 
-expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
-
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>
         get() = flow {

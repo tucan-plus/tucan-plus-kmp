@@ -93,7 +93,7 @@ object ModuleResultsConnector {
             status(HttpStatusCode.OK)
             header(
                 "Content-Security-Policy",
-                "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval';"
+                "frame-src https://dsf.tucan.tu-darmstadt.de; frame-ancestors 'self' https://dsf.tucan.tu-darmstadt.de;"
             )
             header("Content-Type", "text/html")
             header("X-Content-Type-Options", "nosniff")
@@ -103,9 +103,10 @@ object ModuleResultsConnector {
             maybeHeader("X-Powered-By", listOf("ASP.NET"))
             header("Server", "Microsoft-IIS/10.0")
             header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-            ignoreHeader("MgMiddlewareWaitTime") // 0 or 16
+            ignoreHeader("MgxpaMiddlewareWaitTime") // 0 or 16
             ignoreHeader("Date")
-            //ignoreHeader("Content-Length")
+            ignoreHeader("Content-Length")
+            ignoreHeader("dl-served-by")
             header("Connection", "close")
             header("Pragma", "no-cache")
             header("Expires", "0")

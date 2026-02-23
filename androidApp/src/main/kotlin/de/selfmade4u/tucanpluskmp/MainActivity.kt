@@ -20,10 +20,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val dataStore = createDataStore(this, lifecycleScope)
-        val database = getRoomDatabase(getDatabaseBuilder())
+        val database = getRoomDatabase(getDatabaseBuilder(this))
 
         setContent {
-            App(intent.data.toString(), dataStore)
+            App(intent.data.toString(), dataStore, database)
         }
     }
 }
@@ -33,5 +33,5 @@ class MainActivity : ComponentActivity() {
 fun AppAndroidPreview() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    App(null, createDataStore(context, lifecycleOwner.lifecycleScope))
+    App(null, createDataStore(context, lifecycleOwner.lifecycleScope), null!!)
 }

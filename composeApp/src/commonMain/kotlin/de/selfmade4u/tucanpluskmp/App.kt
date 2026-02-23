@@ -20,6 +20,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import de.selfmade4u.tucanpluskmp.database.ModuleResults
+import de.selfmade4u.tucanpluskmp.destination.ModuleResultsComposable
 import org.jetbrains.compose.resources.painterResource
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
@@ -37,12 +39,16 @@ data object LoginNavKey : NavKey
 @Serializable
 data class AfterLoginNavKey(val uri: String) : NavKey
 
+@Serializable
+data object ModuleResultsKey : NavKey
+
 private val config = SavedStateConfiguration {
     serializersModule = SerializersModule {
         polymorphic(NavKey::class) {
             subclass(StartNavKey::class, StartNavKey.serializer())
             subclass(LoginNavKey::class, LoginNavKey.serializer())
             subclass(AfterLoginNavKey::class, AfterLoginNavKey.serializer())
+            subclass(ModuleResultsKey::class, ModuleResultsKey.serializer())
         }
     }
 }
@@ -53,7 +59,7 @@ fun App(uri: String?, dataStore: DataStore<Settings?> = FakeDataStore, database:
     val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
         AfterLoginNavKey(uri)
     } else {
-        StartNavKey
+        ModuleResultsKey // StartNavKey
     }
     val backStack = rememberNavBackStack(config, initialNav)
     val entryProvider = entryProvider {
@@ -65,6 +71,9 @@ fun App(uri: String?, dataStore: DataStore<Settings?> = FakeDataStore, database:
         }
         entry<AfterLoginNavKey> { key ->
             AfterLogin(backStack, dataStore, key.uri)
+        }
+        entry<ModuleResultsKey> { key ->
+            ModuleResultsComposable(backStack, dataStore, database)
         }
     }
     NavDisplay(
