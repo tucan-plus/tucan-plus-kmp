@@ -85,6 +85,9 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
+        androidMain.dependencies {
+            implementation(libs.androidx.sqlite.bundled)
+        }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
             implementation(npm(project.file("sqlite-web-worker")))

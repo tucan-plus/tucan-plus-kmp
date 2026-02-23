@@ -41,16 +41,16 @@ import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.Semester
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
+import de.selfmade4u.tucanpluskmp.database.ModuleResults
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
 fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), isLoading: MutableState<Boolean> = mutableStateOf(false)) {
-    /*val context = LocalContext.current
+    val context = LocalContext.current
     var isRefreshing by remember { mutableStateOf(false) }
     var updateCounter by remember { mutableStateOf(false) }
-    val modules by produceState<AuthenticatedResponse<ModuleResults.ModuleResultWithModules>?>(initialValue = null, updateCounter) {
-        Log.i(TAG, "Loading")
+    val modules by produceState<AuthenticatedResponse<ModuleResults>?>(initialValue = null, updateCounter) {
         ModuleResults.getCached(MyDatabaseProvider.getDatabase(context))?.let { value = AuthenticatedResponse.Success(it) }
         isLoading.value = false
         value = ModuleResults.refreshModuleResults(context.credentialSettingsDataStore, MyDatabaseProvider.getDatabase(context))
@@ -67,7 +67,7 @@ fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), is
         }, modifier = Modifier.padding(innerPadding)) {
             RenderModuleResults(modules)
         }
-    }*/
+    }
 }
 
 @Composable
