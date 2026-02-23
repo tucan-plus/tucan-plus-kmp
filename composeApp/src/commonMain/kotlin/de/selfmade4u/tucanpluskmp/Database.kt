@@ -9,16 +9,21 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
+import de.selfmade4u.tucanpluskmp.database.ModuleResultDao
+import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
+import de.selfmade4u.tucanpluskmp.database.ModuleResultsDao
+import de.selfmade4u.tucanpluskmp.database.ModuleResultsEntity
 import kotlinx.coroutines.flow.Flow
 
 
-@Database(entities = [TodoEntity::class], version = 1)
+@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 1)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getDao(): TodoDao
+    abstract fun getModuleResultsDao(): ModuleResultsDao
+    abstract fun getModuleResultDao(): ModuleResultDao
 }
 
-// The Room compiler generates the `actual` implementations.
 @Suppress("KotlinNoActualForExpect")
 expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
     override fun initialize(): AppDatabase
