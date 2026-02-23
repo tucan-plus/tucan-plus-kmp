@@ -38,16 +38,16 @@ data class ModuleResults(
 
 @Dao
 interface ModuleResultsDao {
-    @Query("SELECT * FROM moduleresult")
+    @Query("SELECT * FROM ModuleResults")
     suspend fun getAll(): List<ModuleResultsEntity>
 
-    @Query("SELECT * FROM moduleresult")
+    @Query("SELECT * FROM ModuleResults")
     suspend fun getModuleResultsWithModules(): List<ModuleResults>
 
     @Insert
     suspend fun insert(moduleResultsEntity: ModuleResultsEntity): Long
 
-    @Query("SELECT * FROM moduleresult ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM ModuleResults ORDER BY id DESC LIMIT 1")
     suspend fun getLast(): ModuleResults?
 }
 
@@ -56,6 +56,6 @@ interface ModuleResultDao {
     @Insert
     suspend fun insertAll(vararg modules: ModuleResultEntity): List<Long>
 
-    @Query("SELECT * FROM ModuleResultModule WHERE moduleResultId = :moduleResultId")
-    suspend fun getForModuleResult(moduleResultId: Long): List<ModuleResultEntity>
+    @Query("SELECT * FROM ModuleResult WHERE moduleResultsId = :moduleResultsId")
+    suspend fun getForModuleResults(moduleResultsId: Long): List<ModuleResultEntity>
 }

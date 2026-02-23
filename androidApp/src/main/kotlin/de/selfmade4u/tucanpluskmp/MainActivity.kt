@@ -10,6 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import de.selfmade4u.tucanpluskmp.getDatabaseBuilder
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val dataStore = createDataStore(this, lifecycleScope)
+        val database = getRoomDatabase(getDatabaseBuilder())
 
         setContent {
             App(intent.data.toString(), dataStore)

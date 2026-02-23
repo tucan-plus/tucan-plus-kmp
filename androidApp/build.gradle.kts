@@ -40,5 +40,6 @@ kotlin {
         debugImplementation(libs.compose.uiTooling)
         implementation(libs.androidx.activity.compose)
         implementation(libs.androidx.datastore.core)
+        implementation(libs.androidx.room.runtime)
     }
 }
