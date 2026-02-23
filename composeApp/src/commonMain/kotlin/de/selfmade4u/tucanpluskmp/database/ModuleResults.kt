@@ -1,5 +1,6 @@
 package de.selfmade4u.tucanpluskmp.database
 
+import androidx.datastore.core.DataStore
 import androidx.room3.Dao
 import androidx.room3.Embedded
 import androidx.room3.Entity
@@ -7,8 +8,68 @@ import androidx.room3.Insert
 import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.Relation
+import androidx.room3.immediateTransaction
+import androidx.room3.useWriterConnection
+import de.selfmade4u.tucanpluskmp.AppDatabase
+import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
+import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector
+import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector.getModuleResultsUncached
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+
+suspend fun refreshModuleResults(
+    credentialSettingsDataStore: DataStore<Settings?>,
+    database: AppDatabase
+): AuthenticatedResponse<ModuleResults> {
+    when (val response = getModuleResultsUncached(credentialSettingsDataStore, null)) {
+        is AuthenticatedResponse.Success<ModuleResultsConnector.ModuleResultsResponse> -> {
+            val result = coroutineScope {
+                response.response.semesters.map { semester ->
+                    async {
+                        when (val response = getModuleResultsUncached(
+                            credentialSettingsDataStore,
+                            semester.id.toString().padStart(15, '0')
+                        )) {
+                            is AuthenticatedResponse.Success<ModuleResultsConnector.ModuleResultsResponse> -> {
+                                AuthenticatedResponse.Success(response.response.modules.map { m ->
+                                    ModuleResultEntity(
+                                        0,
+                                        semester,
+                                        m.id,
+                                        m.name,
+                                        m.grade,
+                                        m.credits,
+                                        m.resultdetailsUrl,
+                                        m.gradeoverviewUrl
+                                    )
+                                })
+                            }
+                            else -> response.map<List<ModuleResultEntity>>()
+                        }
+                    }
+                }
+            }.awaitAll()
+            val agwef: AuthenticatedResponse<List<ModuleResultEntity>> = result.reduce { acc, response ->
+                when (acc) {
+                    is AuthenticatedResponse.Success<List<ModuleResultEntity>> -> when (response) {
+                        is AuthenticatedResponse.Success<List<ModuleResultEntity>> -> AuthenticatedResponse.Success(acc.response + response.response)
+                        else -> response
+                    }
+                    else -> acc
+                }
+            }
+            return when (agwef) {
+                is AuthenticatedResponse.Success<List<ModuleResultEntity>> -> AuthenticatedResponse.Success(persist(database, agwef.response))
+                else -> agwef.map()
+            }
+        }
+        else -> return response.map()
+    }
+}
 
 @Entity(primaryKeys = ["moduleResultsId", "id", "semester_id"])
 data class ModuleResultEntity(
@@ -58,4 +119,27 @@ interface ModuleResultDao {
 
     @Query("SELECT * FROM ModuleResultEntity WHERE moduleResultsId = :moduleResultsId")
     suspend fun getForModuleResults(moduleResultsId: Long): List<ModuleResultEntity>
+}
+
+// only store all once
+suspend fun persist(
+    database: AppDatabase,
+    result: List<ModuleResultEntity>
+): ModuleResults {
+    // TODO check whether there were changes?
+    return database.useWriterConnection {
+        it.immediateTransaction {
+            val moduleResultsId = database.getModuleResultsDao().insert(ModuleResultsEntity(0))
+            val modules = result.map { m -> m.copy(moduleResultsId = moduleResultsId) }.sortedWith(compareByDescending<ModuleResultEntity>{it.semester.id}.thenBy { it.id})
+            database.getModuleResultDao().insertAll(*modules.toTypedArray())
+            ModuleResults(ModuleResultsEntity(moduleResultsId), modules)
+        }
+    }
+}
+
+suspend fun getCached(database: AppDatabase): ModuleResults? {
+    val value = database.getModuleResultsDao().getLast()
+    return value?.let { value ->
+        value.copy(moduleResults = value.moduleResults.sortedWith(compareByDescending<ModuleResultEntity>{it.semester.id}.thenBy { it.id}))
+    }
 }

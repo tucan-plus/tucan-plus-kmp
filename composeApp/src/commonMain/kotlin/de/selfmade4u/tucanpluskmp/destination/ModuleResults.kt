@@ -47,7 +47,6 @@ import de.selfmade4u.tucanpluskmp.database.ModuleResults
 @Composable
 @Preview
 fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), isLoading: MutableState<Boolean> = mutableStateOf(false)) {
-    val context = LocalContext.current
     var isRefreshing by remember { mutableStateOf(false) }
     var updateCounter by remember { mutableStateOf(false) }
     val modules by produceState<AuthenticatedResponse<ModuleResults>?>(initialValue = null, updateCounter) {
@@ -55,7 +54,6 @@ fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), is
         isLoading.value = false
         value = ModuleResults.refreshModuleResults(context.credentialSettingsDataStore, MyDatabaseProvider.getDatabase(context))
         isRefreshing = false
-        Log.e(TAG, "Loaded ${value.toString()}")
     }
     val state = rememberPullToRefreshState()
     DetailedDrawerExample(backStack, "Modulergebnisse") { innerPadding ->
