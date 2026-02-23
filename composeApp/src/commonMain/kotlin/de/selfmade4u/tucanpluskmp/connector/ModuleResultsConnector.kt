@@ -146,6 +146,9 @@ object ModuleResultsConnector {
                 print("not the normal page")
             }
         }) { localizer, pageType ->
+            if (pageType == "access_denied") {
+                return@parseBase ParserResponse.SessionTimeout<ModuleResultsResponse>()
+            }
             if (pageType == "timeout") {
                 script {
                     attribute("type", "text/javascript")

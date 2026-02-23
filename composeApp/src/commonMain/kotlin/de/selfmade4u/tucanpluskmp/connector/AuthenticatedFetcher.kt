@@ -88,9 +88,11 @@ suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataSto
     // TODO if greater than 30 minutes, directly reauthentiate
     for (i in 0..2){
         val settings = credentialSettingsDataStore.data.first()!!
+        println(settings.sessionId)
         val response = fetchAuthenticated(
             settings.sessionCookie, url(settings.sessionId)
         )
+        // access_denied
         when (response) {
             is AuthenticatedHttpResponse.Success<HttpResponse> -> {
                 when (val parserResponse =

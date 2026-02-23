@@ -172,7 +172,7 @@ object Common {
             }
             body {
                 val pageType = attributeValue("class")
-                if (pageType == "timeout") {
+                if (pageType == "timeout" || pageType == "access_denied") {
                     sessionId = "000000000000001"
                     menuId = "000000"
                 }
