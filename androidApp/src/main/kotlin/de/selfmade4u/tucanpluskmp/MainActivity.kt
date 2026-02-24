@@ -15,12 +15,32 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioStorage
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.work.Constraints
+import androidx.work.CoroutineWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
+import java.util.concurrent.TimeUnit
+
+class CoroutineDownloadWorker(
+    context: Context,
+    params: WorkerParameters
+) : CoroutineWorker(context, params) {
+
+    override suspend fun doWork(): Result {
+        println("DOING SOME WORK")
+        return Result.success()
+    }
+}
 
 object SettingsDataStore {
 
@@ -69,6 +89,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(true)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("periodic-update",
+            ExistingPeriodicWorkPolicy.UPDATE, PeriodicWorkRequestBuilder<CoroutineDownloadWorker>(15,
+                TimeUnit.MINUTES).setConstraints(constraints).build())
 
         setContent {
             MainApp(intent.data.toString())
