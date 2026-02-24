@@ -21,6 +21,8 @@ import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 suspend fun refreshModuleResults(
     credentialSettingsDataStore: DataStore<Settings?>,
@@ -112,7 +114,7 @@ interface ModuleResultsDao {
 
     @Transaction
     @Query("SELECT * FROM ModuleResultsEntity ORDER BY id DESC LIMIT 1")
-    suspend fun getLast(): ModuleResults?
+    fun getLast(): Flow<ModuleResults?>
 }
 
 @Dao
@@ -140,9 +142,10 @@ suspend fun persist(
     }
 }
 
-suspend fun getCached(database: AppDatabase): ModuleResults? {
-    val value = database.getModuleResultsDao().getLast()
-    return value?.let { value ->
-        value.copy(moduleResults = value.moduleResults.sortedWith(compareByDescending<ModuleResultEntity>{it.semester.id}.thenBy { it.id}))
-    }
+fun getCached(database: AppDatabase): Flow<ModuleResults?> {
+   return database.getModuleResultsDao().getLast().map {
+       it?.let { value ->
+           value.copy(moduleResults = value.moduleResults.sortedWith(compareByDescending<ModuleResultEntity> { it.semester.id }.thenBy { it.id }))
+       }
+   }
 }

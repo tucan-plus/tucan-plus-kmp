@@ -35,6 +35,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.selfmade4u.tucanpluskmp.AppDatabase
@@ -49,18 +50,14 @@ import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
 import de.selfmade4u.tucanpluskmp.database.ModuleResults
 import de.selfmade4u.tucanpluskmp.database.getCached
 import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
+import kotlinx.coroutines.flow.map
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
     var isRefreshing by remember { mutableStateOf(false) }
     var updateCounter by remember { mutableStateOf(false) }
-    val modules by produceState<AuthenticatedResponse<ModuleResults>?>(initialValue = null, updateCounter) {
-        getCached(database)?.let { value = AuthenticatedResponse.Success(it) }
-        isLoading.value = false
-        value = refreshModuleResults(dataStore, database)
-        isRefreshing = false
-    }
+    val modules by getCached(database).collectAsStateWithLifecycle(null)
     val state = rememberPullToRefreshState()
     DetailedDrawerExample(backStack, "Modulergebnisse") { innerPadding ->
         PullToRefreshBox(isRefreshing, onRefresh = {
@@ -98,7 +95,7 @@ private fun BoxScope.LoadingIndicator(
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun RenderModuleResults(modules: AuthenticatedResponse<ModuleResults>?) {
+private fun RenderModuleResults(modules: ModuleResults?) {
     Column(Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())) {
@@ -112,22 +109,13 @@ private fun RenderModuleResults(modules: AuthenticatedResponse<ModuleResults>?) 
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) { CircularWavyProgressIndicator() }
             }
-
-            is AuthenticatedResponse.SessionTimeout -> {
-                Text("Session timeout")
-            }
-
-            is AuthenticatedResponse.Success -> {
-                value.response.moduleResults.forEach { module ->
+            value -> {
+                value.moduleResults.forEach { module ->
                     key(module.id) {
                         ModuleComposable(module)
                     }
                 }
             }
-
-            is AuthenticatedResponse.NetworkLikelyTooSlow -> Text("Your network connection is likely too slow for TUCaN")
-            is AuthenticatedResponse.InvalidCredentials<*> -> Text("Invalid credentials")
-            is AuthenticatedResponse.TooManyAttempts<*> -> Text("Too many login attempts. Try again later")
         }
     }
 }
