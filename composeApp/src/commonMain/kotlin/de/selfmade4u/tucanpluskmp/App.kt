@@ -31,7 +31,6 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
 import tucanpluskmp.composeapp.generated.resources.Res
-import tucanpluskmp.composeapp.generated.resources.compose_multiplatform
 
 @Serializable
 data object StartNavKey : NavKey
@@ -89,33 +88,5 @@ fun App(uri: String?, dataStore: DataStore<Settings?> = FakeDataStore, database:
             onBack = { backStack.removeLastOrNull() },
             entryProvider = entryProvider
         )
-    }
-}
-
-@Composable
-@Preview
-fun Login() {
-    var showContent by remember { mutableStateOf(false) }
-    Column(
-        modifier = Modifier
-            .safeContentPadding()
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Button(onClick = {
-            showContent = !showContent
-        }) {
-            Text("Click me!")
-        }
-        AnimatedVisibility(showContent) {
-            val greeting = remember { Greeting().greet() }
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Image(painterResource(Res.drawable.compose_multiplatform), null)
-                Text("Compose: $greeting")
-            }
-        }
     }
 }
