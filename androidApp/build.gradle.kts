@@ -45,5 +45,7 @@ kotlin {
         implementation(libs.androidx.activity.compose)
         implementation(libs.androidx.datastore.core)
         implementation(libs.androidx.room.runtime)
+        implementation(libs.okio)
+        implementation(libs.androidx.datastore.core.okio)
     }
 }
