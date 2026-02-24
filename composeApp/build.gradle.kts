@@ -88,6 +88,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
+            implementation(libs.androidx.browser)
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
