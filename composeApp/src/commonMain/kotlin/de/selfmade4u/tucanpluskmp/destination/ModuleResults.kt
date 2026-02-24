@@ -154,7 +154,7 @@ fun ModuleComposable(
         }
         Column(modifier = Modifier.fillMaxHeight(), horizontalAlignment = Alignment.End) {
             Text("${module.credits} CP")
-            Text("Note ${module.grade?.representation}")
+            Text("${module.grade?.stringified }")
         }
     }
 }

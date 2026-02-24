@@ -33,7 +33,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 
 // https://github.com/tucan-plus/tucan-plus/blob/640bb9cbb9e3f8d22e8b9d6ddaabb5256b2eb0e6/crates/tucan-types/src/lib.rs#L366
-enum class ModuleGrade(val representation: String) {
+enum class ModuleGrade(val representation: String, val stringified: String = representation) {
     G1_0("1,0"),
     G1_3("1,3"),
     G1_7("1,7"),
@@ -48,8 +48,8 @@ enum class ModuleGrade(val representation: String) {
     B("b"),
     NB("nb"),
     // TODO FIXME localize
-    NOCH_NICHT_GESETZT("noch nicht gesetzt"),
-    NOCH_NICHT_GESETZT_EN("not set yet")
+    NOCH_NICHT_GESETZT("noch nicht gesetzt", "-"),
+    NOCH_NICHT_GESETZT_EN("not set yet", "-")
 }
 
 enum class Semester {
