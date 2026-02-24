@@ -87,7 +87,7 @@ kotlin {
             implementation(libs.kotlinx.coroutinesSwing)
         }
         androidMain.dependencies {
-            //implementation(libs.androidx.sqlite.bundled)
+            implementation(libs.androidx.sqlite.bundled)
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)

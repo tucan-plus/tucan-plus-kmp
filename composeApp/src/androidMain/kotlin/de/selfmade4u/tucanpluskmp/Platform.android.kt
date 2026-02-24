@@ -10,6 +10,7 @@ import androidx.datastore.core.okio.OkioStorage
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.AndroidSQLiteDriver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okio.FileSystem
@@ -40,7 +41,7 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
-        .setDriver(AndroidSQLiteDriver())
+        .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()
 }
