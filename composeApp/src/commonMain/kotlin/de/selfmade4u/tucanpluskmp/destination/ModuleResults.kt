@@ -20,6 +20,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -51,6 +52,7 @@ import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
 import de.selfmade4u.tucanpluskmp.database.ModuleResults
 import de.selfmade4u.tucanpluskmp.database.getCached
 import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -58,6 +60,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
     var isRefreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (getCached(database).first() == null) {
+            refreshModuleResults(dataStore, database)
+        }
+    }
     val modules by getCached(database).collectAsStateWithLifecycle(null)
     val state = rememberPullToRefreshState()
     val scope = rememberCoroutineScope()

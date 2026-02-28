@@ -194,7 +194,7 @@ class Response(
     suspend fun <T> root(init: Root.() -> T): T {
         check(headers.isEmpty()) { "unparsed headers $headers" }
         val document = Ksoup.parse(response.bodyAsText())
-        println(document)
+        //println(document)
         check(document.nameIs("#root")) { document.normalName() }
         check(document.attributesSize() == 0) { document.attributes() }
         val node = Root(
