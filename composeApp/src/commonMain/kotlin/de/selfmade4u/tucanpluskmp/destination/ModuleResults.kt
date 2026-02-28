@@ -26,6 +26,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,18 +52,22 @@ import de.selfmade4u.tucanpluskmp.database.ModuleResults
 import de.selfmade4u.tucanpluskmp.database.getCached
 import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
     var isRefreshing by remember { mutableStateOf(false) }
-    var updateCounter by remember { mutableStateOf(false) }
     val modules by getCached(database).collectAsStateWithLifecycle(null)
     val state = rememberPullToRefreshState()
+    val scope = rememberCoroutineScope()
     DetailedDrawerExample(backStack, "Modulergebnisse") { innerPadding ->
         PullToRefreshBox(isRefreshing, onRefresh = {
             isRefreshing = true
-            updateCounter = !updateCounter;
+            scope.launch {
+                refreshModuleResults(dataStore, database)
+                isRefreshing = false
+            }
         }, state = state, indicator = {
             LoadingIndicator(state, isRefreshing)
         }, modifier = Modifier.padding(innerPadding)) {
