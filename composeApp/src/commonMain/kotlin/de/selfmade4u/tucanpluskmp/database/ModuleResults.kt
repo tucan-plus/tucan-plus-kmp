@@ -144,8 +144,9 @@ suspend fun persist(
         it.immediateTransaction {
             val time = Clock.System.now().toLocalDateTime(TimeZone.UTC)
             val last = database.getModuleResultsDao().getLast().first();
-            val left = last?.moduleResults?.sortedBy { m -> m.id }?.map { m -> m.copy(moduleResultsId = -1) }
-            val right = result.sortedBy { m -> m.id }.map { m -> m.copy(moduleResultsId = -1) }
+            // TODO extract the sorting function, a module can be in the list multiple times with different semester
+            val left = last?.moduleResults?.sortedWith(compareByDescending<ModuleResultEntity>{it.semester.id}.thenBy { it.id})?.map { m -> m.copy(moduleResultsId = -1) }
+            val right = result.sortedWith(compareByDescending<ModuleResultEntity>{it.semester.id}.thenBy { it.id}).map { m -> m.copy(moduleResultsId = -1) }
             println("LEFT")
             left?.forEach { l ->
                 println(l)
