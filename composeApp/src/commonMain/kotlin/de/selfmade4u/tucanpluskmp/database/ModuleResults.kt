@@ -90,6 +90,7 @@ data class ModuleResultEntity(
     val name: String,
     val grade: ModuleGrade?,
     val credits: Int,
+    // TODO FIXME remove session id for correct caching
     val resultdetailsUrl: String?,
     val gradeoverviewUrl: String?
 )
@@ -143,7 +144,17 @@ suspend fun persist(
         it.immediateTransaction {
             val time = Clock.System.now().toLocalDateTime(TimeZone.UTC)
             val last = database.getModuleResultsDao().getLast().first();
-            if (last?.moduleResults?.sortedBy{ m -> m.id} == result.sortedBy{ m -> m.id}) {
+            val left = last?.moduleResults?.sortedBy { m -> m.id }
+            val right = result.sortedBy { m -> m.id }
+            println("LEFT")
+            left?.forEach { l ->
+                println(l)
+            }
+            println("RIGHT")
+            left?.forEach { r ->
+                println(r)
+            }
+            if (left == right) {
                 // update
                 database.getModuleResultsDao().insertOrReplace(last.moduleResultsEntity.copy(validUntil = time))
                 last
