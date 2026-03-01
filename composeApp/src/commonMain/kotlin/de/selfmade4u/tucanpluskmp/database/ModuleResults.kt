@@ -144,21 +144,26 @@ suspend fun persist(
         it.immediateTransaction {
             val time = Clock.System.now().toLocalDateTime(TimeZone.UTC)
             val last = database.getModuleResultsDao().getLast().first();
-            val left = last?.moduleResults?.sortedBy { m -> m.id }
-            val right = result.sortedBy { m -> m.id }
+            val left = last?.moduleResults?.sortedBy { m -> m.id }?.map { m -> m.copy(moduleResultsId = -1) }
+            val right = result.sortedBy { m -> m.id }.map { m -> m.copy(moduleResultsId = -1) }
             println("LEFT")
             left?.forEach { l ->
                 println(l)
             }
             println("RIGHT")
-            left?.forEach { r ->
+            right.forEach { r ->
                 println(r)
+            }
+            left?.zip(right)?.forEach { (l, r) ->
+                println("${l == r} $l == $r")
             }
             if (left == right) {
                 // update
+                println("EQUAL")
                 database.getModuleResultsDao().insertOrReplace(last.moduleResultsEntity.copy(validUntil = time))
                 last
             } else {
+                println("NOT EQUAL")
                 // insert
                 val moduleResultsId = database.getModuleResultsDao().insertOrReplace(ModuleResultsEntity(0, time, time))
                 val modules = result.map { m -> m.copy(moduleResultsId = moduleResultsId) }.sortedWith(compareByDescending<ModuleResultEntity>{it.semester.id}.thenBy { it.id})
