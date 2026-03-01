@@ -51,7 +51,7 @@ class CoroutineDownloadWorker(
                     return Result.retry()
                 }
                 is AuthenticatedResponse.Success<*> -> {
-                    println("DONE WITH SOME WORK")
+                    println("DONE WITH SOME WORK $response")
                     return Result.success()
                 }
                 else -> {

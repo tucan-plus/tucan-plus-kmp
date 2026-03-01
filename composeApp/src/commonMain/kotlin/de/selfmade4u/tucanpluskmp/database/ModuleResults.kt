@@ -143,7 +143,7 @@ suspend fun persist(
         it.immediateTransaction {
             val time = Clock.System.now().toLocalDateTime(TimeZone.UTC)
             val last = database.getModuleResultsDao().getLast().first();
-            if (last?.moduleResults == result) {
+            if (last?.moduleResults?.sortedBy{ m -> m.id} == result.sortedBy{ m -> m.id}) {
                 // update
                 database.getModuleResultsDao().insertOrReplace(last.moduleResultsEntity.copy(validUntil = time))
                 last
