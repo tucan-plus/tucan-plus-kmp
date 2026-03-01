@@ -20,12 +20,14 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +37,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import de.selfmade4u.tucanpluskmp.AppDatabase
@@ -49,23 +52,29 @@ import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
 import de.selfmade4u.tucanpluskmp.database.ModuleResults
 import de.selfmade4u.tucanpluskmp.database.getCached
 import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
     var isRefreshing by remember { mutableStateOf(false) }
-    var updateCounter by remember { mutableStateOf(false) }
-    val modules by produceState<AuthenticatedResponse<ModuleResults>?>(initialValue = null, updateCounter) {
-        getCached(database)?.let { value = AuthenticatedResponse.Success(it) }
-        isLoading.value = false
-        value = refreshModuleResults(dataStore, database)
-        isRefreshing = false
+    LaunchedEffect(Unit) {
+        if (getCached(database).first() == null) {
+            refreshModuleResults(dataStore, database)
+        }
     }
+    val modules by getCached(database).collectAsStateWithLifecycle(null)
     val state = rememberPullToRefreshState()
+    val scope = rememberCoroutineScope()
     DetailedDrawerExample(backStack, "Modulergebnisse") { innerPadding ->
         PullToRefreshBox(isRefreshing, onRefresh = {
             isRefreshing = true
-            updateCounter = !updateCounter;
+            scope.launch {
+                refreshModuleResults(dataStore, database)
+                isRefreshing = false
+            }
         }, state = state, indicator = {
             LoadingIndicator(state, isRefreshing)
         }, modifier = Modifier.padding(innerPadding)) {
@@ -98,7 +107,7 @@ private fun BoxScope.LoadingIndicator(
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun RenderModuleResults(modules: AuthenticatedResponse<ModuleResults>?) {
+private fun RenderModuleResults(modules: ModuleResults?) {
     Column(Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())) {
@@ -112,22 +121,13 @@ private fun RenderModuleResults(modules: AuthenticatedResponse<ModuleResults>?) 
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) { CircularWavyProgressIndicator() }
             }
-
-            is AuthenticatedResponse.SessionTimeout -> {
-                Text("Session timeout")
-            }
-
-            is AuthenticatedResponse.Success -> {
-                value.response.moduleResults.forEach { module ->
+            value -> {
+                value.moduleResults.forEach { module ->
                     key(module.id) {
                         ModuleComposable(module)
                     }
                 }
             }
-
-            is AuthenticatedResponse.NetworkLikelyTooSlow -> Text("Your network connection is likely too slow for TUCaN")
-            is AuthenticatedResponse.InvalidCredentials<*> -> Text("Invalid credentials")
-            is AuthenticatedResponse.TooManyAttempts<*> -> Text("Too many login attempts. Try again later")
         }
     }
 }
@@ -154,7 +154,7 @@ fun ModuleComposable(
         }
         Column(modifier = Modifier.fillMaxHeight(), horizontalAlignment = Alignment.End) {
             Text("${module.credits} CP")
-            Text("Note ${module.grade?.representation}")
+            Text("${module.grade?.stringified }")
         }
     }
 }

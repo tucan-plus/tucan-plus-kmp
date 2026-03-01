@@ -32,10 +32,7 @@ class NavBackStackPreviewParameterProvider : PreviewParameterProvider<NavBackSta
 @Preview
 fun BeforeLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val uriHandler = LocalUriHandler.current
-    LaunchedEffect(Unit) {
-        getLoginUrl(uriHandler)
-    }
+    LoginHandler(backStack)
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
         SnackbarHost(hostState = snackbarHostState)
     }) { innerPadding ->
