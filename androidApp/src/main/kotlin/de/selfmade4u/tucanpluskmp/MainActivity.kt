@@ -23,6 +23,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -32,13 +33,25 @@ import okio.Path.Companion.toOkioPath
 import java.util.concurrent.TimeUnit
 
 class CoroutineDownloadWorker(
-    context: Context,
+    val context: Context,
     params: WorkerParameters
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         println("DOING SOME WORK")
-        return Result.success()
+        try {
+            val dataStore = SettingsDataStore.getDataStore {
+                context.filesDir.resolve("tucanplus-config.json").toOkioPath()
+            }
+            val database = SettingsDataStore.getDatabase(context)
+            refreshModuleResults(dataStore, database)
+            println("DONE WITH SOME WORK")
+            return Result.success()
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            println("FAILURE IN SOME WORK")
+            return Result.failure()
+        }
     }
 }
 
