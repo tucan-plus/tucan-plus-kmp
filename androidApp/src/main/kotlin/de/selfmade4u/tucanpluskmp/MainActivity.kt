@@ -23,6 +23,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,9 +45,20 @@ class CoroutineDownloadWorker(
                 context.filesDir.resolve("tucanplus-config.json").toOkioPath()
             }
             val database = SettingsDataStore.getDatabase(context)
-            refreshModuleResults(dataStore, database)
-            println("DONE WITH SOME WORK")
-            return Result.success()
+            when (val response = refreshModuleResults(dataStore, database)) {
+                is AuthenticatedResponse.NetworkLikelyTooSlow<*> -> {
+                    println("NETWORK TOO SLOW, RETRYING")
+                    return Result.retry()
+                }
+                is AuthenticatedResponse.Success<*> -> {
+                    println("DONE WITH SOME WORK")
+                    return Result.success()
+                }
+                else -> {
+                    println("FAILURE $response")
+                    return Result.failure()
+                }
+            }
         } catch (e: Throwable) {
             e.printStackTrace()
             println("FAILURE IN SOME WORK")
