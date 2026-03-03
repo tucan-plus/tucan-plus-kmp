@@ -15,13 +15,6 @@ class WasmPlatform : Platform {
 
 actual fun getPlatform(): Platform = WasmPlatform()
 
-@OptIn(ExperimentalWasmJsInterop::class)
-fun registerProtocolHandler(): Unit = js(
-    """{
-        navigator.registerProtocolHandler("web+dedatenlotsencampusnettuda", "http://localhost:8080/?to=%s");
-}"""
-)
-
 @Composable
 actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
 
