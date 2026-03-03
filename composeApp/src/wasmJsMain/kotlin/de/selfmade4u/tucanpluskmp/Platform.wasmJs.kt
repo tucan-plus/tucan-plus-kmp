@@ -1,6 +1,9 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.UriHandler
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
@@ -19,8 +22,9 @@ fun registerProtocolHandler(): Unit = js(
 }"""
 )
 
-actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
-    return "https://localhost/?code=test"
+@Composable
+actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+
 }
 
 actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
@@ -33,5 +37,6 @@ public actual fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver {
     return WebWorkerSQLiteDriver(jsWorker())
 }
 
+@OptIn(ExperimentalWasmJsInterop::class)
 private fun jsWorker(): Worker =
     js("""new Worker(new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url))""")

@@ -15,6 +15,8 @@ import okio.FileSystem
 import org.w3c.dom.Worker
 import kotlin.js.js
 
+public expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
+
 public expect fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver
 
 fun getRoomDatabase(
@@ -31,7 +33,7 @@ fun main() {
     val builder = getDatabaseBuilder()
     val db = getRoomDatabase(builder)
     ComposeViewport {
-        App(null, createDataStore())
+        App(null, createDataStore(), getRoomDatabase(getDatabaseBuilder()))
     }
 }
 
