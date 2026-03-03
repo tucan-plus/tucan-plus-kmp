@@ -1,34 +1,37 @@
 [versions]
 agp = "9.0.1"
 android-compileSdk = "36"
-android-minSdk = "24"
+android-minSdk = "26"
 android-targetSdk = "36"
 androidx-activity = "1.12.4"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-espresso = "3.7.0"
-androidx-lifecycle = "2.10.0-alpha08"
+androidx-lifecycle = "2.9.6"
 androidx-testExt = "1.3.0"
-composeHotReload = "1.1.0-alpha05"
-composeMultiplatform = "1.11.0-alpha02"
-datastore = "1.3.0-alpha05"
+composeHotReload = "1.0.0"
+composeMultiplatform = "1.10.1" # https://github.com/JetBrains/compose-multiplatform/releases check versions in sync
 junit = "4.13.2"
-kotlin = "2.3.20-RC"
+kotlin = "2.3.10"
 kotlinx-coroutines = "1.10.2"
 kotlinxSerializationJson = "1.10.0"
-material3 = "1.11.0-alpha02"
-multiplatform-nav3-ui = "1.1.0-alpha02"
-compose-multiplatform-adaptive = "1.3.0-alpha04"
 ktor = "3.4.0"
 okio = "3.16.4"
 ksoup = "0.2.6"
-room = "3.0.0-SNAPSHOT"
 ksp = "2.3.6"
-sqlite = "2.7.0-SNAPSHOT"
+browser = "1.9.0"
+material3 = "1.10.0-alpha05" # compatibility with ccompose multiplatform (see https://github.com/JetBrains/compose-multiplatform/releases) and LoadingIndicator support
+compose-multiplatform-adaptive = "1.3.0-alpha04" # no stable version released yet
+multiplatform-nav3-ui = "1.1.0-alpha02" # no stable version released yet
+datastore = "1.3.0-alpha06" # js/wasm target
+room = "3.0.0-SNAPSHOT" # js/wasm target
+sqlite = "2.7.0-SNAPSHOT" # js/wasm target
+workRuntimeKtx = "2.11.1"
 
 [libraries]
 androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
 androidx-datastore-core-okio = { module = "androidx.datastore:datastore-core-okio", version.ref = "datastore" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -61,6 +64,7 @@ androidx-room-runtime = { module = "androidx.room3:room3-runtime", version.ref =
 androidx-room-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-sqlite-web = { module = "androidx.sqlite:sqlite-web", version.ref = "sqlite" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

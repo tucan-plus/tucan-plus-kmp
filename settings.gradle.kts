@@ -5,9 +5,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
-        maven {
-            url = uri("https://androidx.dev/snapshots/builds/14919321/artifacts/repository")
-        }
         google {
             mavenContent {
                 includeGroupAndSubgroups("androidx")
@@ -17,14 +14,14 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri("https://androidx.dev/snapshots/builds/14919321/artifacts/repository")
+        }
     }
 }
 
 dependencyResolutionManagement {
     repositories {
-        maven {
-            url = uri("https://androidx.dev/snapshots/builds/14919321/artifacts/repository")
-        }
         google {
             mavenContent {
                 includeGroupAndSubgroups("androidx")
@@ -33,6 +30,9 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
+        maven {
+            url = uri("https://androidx.dev/snapshots/builds/14919321/artifacts/repository")
+        }
     }
 }
 

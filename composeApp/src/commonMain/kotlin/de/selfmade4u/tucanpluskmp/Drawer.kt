@@ -46,8 +46,18 @@ fun DetailedDrawerExample(
                         .verticalScroll(rememberScrollState())
                 ) {
                     NavigationDrawerItem(
+                        label = { Text("Start") },
+                        selected = backStack.lastOrNull() == StartNavKey,
+                        onClick = {
+                            scope.launch {
+                                drawerState.close()
+                                backStack.add(StartNavKey)
+                            }
+                        }
+                    )
+                    NavigationDrawerItem(
                         label = { Text("Modulergebnisse") },
-                        selected = false,
+                        selected = backStack.lastOrNull() == ModuleResultsKey,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
@@ -55,7 +65,7 @@ fun DetailedDrawerExample(
                             }
                         }
                     )
-                    NavigationDrawerItem(
+                    /*NavigationDrawerItem(
                         label = { Text("Meine Prüfungen") },
                         selected = false,
                         onClick = {
@@ -64,7 +74,7 @@ fun DetailedDrawerExample(
                                 //backStack.add(MyExamsNavKey)
                             }
                         }
-                    )
+                    )*/
                 }
             }
         },

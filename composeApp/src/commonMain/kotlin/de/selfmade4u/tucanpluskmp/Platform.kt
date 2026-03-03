@@ -1,8 +1,10 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
-import androidx.room3.RoomDatabase
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -12,7 +14,8 @@ interface Platform {
 
 expect fun getPlatform(): Platform
 
-expect suspend fun getLoginUrl(uriHandler: UriHandler): String
+@Composable
+expect fun LoginHandler(backStack: NavBackStack<NavKey>)
 
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>

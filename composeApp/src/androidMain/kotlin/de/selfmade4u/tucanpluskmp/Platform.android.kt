@@ -2,11 +2,18 @@ package de.selfmade4u.tucanpluskmp
 
 import android.content.Context
 import android.os.Build
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.UriHandler
+import androidx.core.net.toUri
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioStorage
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.AndroidSQLiteDriver
@@ -23,11 +30,16 @@ class AndroidPlatform : Platform {
 
 actual fun getPlatform(): Platform = AndroidPlatform()
 
-actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
-    val url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
-    uriHandler.openUri(url)
-
-    return "Test"
+@Composable
+actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        val url =
+            "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
+        val intent = CustomTabsIntent.Builder()
+            .build()
+        intent.launchUrl(context, url.toUri())
+    }
 }
 
 fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
@@ -41,6 +53,7 @@ fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
 ): AppDatabase {
     return builder
+        .fallbackToDestructiveMigration(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()

@@ -1,5 +1,8 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -32,43 +35,55 @@ class JVMPlatform : Platform {
 
 actual fun getPlatform(): Platform = JVMPlatform()
 
-actual suspend fun getLoginUrl(uriHandler: UriHandler, backStack: NavBackStack<NavKey>) {
-    return withContext(Dispatchers.IO) {
-        println("desktop getloginurl")
-        val userHome = System.getProperty("user.home")
-        Files.writeString(
-            Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"),
-            "[Desktop Entry]\n" +
-                    "Exec=sh -c 'printf \"%s\" \"$1\" | socat UNIX-CONNECT:/run/user/1000/tucanplus -' _ %u\n" +
-                    "Type=Application\n" +
-                    "Name=tucanplus.desktop\n" +
-                    "MimeType=x-scheme-handler/de.datenlotsen.campusnet.tuda\n"
-        )
-        Runtime.getRuntime().exec(arrayOf("xdg-mime", "default", "tucanplus.desktop", "x-scheme-handler/de.datenlotsen.campusnet.tuda"))
-        val socketPath = Path.of(System.getenv("XDG_RUNTIME_DIR"), "tucanplus")
-        val address = UnixDomainSocketAddress.of(socketPath)
-        Files.deleteIfExists(socketPath);
-        val serverChannel = ServerSocketChannel.open(StandardProtocolFamily.UNIX)
-        serverChannel.bind(address)
-        println("before open")
-        val url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
-        uriHandler.openUri(url)
-        println("waiting")
-        val channel = serverChannel.accept()
-        println("accepted")
-        val buffer = ByteBuffer.allocate(4096)
-        val bytes = channel.read(buffer)
-        println("bytes $bytes")
-        val newContent: String = Charsets.UTF_8.decode(buffer.slice(0, bytes)).toString()
-        println(newContent)
-        backStack.add(AfterLoginNavKey(newContent))
+@Composable
+actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+    val uriHandler = LocalUriHandler.current
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            println("desktop getloginurl")
+            val userHome = System.getProperty("user.home")
+            Files.writeString(
+                Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"),
+                "[Desktop Entry]\n" +
+                        "Exec=sh -c 'printf \"%s\" \"$1\" | socat UNIX-CONNECT:/run/user/1000/tucanplus -' _ %u\n" +
+                        "Type=Application\n" +
+                        "Name=tucanplus.desktop\n" +
+                        "MimeType=x-scheme-handler/de.datenlotsen.campusnet.tuda\n"
+            )
+            Runtime.getRuntime().exec(
+                arrayOf(
+                    "xdg-mime",
+                    "default",
+                    "tucanplus.desktop",
+                    "x-scheme-handler/de.datenlotsen.campusnet.tuda"
+                )
+            )
+            val socketPath = Path.of(System.getenv("XDG_RUNTIME_DIR"), "tucanplus")
+            val address = UnixDomainSocketAddress.of(socketPath)
+            Files.deleteIfExists(socketPath);
+            val serverChannel = ServerSocketChannel.open(StandardProtocolFamily.UNIX)
+            serverChannel.bind(address)
+            println("before open")
+            val url =
+                "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
+            uriHandler.openUri(url)
+            println("waiting")
+            val channel = serverChannel.accept()
+            println("accepted")
+            val buffer = ByteBuffer.allocate(4096)
+            val bytes = channel.read(buffer)
+            println("bytes $bytes")
+            val newContent: String = Charsets.UTF_8.decode(buffer.slice(0, bytes)).toString()
+            println(newContent)
+            backStack.add(AfterLoginNavKey(newContent))
+        }
     }
 }
 
-fun createDataStore(): DataStore<TokenResponse?> = DataStoreFactory.create(
+fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
     storage =
         OkioStorage(
-            FileSystem.SYSTEM, TokenResponseSerializer,
+            FileSystem.SYSTEM, SettingsSerializer,
             producePath = {
                 val file = File(System.getProperty("java.io.tmpdir"), "tucanplus-config.json")
                 file.toOkioPath()
