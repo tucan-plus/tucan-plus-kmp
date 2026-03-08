@@ -45,13 +45,21 @@ kotlin {
     jvm()
 
     js {
-        browser()
+        browser {
+            commonWebpackConfig {
+                devtool = "source-map"
+            }
+        }
         binaries.executable()
     }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        browser()
+        browser {
+            commonWebpackConfig {
+                devtool = "source-map"
+            }
+        }
         binaries.executable()
     }
 

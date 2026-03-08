@@ -83,9 +83,26 @@ We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public S
 channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
 If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
 
-### Try Room3
+### Extension development
 
-```bash
-./gradlew core:core:publish
+chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmentExecutable/index.html
+
+```
+
+./gradlew :composeApp:wasmJsBrowserDevelopmentExecutableDistribution
+
+wasmJsBrowserDevelopmentRun # does not write to disk
+wasmJsBrowserDevelopmentWebpack # writes to disk, but misses some files
+
+./composeApp/build/kotlin-webpack/wasmJs/developmentExecutable
+
+./composeApp/src/webMain/resources/index.html
+./composeApp/build/processedResources/wasmJs/main/index.html
+./build/wasm/packages/tucanpluskmp-composeApp/kotlin/index.html
+
+./composeApp/src/webMain/resources/index.html
+./composeApp/build/processedResources/wasmJs/main/index.html
+./composeApp/build/dist/wasmJs/developmentExecutable/index.html
+./build/wasm/packages/tucanpluskmp-composeApp/kotlin/index.html
 
 ```
