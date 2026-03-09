@@ -45,6 +45,25 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
         withContext(Dispatchers.IO) {
             println("desktop getloginurl")
             val userHome = System.getProperty("user.home")
+            // for the web extension
+            // TODO FIXME hardcoded browser
+            Files.writeString(
+                Paths.get(userHome, ".local", "share", "applications", "tucanplus-web.desktop"),
+                "[Desktop Entry]\n" +
+                        "Exec=chromium-browser \"web+dedatenlotsencampusnettuda://%u\"\n" +
+                        "Type=Application\n" +
+                        "Name=tucanplus-web.desktop\n" +
+                        "MimeType=x-scheme-handler/de.datenlotsen.campusnet.tuda-web\n"
+            )
+            Runtime.getRuntime().exec(
+                arrayOf(
+                    "xdg-mime",
+                    "default",
+                    "tucanplus-web.desktop",
+                    "x-scheme-handler/de.datenlotsen.campusnet.tuda-web"
+                )
+            )
+            // for the native app
             Files.writeString(
                 Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"),
                 "[Desktop Entry]\n" +
