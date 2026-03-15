@@ -85,8 +85,6 @@ If you face any issues, please report them on [YouTrack](https://youtrack.jetbra
 
 ### Extension development
 
-Browser extension needs native application as companion.
-
 chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmentExecutable/index.html
 
 ```

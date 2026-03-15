@@ -9,6 +9,8 @@ import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
+import kotlinx.browser.document
+import kotlinx.browser.window
 import org.w3c.dom.Worker
 
 class WasmPlatform : Platform {
@@ -17,21 +19,13 @@ class WasmPlatform : Platform {
 
 actual fun getPlatform(): Platform = WasmPlatform()
 
-@OptIn(ExperimentalWasmJsInterop::class)
-private fun registerProtocolHandler(): Unit =
-    // TODO don't hardcode extension id
-    js("navigator.registerProtocolHandler('web+dedatenlotsencampusnettuda', 'chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmentExecutable/index.html?%s', 'TUCaN Plus KMP')")
-
 @Composable
 actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
     val uriHandler = LocalUriHandler.current
     LaunchedEffect(Unit) {
-        // TODO our callback also lands here so this loops
-        // TODO I think this needs user interaction
-        registerProtocolHandler()
         val url =
-            "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda-web:/oauth2redirect"
-        uriHandler.openUri(url)
+            "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=ClassicWeb&scope=openid%20DSF%20email&response_mode=query&response_type=code&ui_locales=de&redirect_uri=https%3a%2f%2fwww.tucan.tu-darmstadt.de%2Fscripts%2Fmgrqispi.dll%3FAPPNAME%3DCampusNet%26PRGNAME%3DLOGINCHECK%26ARGUMENTS%3D-N000000000000001%2Cids_mode%26ids_mode%3DY"
+        window.location.href = url
     }
 }
 
