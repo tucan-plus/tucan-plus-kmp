@@ -11,7 +11,11 @@
     "action": {
       "type": "redirect",
       "redirect": {
-        "extensionPath": "/build/dist/wasmJs/developmentExecutable/index.html"
+        "transform": {
+          "scheme": "moz-extension",
+          "host": "a86da3bb-f7c4-4c9a-ab44-ec04c67f940e",
+          "path": "/build/dist/wasmJs/developmentExecutable/index.html"
+        }
       }
     }
   }

@@ -3,6 +3,11 @@
   "name": "TUCaN Plus KMP",
   "version": "0.1.0",
   "description": "Quality of life improvements for TUCaN",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tucan-plus-kmp@selfmade4u.de"
+    }
+  },
   "host_permissions": [
     "https://www.tucan.tu-darmstadt.de/*"
   ],
