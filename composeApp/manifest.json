@@ -19,6 +19,9 @@
   "permissions": [
     "declarativeNetRequestWithHostAccess"
   ],
+  "action": {
+    "default_title": "Click to show an alert"
+  },
   "options_page": "build/dist/wasmJs/developmentExecutable/index.html",
   "web_accessible_resources": [
     {

@@ -8,11 +8,11 @@ chrome.runtime.onInstalled.addListener(() => {
       action: {
         type: 'redirect',
         redirect: {
-          regexSubstitution: `${extensionUrl}?APPNAME=CampusNet&PRGNAME=LOGINCHECK&\\1`
+          regexSubstitution: `${extensionUrl}?APPNAME=CampusNet&PRGNAME=STARTPAGE_DISPATCH&\\1`
         }
       },
       condition: {
-        regexFilter: "^https://www\\.tucan\\.tu-darmstadt\\.de/scripts/mgrqispi\\.dll\\?APPNAME=CampusNet&PRGNAME=LOGINCHECK&(.*)",
+        regexFilter: "^https://www\\.tucan\\.tu-darmstadt\\.de/scripts/mgrqispi\\.dll\\?APPNAME=CampusNet&PRGNAME=STARTPAGE_DISPATCH&(.*)",
         resourceTypes: ['main_frame']
       }
     }

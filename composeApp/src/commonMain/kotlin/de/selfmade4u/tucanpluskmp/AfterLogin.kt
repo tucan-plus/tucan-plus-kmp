@@ -90,8 +90,9 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
             level = LogLevel.ALL
         }
     }
+    println(uri)
     LaunchedEffect(Unit) {
-        if (uri.parameters.contains("LOGINCHECK")) {
+        if (uri.parameters.contains("PRGNAME")) {
             println("traditional login")
         } else {
             val code = uri.parameters["code"]!!

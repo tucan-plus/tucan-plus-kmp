@@ -34,7 +34,7 @@ fun main() {
     val builder = getDatabaseBuilder()
     val db = getRoomDatabase(builder)
     println(window.location)
-    val uri = if (window.location.search.contains("LOGINCHECK")) {
+    val uri = if (window.location.search.contains("APPNAME")) {
         window.location.href
     } else {
         null
