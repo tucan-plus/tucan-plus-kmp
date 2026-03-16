@@ -1,6 +1,10 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.RecomposerInfo
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.window.ComposeViewport
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -10,10 +14,14 @@ import androidx.datastore.core.okio.WebStorageType
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.SupervisorJob
 import okio.FileSystem
 import org.w3c.dom.Worker
+import kotlin.coroutines.coroutineContext
 import kotlin.js.ExperimentalWasmJsInterop
 import kotlin.js.JsAny
 import kotlin.js.JsString
@@ -35,7 +43,7 @@ fun getRoomDatabase(
 
 @OptIn(ExperimentalWasmJsInterop::class)
 fun getSessionCookieInternal(): Promise<JsString> = js(
-    """browser.cookies.get({
+    """chrome.cookies.get({
   url: "https://www.tucan.tu-darmstadt.de/scripts",
   name: "cnsc",
 }).then(c => c.value)"""
@@ -43,8 +51,6 @@ fun getSessionCookieInternal(): Promise<JsString> = js(
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    val builder = getDatabaseBuilder()
-    val db = getRoomDatabase(builder)
     println(window.location)
     val uri = if (window.location.search.contains("APPNAME")) {
         window.location.href

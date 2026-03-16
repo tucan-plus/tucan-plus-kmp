@@ -95,7 +95,7 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
     LaunchedEffect(Unit) {
         if (uri.parameters.contains("PRGNAME")) {
             println("traditional login")
-            val sessionId: String = uri.parameters["ARGUMENTS"]!!.split(",", limit = 1)[0].substringAfter("-N")
+            val sessionId: String = uri.parameters["ARGUMENTS"]!!.split(",", limit = 2)[0].substringAfter("-N")
             println(sessionId)
             val cookie = getSessionCookie()
             println(cookie)
