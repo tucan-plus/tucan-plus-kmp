@@ -56,5 +56,5 @@ private fun jsWorker(): Worker =
 
 @OptIn(ExperimentalWasmJsInterop::class)
 actual suspend fun getSessionCookie(): String {
-   return getSessionCookieInternal().await()
+   return getSessionCookieInternal().await<JsString>().toString()
 }
