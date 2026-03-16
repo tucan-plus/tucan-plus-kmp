@@ -21,6 +21,7 @@ import com.github.terrakok.navigation3.browser.getBrowserHistoryFragmentName
 import com.github.terrakok.navigation3.browser.getBrowserHistoryFragmentParameters
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.await
 import org.w3c.dom.Worker
 
 class WasmPlatform : Platform {
@@ -52,3 +53,8 @@ public actual fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver {
 @OptIn(ExperimentalWasmJsInterop::class)
 private fun jsWorker(): Worker =
     js("""new Worker(new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url))""")
+
+@OptIn(ExperimentalWasmJsInterop::class)
+actual suspend fun getSessionCookie(): String {
+   return getSessionCookieInternal().await()
+}
