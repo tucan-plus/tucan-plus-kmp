@@ -33,13 +33,14 @@ fun getRoomDatabase(
 fun main() {
     val builder = getDatabaseBuilder()
     val db = getRoomDatabase(builder)
+    println(window.location)
     val uri = if (window.location.search.contains("LOGINCHECK")) {
         window.location.href
     } else {
         null
     }
     ComposeViewport {
-        App(null, createDataStore(), getRoomDatabase(getDatabaseBuilder()))
+        App(uri, createDataStore(), getRoomDatabase(getDatabaseBuilder()))
     }
 }
 
