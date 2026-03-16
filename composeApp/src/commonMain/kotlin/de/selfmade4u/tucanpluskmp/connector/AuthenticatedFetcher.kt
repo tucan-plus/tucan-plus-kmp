@@ -110,7 +110,8 @@ suspend fun <T> fetchAuthenticatedWithReauthentication(credentialSettingsDataSto
             }
             is AuthenticatedHttpResponse.NetworkLikelyTooSlow<*> -> return AuthenticatedResponse.NetworkLikelyTooSlow<T>()
         }
-        loginTucan(client, settings.tokenResponse, credentialSettingsDataStore)
+        // TODO FIXME also do other reauthentication (maybe in new tab)
+        loginTucan(client, settings.tokenResponse!!, credentialSettingsDataStore)
     }
     return AuthenticatedResponse.InvalidCredentials()
 }

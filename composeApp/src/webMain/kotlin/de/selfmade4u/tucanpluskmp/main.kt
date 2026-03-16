@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okio.FileSystem
 import org.w3c.dom.Worker
+import kotlin.js.ExperimentalWasmJsInterop
 import kotlin.js.js
 
 public expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
@@ -28,6 +29,14 @@ fun getRoomDatabase(
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()
 }
+
+@OptIn(ExperimentalWasmJsInterop::class)
+actual fun getSessionCookie(): String = js(
+    """(await browser.cookies.get({
+  url: "https://www.tucan.tu-darmstadt.de/scripts",
+  name: "cnsc",
+})).value"""
+)
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {

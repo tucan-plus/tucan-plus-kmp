@@ -17,6 +17,8 @@ expect fun getPlatform(): Platform
 @Composable
 expect fun LoginHandler(backStack: NavBackStack<NavKey>)
 
+expect fun getSessionCookie(): String
+
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>
         get() = flow {

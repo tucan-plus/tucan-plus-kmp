@@ -47,7 +47,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 @Serializable
-data class Settings(val tokenResponse: TokenResponse, val sessionId: String, val sessionCookie: String, val lastRequestTime: Instant, val menuLocalizer: Localizer) {}
+data class Settings(val tokenResponse: TokenResponse?, val sessionId: String, val sessionCookie: String, val lastRequestTime: Instant, val menuLocalizer: Localizer) {}
 
 @Serializable
 data class TokenResponse(
@@ -76,6 +76,7 @@ object SettingsSerializer : OkioSerializer<Settings?> {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
@@ -94,6 +95,12 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
     LaunchedEffect(Unit) {
         if (uri.parameters.contains("PRGNAME")) {
             println("traditional login")
+            val sessionId: String = uri.parameters["ARGUMENTS"]!!.split(",", limit = 1)[0].substringAfter("-N")
+            val cookie = getSessionCookie()
+            println(cookie)
+            dataStore.updateData {
+                Settings(null, sessionId, cookie, Clock.System.now(), GermanLocalizer)
+            }
         } else {
             val code = uri.parameters["code"]!!
             println(code)
