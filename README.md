@@ -87,6 +87,8 @@ If you face any issues, please report them on [YouTrack](https://youtrack.jetbra
 
 chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmentExecutable/index.html
 
+54aab10c-1df5-43b9-b5c1-942d4654c8a0
+
 ```
 
 ./gradlew :composeApp:wasmJsBrowserDevelopmentExecutableDistribution

@@ -80,8 +80,7 @@ object SettingsSerializer : OkioSerializer<Settings?> {
 @Composable
 @Preview
 fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<Settings?> = FakeDataStore, uri: String = "https://localhost/?code=test") {
-    val code = Url(uri).parameters["code"]!!
-    println(code)
+    val uri = Url(uri);
     val client = HttpClient() {
         install(UserAgent) {
             agent = "https://github.com/tucan-plus/tucan-plus-kmp Moritz.Hedtke@t-online.de"
@@ -92,20 +91,26 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
         }
     }
     LaunchedEffect(Unit) {
-        var response = client.submitForm(url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
-            formParameters = parameters {
-                append("client_id", "MobileApp")
-                append("code", code)
-                append("grant_type", "authorization_code")
-                append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
-            }
-        )
-        println(response)
-        val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
-        println(tokenResponse)
-        // now do the logincheck with that
-        loginTucan(client, tokenResponse, dataStore)
-        backStack[backStack.size - 1] = StartNavKey
+        if (uri.parameters.contains("LOGINCHECK")) {
+            println("traditional login")
+        } else {
+            val code = uri.parameters["code"]!!
+            println(code)
+            var response = client.submitForm(url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
+                formParameters = parameters {
+                    append("client_id", "MobileApp")
+                    append("code", code)
+                    append("grant_type", "authorization_code")
+                    append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
+                }
+            )
+            println(response)
+            val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
+            println(tokenResponse)
+            // now do the logincheck with that
+            loginTucan(client, tokenResponse, dataStore)
+            backStack[backStack.size - 1] = StartNavKey
+        }
     }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {

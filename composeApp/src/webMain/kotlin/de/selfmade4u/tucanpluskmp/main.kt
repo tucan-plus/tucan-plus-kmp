@@ -9,6 +9,7 @@ import androidx.datastore.core.okio.WebStorage
 import androidx.datastore.core.okio.WebStorageType
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
+import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okio.FileSystem
@@ -32,6 +33,11 @@ fun getRoomDatabase(
 fun main() {
     val builder = getDatabaseBuilder()
     val db = getRoomDatabase(builder)
+    val uri = if (window.location.search.contains("LOGINCHECK")) {
+        window.location.href
+    } else {
+        null
+    }
     ComposeViewport {
         App(null, createDataStore(), getRoomDatabase(getDatabaseBuilder()))
     }

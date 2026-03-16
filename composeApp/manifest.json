@@ -14,15 +14,7 @@
   "permissions": [
     "declarativeNetRequestWithHostAccess"
   ],
-  "declarative_net_request": {
-    "rule_resources": [
-      {
-        "id": "ruleset",
-        "enabled": true,
-        "path": "rules.json"
-      }
-    ]
-  },
+  "options_page": "build/dist/wasmJs/developmentExecutable/index.html",
   "web_accessible_resources": [
     {
       "resources": [
