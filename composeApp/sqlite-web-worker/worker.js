@@ -166,7 +166,7 @@ onmessage = (e) => {
 };
 
 sqlite3InitModule().then(instance => {
-    sqlite3.installOpfsSAHPoolVfs().then(thePoolUtil => {
+    instance.installOpfsSAHPoolVfs().then(thePoolUtil => {
         console.log("pool initialized")
         sqlite3 = instance;
         poolUtil = thePoolUtil;

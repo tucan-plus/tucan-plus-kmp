@@ -90,6 +90,10 @@ chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmen
 54aab10c-1df5-43b9-b5c1-942d4654c8a0
 
 ```
+./gradlew kotlinUpgradeYarnLock kotlinWasmUpgradeYarnLock
+
+./gradlew kotlinWasmUpgradePackageLock kotlinUpgradePackageLock
+
 /home/moritz/Documents/support/sqlite/sqlite-web-worker-test/web-worker/worker.js:
 /home/moritz/Documents/androidx-main/frameworks/support/sqlite/sqlite-web-worker-test/web-worker/worker.js:
 

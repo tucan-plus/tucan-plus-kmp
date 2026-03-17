@@ -1,6 +1,6 @@
 {
   "name": "@androidx/sqlite-web-worker",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "androidx SQLite Web Worker",
   "license": "APACHE-2.0",
   "dependencies": {
