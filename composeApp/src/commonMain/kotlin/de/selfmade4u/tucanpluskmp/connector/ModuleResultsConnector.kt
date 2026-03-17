@@ -92,25 +92,25 @@ object ModuleResultsConnector {
         return response(response) {
             status(HttpStatusCode.OK)
             header(
-                "Content-Security-Policy",
+                "content-security-policy",
                 "frame-src https://dsf.tucan.tu-darmstadt.de; frame-ancestors 'self' https://dsf.tucan.tu-darmstadt.de;"
             )
-            header("Content-Type", "text/html")
-            header("X-Content-Type-Options", "nosniff")
-            header("X-XSS-Protection", "1; mode=block")
-            header("Referrer-Policy", "strict-origin")
-            header("X-Frame-Options", "SAMEORIGIN")
-            maybeHeader("X-Powered-By", listOf("ASP.NET"))
-            header("Server", "Microsoft-IIS/10.0")
-            header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-            ignoreHeader("MgxpaMiddlewareWaitTime") // 0 or 16
-            ignoreHeader("Date")
-            ignoreHeader("Content-Length")
+            header("content-type", "text/html")
+            header("x-content-type-options", "nosniff")
+            header("x-xss-protection", "1; mode=block")
+            header("referrer-policy", "strict-origin")
+            header("x-frame-options", "SAMEORIGIN")
+            maybeHeader("x-powered-by", listOf("ASP.NET"))
+            header("server", "Microsoft-IIS/10.0")
+            header("strict-transport-security", "max-age=31536000; includeSubDomains")
+            ignoreHeader("mgxpamiddlewarewaittime") // 0 or 16
+            ignoreHeader("date")
             ignoreHeader("dl-served-by")
-            header("Connection", "close")
-            header("Pragma", "no-cache")
-            header("Expires", "0")
-            header("Cache-Control", "private, no-cache, no-store")
+            maybeHeader("connection", listOf("close"))
+            header("pragma", "no-cache")
+            header("expires", "0")
+            header("cache-control", "private, no-cache, no-store")
+            maybeIgnoreHeader("x-firefox-spdy")
             maybeIgnoreHeader("vary")
             maybeIgnoreHeader("x-android-received-millis")
             maybeIgnoreHeader("x-android-response-source")
