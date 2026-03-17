@@ -90,9 +90,14 @@ chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmen
 54aab10c-1df5-43b9-b5c1-942d4654c8a0
 
 ```
+rm -R ~/.gradle/caches/
+
+
 # maybe easier to debug than wasm
 ./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution
 
+git clean -xdf
+./gradlew --no-build-cache --no-configuration-cache --refresh-dependencies kotlinUpgradeYarnLock
 
 /home/moritz/.cache/yarn/v6/npm-@androidx-sqlite-web-worker-0.0.0-1e6c73b7-b69c-4053-b012-f482f40533fc-1773706739537/node_modules/@androidx/sqlite-web-worker/worker.js
 

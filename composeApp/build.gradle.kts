@@ -17,7 +17,7 @@ plugins {
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(25)
-        vendor = JvmVendorSpec.JETBRAINS
+        //vendor = JvmVendorSpec.JETBRAINS
     }
 
     android {
@@ -102,7 +102,7 @@ kotlin {
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
-            implementation(npm(project.file("sqlite-web-worker")))
+            implementation(npm("sqlite-web-worker", "file:${project.projectDir}/sqlite-web-worker"))
             implementation(libs.navigation3.browser)
             implementation(libs.kotlinx.browser)
         }
