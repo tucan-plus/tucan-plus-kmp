@@ -102,7 +102,7 @@ kotlin {
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
-            implementation(npm("sqlite-web-worker", "file:${project.projectDir}/sqlite-web-worker"))
+            implementation(npm("@sqlite.org/sqlite-wasm", "3.50.1-build1"))
             implementation(libs.navigation3.browser)
             implementation(libs.kotlinx.browser)
         }
