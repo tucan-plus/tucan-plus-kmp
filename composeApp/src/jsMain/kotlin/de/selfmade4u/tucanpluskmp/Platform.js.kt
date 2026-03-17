@@ -18,17 +18,8 @@ class JsPlatform : Platform {
 
 actual fun getPlatform(): Platform = JsPlatform()
 
-
-actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    return Room.databaseBuilder<AppDatabase>(
-        name = "test",
-    )
-}
-
-public actual fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver {
-    return WebWorkerSQLiteDriver(
-        Worker(js("""new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url)"""))
-    )
+actual fun fromWorker(worker: Worker): WebWorkerSQLiteDriver {
+    return WebWorkerSQLiteDriver(worker)
 }
 
 @OptIn(ExperimentalWasmJsInterop::class)

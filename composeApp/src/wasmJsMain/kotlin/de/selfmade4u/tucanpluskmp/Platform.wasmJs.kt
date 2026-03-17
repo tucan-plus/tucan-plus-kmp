@@ -30,19 +30,9 @@ class WasmPlatform : Platform {
 
 actual fun getPlatform(): Platform = WasmPlatform()
 
-actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    return Room.databaseBuilder<AppDatabase>(
-        name = "test",
-    )
+actual fun fromWorker(worker: Worker): WebWorkerSQLiteDriver {
+   return WebWorkerSQLiteDriver(worker)
 }
-
-public actual fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver {
-    return WebWorkerSQLiteDriver(jsWorker())
-}
-
-@OptIn(ExperimentalWasmJsInterop::class)
-private fun jsWorker(): Worker =
-    js("""new Worker(new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url))""")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 actual suspend fun getSessionCookie(): String {

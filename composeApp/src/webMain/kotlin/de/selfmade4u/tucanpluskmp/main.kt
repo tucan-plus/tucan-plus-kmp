@@ -16,7 +16,9 @@ import androidx.datastore.core.okio.WebStorage
 import androidx.datastore.core.okio.WebStorageType
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.room3.Room
 import androidx.room3.RoomDatabase
+import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import io.ktor.client.HttpClient
 import io.ktor.http.Url
@@ -36,9 +38,7 @@ import kotlin.js.Promise
 import kotlin.js.js
 import kotlin.time.Clock
 
-public expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
-
-public expect fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver
+expect fun fromWorker(worker: Worker): WebWorkerSQLiteDriver
 
 expect suspend fun getSessionCookie(): String
 
@@ -70,15 +70,15 @@ actual suspend fun handleLogin(
     backStack[backStack.size - 1] = StartNavKey
 }
 
-
-fun getRoomDatabase(
-    builder: RoomDatabase.Builder<AppDatabase>
-): AppDatabase {
-    return builder
-        .setDriver(createDefaultWebWorkerDriver())
-        .setQueryCoroutineContext(Dispatchers.Main)
+fun createDatabase(): AppDatabase {
+    return Room.databaseBuilder<AppDatabase>("test.db")
+        .setDriver(fromWorker(createWorker()))
         .build()
 }
+
+@OptIn(ExperimentalWasmJsInterop::class)
+fun createWorker() =
+    Worker(js("""new URL("sqlite-web-worker/worker.js", import.meta.url)"""))
 
 @OptIn(ExperimentalWasmJsInterop::class)
 fun getSessionCookieInternal(): Promise<JsString> = js(
@@ -96,7 +96,7 @@ fun main() {
     } else {
         null
     }
-    val database = getRoomDatabase(getDatabaseBuilder());
+    val database = createDatabase();
     val dataStore = createDataStore();
     ComposeViewport {
         App(uri, dataStore, database)
