@@ -1,6 +1,7 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -47,7 +48,7 @@ kotlin {
     js {
         browser {
             commonWebpackConfig {
-                devtool = "source-map"
+                devtool = "inline-source-map"
             }
         }
         binaries.executable()
@@ -57,7 +58,7 @@ kotlin {
     wasmJs {
         browser {
             commonWebpackConfig {
-                devtool = "source-map"
+                devtool = "inline-source-map"
             }
         }
         binaries.executable()
