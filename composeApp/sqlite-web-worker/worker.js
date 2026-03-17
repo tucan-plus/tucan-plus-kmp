@@ -34,6 +34,7 @@ function openRequest(id, requestData) {
         databases.set(newDatabaseId, newDatabase);
         postMessage({'id': id, data: {'databaseId': newDatabaseId}});
     } catch (error) {
+        console.log(error.message)
         postMessage({'id': id, error: error.message});
     }
 }
@@ -48,6 +49,7 @@ function prepareRequest(id, requestData) {
         };
         const database = databases.get(requestData.databaseId);
         if (!database) {
+            console.log("Invalid database ID: " + requestData.databaseId)
             postMessage({'id': id, error: "Invalid database ID: " + requestData.databaseId});
             return;
         }
@@ -59,6 +61,7 @@ function prepareRequest(id, requestData) {
         }
         postMessage({'id': id, data: resultData});
     } catch (error) {
+        console.log(error.message)
         postMessage({'id': id, error: error.message});
     }
 }
@@ -67,6 +70,7 @@ function stepRequest(id, requestData) {
     const statement = statements.get(requestData.statementId);
     if (!statement) {
         postMessage({'id': id, error: "Invalid statement ID: " + requestData.statementId});
+        console.log("Invalid statement ID: " + requestData.statementId)
         return;
     }
     try {
@@ -89,6 +93,7 @@ function stepRequest(id, requestData) {
         }
         postMessage({'id': id, data: resultData});
     } catch (error) {
+        console.log(error.message)
         postMessage({'id': id, error: error.message});
     }
 }
@@ -104,6 +109,7 @@ function closeRequest(id, requestData) {
             statement.finalize();
             statements.delete(requestData.statementId);
         } catch (error) {
+            console.log(error.message)
             postMessage({'id': id, error: error.message});
         }
     }
@@ -111,6 +117,7 @@ function closeRequest(id, requestData) {
     if (requestData.databaseId) {
         const database = databases.get(requestData.databaseId);
         if (!database) {
+            console.log("Invalid database ID: " + requestData.databaseId)
             postMessage({'id': id, error: "Invalid database ID: " + requestData.databaseId});
             return;
         }
@@ -118,6 +125,7 @@ function closeRequest(id, requestData) {
             database.close();
             databases.delete(requestData.databaseId);
         } catch (error) {
+            console.log(error.message)
             postMessage({'id': id, error: error.message});
         }
     }
@@ -134,12 +142,14 @@ const commandMap = {
 function handleMessage(e) {
     const requestMsg = e.data;
     if (!Object.hasOwn(requestMsg, 'data') && requestMsg.data == null) {
+        console.log("Invalid request, missing 'data'.")
         postMessage(
             {'id': requestMsg.id, 'error': "Invalid request, missing 'data'."}
         );
         return;
     }
     if (!Object.hasOwn(requestMsg.data, 'cmd') && requestMsg.data.cmd == null) {
+        console.log("Invalid request, missing 'cmd'.")
         postMessage(
             {'id': requestMsg.id, 'error': "Invalid request, missing 'cmd'."}
         );
@@ -150,6 +160,7 @@ function handleMessage(e) {
     if (requestHandler) {
         requestHandler(requestMsg.id, requestMsg.data);
     } else {
+        console.log("Invalid request, unknown command: '" + command + "'.")
         postMessage(
             {'id': requestMsg.id, 'error': "Invalid request, unknown command: '" + command + "'."}
         );
