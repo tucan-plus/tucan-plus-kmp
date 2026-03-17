@@ -8,7 +8,11 @@ plugins {
 
 android {
     namespace = "de.selfmade4u.tucanpluskmp"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk {
+        version = release(libs.versions.android.compileSdk.get().toInt()) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId = "de.selfmade4u.tucanpluskmp"

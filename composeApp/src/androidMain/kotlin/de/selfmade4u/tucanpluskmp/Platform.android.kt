@@ -18,8 +18,14 @@ import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.ktor.client.HttpClient
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.Url
+import io.ktor.http.parameters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
 import java.io.File
@@ -40,6 +46,31 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
             .build()
         intent.launchUrl(context, url.toUri())
     }
+}
+
+actual suspend fun handleLogin(
+    uri: Url,
+    client: HttpClient,
+    dataStore: DataStore<Settings?>,
+    backStack: NavBackStack<NavKey>
+) {
+    val code = uri.parameters["code"]!!
+    println(code)
+    var response = client.submitForm(
+        url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
+        formParameters = parameters {
+            append("client_id", "MobileApp")
+            append("code", code)
+            append("grant_type", "authorization_code")
+            append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
+        }
+    )
+    println(response)
+    val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
+    println(tokenResponse)
+    // now do the logincheck with that
+    loginTucan(client, tokenResponse, dataStore)
+    backStack[backStack.size - 1] = StartNavKey
 }
 
 fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {

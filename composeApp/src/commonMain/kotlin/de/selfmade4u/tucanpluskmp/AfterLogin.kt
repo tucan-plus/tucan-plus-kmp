@@ -93,34 +93,8 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
     }
     println(uri)
     LaunchedEffect(Unit) {
-        if (uri.parameters.contains("PRGNAME")) {
-            println("traditional login")
-            val sessionId: String = uri.parameters["ARGUMENTS"]!!.split(",", limit = 2)[0].substringAfter("-N")
-            println(sessionId)
-            val cookie = getSessionCookie()
-            println(cookie)
-            dataStore.updateData {
-                Settings(null, sessionId, cookie, Clock.System.now(), GermanLocalizer)
-            }
-            backStack[backStack.size - 1] = StartNavKey
-        } else {
-            val code = uri.parameters["code"]!!
-            println(code)
-            var response = client.submitForm(url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
-                formParameters = parameters {
-                    append("client_id", "MobileApp")
-                    append("code", code)
-                    append("grant_type", "authorization_code")
-                    append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
-                }
-            )
-            println(response)
-            val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
-            println(tokenResponse)
-            // now do the logincheck with that
-            loginTucan(client, tokenResponse, dataStore)
-            backStack[backStack.size - 1] = StartNavKey
-        }
+        //if (uri.parameters.contains("PRGNAME")) {
+        handleLogin(uri, client, dataStore, backStack)
     }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {

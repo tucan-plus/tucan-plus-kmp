@@ -90,7 +90,10 @@ chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmen
 54aab10c-1df5-43b9-b5c1-942d4654c8a0
 
 ```
+/home/moritz/Documents/support/sqlite/sqlite-web-worker-test/web-worker/worker.js:
+/home/moritz/Documents/androidx-main/frameworks/support/sqlite/sqlite-web-worker-test/web-worker/worker.js:
 
+rm -R /home/moritz/.cache/yarn/
 ./gradlew :composeApp:wasmJsBrowserDevelopmentExecutableDistribution
 
 wasmJsBrowserDevelopmentRun # does not write to disk

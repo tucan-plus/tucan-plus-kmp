@@ -12,8 +12,12 @@ import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
 import androidx.datastore.core.okio.WebStorage
 import androidx.datastore.core.okio.WebStorageType
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
+import io.ktor.client.HttpClient
+import io.ktor.http.Url
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -28,10 +32,32 @@ import kotlin.js.JsAny
 import kotlin.js.JsString
 import kotlin.js.Promise
 import kotlin.js.js
+import kotlin.time.Clock
 
 public expect fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase>
 
 public expect fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver
+
+expect suspend fun getSessionCookie(): String
+
+actual suspend fun handleLogin(
+    uri: Url,
+    client: HttpClient,
+    dataStore: DataStore<Settings?>,
+    backStack: NavBackStack<NavKey>
+) {
+    println("traditional login")
+    val sessionId: String =
+        uri.parameters["ARGUMENTS"]!!.split(",", limit = 2)[0].substringAfter("-N")
+    println(sessionId)
+    val cookie = getSessionCookie()
+    println(cookie)
+    dataStore.updateData {
+        Settings(null, sessionId, cookie, Clock.System.now(), GermanLocalizer)
+    }
+    backStack[backStack.size - 1] = StartNavKey
+}
+
 
 fun getRoomDatabase(
     builder: RoomDatabase.Builder<AppDatabase>
