@@ -102,6 +102,7 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
             dataStore.updateData {
                 Settings(null, sessionId, cookie, Clock.System.now(), GermanLocalizer)
             }
+            backStack[backStack.size - 1] = StartNavKey
         } else {
             val code = uri.parameters["code"]!!
             println(code)

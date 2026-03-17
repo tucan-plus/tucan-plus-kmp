@@ -17,6 +17,7 @@
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 let sqlite3 = null;
+let poolUtil = null;
 
 // Maps to track of active database connections and prepared statements by their unique IDs.
 const databases = new Map(); // stores databaseId -> SQLiteDbObject
@@ -29,7 +30,7 @@ let nextStatementId = 0;
 function openRequest(id, requestData) {
     try {
         const newDatabaseId = nextDatabaseId++;
-        const newDatabase = new sqlite3.oo1.OpfsDb(requestData.fileName);
+        const newDatabase = new poolUtil.OpfsSAHPoolDb(requestData.fileName);
         databases.set(newDatabaseId, newDatabase);
         postMessage({'id': id, data: {'databaseId': newDatabaseId}});
     } catch (error) {
@@ -165,8 +166,12 @@ onmessage = (e) => {
 };
 
 sqlite3InitModule().then(instance => {
-    sqlite3 = instance;
-    while (messageQueue.length > 0) {
-        handleMessage(messageQueue.shift());
-    }
+    sqlite3.installOpfsSAHPoolVfs().then(thePoolUtil => {
+        console.log("pool initialized")
+        sqlite3 = instance;
+        poolUtil = thePoolUtil;
+        while (messageQueue.length > 0) {
+            handleMessage(messageQueue.shift());
+        }
+    })
 });

@@ -3,6 +3,7 @@ package de.selfmade4u.tucanpluskmp
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.RecomposerInfo
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.window.ComposeViewport
@@ -57,8 +58,10 @@ fun main() {
     } else {
         null
     }
+    val database = getRoomDatabase(getDatabaseBuilder());
+    val dataStore = createDataStore();
     ComposeViewport {
-        App(uri, createDataStore(), getRoomDatabase(getDatabaseBuilder()))
+        App(uri, dataStore, database)
     }
 }
 
