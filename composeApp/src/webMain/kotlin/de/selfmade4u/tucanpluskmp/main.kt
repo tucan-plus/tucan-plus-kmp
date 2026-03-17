@@ -1,6 +1,8 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.RecomposerInfo
 import androidx.compose.runtime.remember
@@ -40,6 +42,16 @@ public expect fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver
 
 expect suspend fun getSessionCookie(): String
 
+@Composable
+actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+    println("wasm login handler")
+    LaunchedEffect(Unit) {
+        val url =
+            "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=ClassicWeb&scope=openid%20DSF%20email&response_mode=query&response_type=code&ui_locales=de&redirect_uri=https%3a%2f%2fwww.tucan.tu-darmstadt.de%2Fscripts%2Fmgrqispi.dll%3FAPPNAME%3DCampusNet%26PRGNAME%3DLOGINCHECK%26ARGUMENTS%3D-N000000000000001%2Cids_mode%26ids_mode%3DY"
+        window.location.href = url
+    }
+}
+
 actual suspend fun handleLogin(
     uri: Url,
     client: HttpClient,
@@ -73,7 +85,7 @@ fun getSessionCookieInternal(): Promise<JsString> = js(
     """chrome.cookies.get({
   url: "https://www.tucan.tu-darmstadt.de/scripts",
   name: "cnsc",
-}).then(c => c.value)"""
+}).then(function (c) { return c.value })"""
 )
 
 @OptIn(ExperimentalComposeUiApi::class)

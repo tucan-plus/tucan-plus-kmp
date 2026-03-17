@@ -168,8 +168,8 @@ onmessage = (e) => {
 sqlite3InitModule().then(instance => {
     instance.installOpfsSAHPoolVfs().then(thePoolUtil => {
         console.log("pool initialized")
-        sqlite3 = instance;
         poolUtil = thePoolUtil;
+        sqlite3 = instance;
         while (messageQueue.length > 0) {
             handleMessage(messageQueue.shift());
         }
