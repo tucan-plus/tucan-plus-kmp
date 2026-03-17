@@ -92,9 +92,8 @@ chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmen
 ```
 rm -R ~/.gradle/caches/
 
-
 # maybe easier to debug than wasm
-./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution
+./gradlew kotlinUpgradeYarnLock :composeApp:jsBrowserDevelopmentExecutableDistribution
 
 git clean -xdf
 ./gradlew --no-build-cache --no-configuration-cache --refresh-dependencies kotlinUpgradeYarnLock
