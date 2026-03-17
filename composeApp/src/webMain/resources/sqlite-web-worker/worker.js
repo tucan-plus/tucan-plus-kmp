@@ -16,7 +16,7 @@
 
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
-console.log(42)
+console.log(43)
 
 let sqlite3 = null;
 let poolUtil = null;

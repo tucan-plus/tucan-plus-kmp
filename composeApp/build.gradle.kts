@@ -14,10 +14,6 @@ plugins {
     alias(libs.plugins.androidx.room)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask>().configureEach {
-    inputs.dir(project.file("sqlite-web-worker")).withPropertyName("sqliteWorkerSource")
-}
-
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(25)
