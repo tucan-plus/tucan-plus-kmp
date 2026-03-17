@@ -16,7 +16,7 @@
 
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
-console.log(43)
+console.log(44)
 
 let sqlite3 = null;
 let poolUtil = null;
@@ -34,6 +34,7 @@ function openRequest(id, requestData) {
         const newDatabaseId = nextDatabaseId++;
         const newDatabase = new poolUtil.OpfsSAHPoolDb(requestData.fileName);
         databases.set(newDatabaseId, newDatabase);
+        console.log({'databaseId': newDatabaseId})
         postMessage({'id': id, data: {'databaseId': newDatabaseId}});
     } catch (error) {
         console.log(error.message)
@@ -61,6 +62,7 @@ function prepareRequest(id, requestData) {
         for (let i = 0; i < statement.columnCount; i++) {
             resultData.columnNames.push(sqlite3.capi.sqlite3_column_name(statement, i));
         }
+        console.log(resultData)
         postMessage({'id': id, data: resultData});
     } catch (error) {
         console.log(error.message)
@@ -93,6 +95,7 @@ function stepRequest(id, requestData) {
             }
             resultData.rows.push(statement.get([]));
         }
+        console.log(resultData)
         postMessage({'id': id, data: resultData});
     } catch (error) {
         console.log(error.message)
@@ -142,6 +145,7 @@ const commandMap = {
 };
 
 function handleMessage(e) {
+    console.log("handleMessage", e.data)
     const requestMsg = e.data;
     if (!Object.hasOwn(requestMsg, 'data') && requestMsg.data == null) {
         console.log("Invalid request, missing 'data'.")
