@@ -27,14 +27,19 @@ const statements = new Map(); // stores statementId -> SQLiteStatementObject
 let nextDatabaseId = 0;
 let nextStatementId = 0;
 
+function postMessageInternal(data) {
+    console.log("responding with", data)
+    postMessage(data)
+}
+
 function openRequest(id, requestData) {
     try {
         const newDatabaseId = nextDatabaseId++;
         const newDatabase = new poolUtil.OpfsSAHPoolDb(requestData.fileName);
         databases.set(newDatabaseId, newDatabase);
-        postMessage({'id': id, data: {'databaseId': newDatabaseId}});
+        postMessageInternal({'id': id, data: {'databaseId': newDatabaseId}});
     } catch (error) {
-        postMessage({'id': id, error: error.message});
+        postMessageInternal({'id': id, error: error.message});
     }
 }
 
@@ -48,7 +53,7 @@ function prepareRequest(id, requestData) {
         };
         const database = databases.get(requestData.databaseId);
         if (!database) {
-            postMessage({'id': id, error: "Invalid database ID: " + requestData.databaseId});
+            postMessageInternal({'id': id, error: "Invalid database ID: " + requestData.databaseId});
             return;
         }
         const statement = database.prepare(requestData.sql);
@@ -57,16 +62,16 @@ function prepareRequest(id, requestData) {
         for (let i = 0; i < statement.columnCount; i++) {
             resultData.columnNames.push(sqlite3.capi.sqlite3_column_name(statement, i));
         }
-        postMessage({'id': id, data: resultData});
+        postMessageInternal({'id': id, data: resultData});
     } catch (error) {
-        postMessage({'id': id, error: error.message});
+        postMessageInternal({'id': id, error: error.message});
     }
 }
 
 function stepRequest(id, requestData) {
     const statement = statements.get(requestData.statementId);
     if (!statement) {
-        postMessage({'id': id, error: "Invalid statement ID: " + requestData.statementId});
+        postMessageInternal({'id': id, error: "Invalid statement ID: " + requestData.statementId});
         return;
     }
     try {
@@ -87,9 +92,9 @@ function stepRequest(id, requestData) {
             }
             resultData.rows.push(statement.get([]));
         }
-        postMessage({'id': id, data: resultData});
+        postMessageInternal({'id': id, data: resultData});
     } catch (error) {
-        postMessage({'id': id, error: error.message});
+        postMessageInternal({'id': id, error: error.message});
     }
 }
 
@@ -97,28 +102,28 @@ function closeRequest(id, requestData) {
     if (requestData.statementId !== undefined && requestData.statementId != null) {
         const statement = statements.get(requestData.statementId);
         if (!statement) {
-            postMessage({'id': id, error: "Invalid statement ID: " + requestData.statementId});
+            postMessageInternal({'id': id, error: "Invalid statement ID: " + requestData.statementId});
             return;
         }
         try {
             statement.finalize();
             statements.delete(requestData.statementId);
         } catch (error) {
-            postMessage({'id': id, error: error.message});
+            postMessageInternal({'id': id, error: error.message});
         }
     }
 
     if (requestData.databaseId !== undefined && requestData.databaseId != null) {
         const database = databases.get(requestData.databaseId);
         if (!database) {
-            postMessage({'id': id, error: "Invalid database ID: " + requestData.databaseId});
+            postMessageInternal({'id': id, error: "Invalid database ID: " + requestData.databaseId});
             return;
         }
         try {
             database.close();
             databases.delete(requestData.databaseId);
         } catch (error) {
-            postMessage({'id': id, error: error.message});
+            postMessageInternal({'id': id, error: error.message});
         }
     }
 }
@@ -134,13 +139,13 @@ const commandMap = {
 function handleMessage(e) {
     const requestMsg = e.data;
     if (!Object.hasOwn(requestMsg, 'data') && requestMsg.data == null) {
-        postMessage(
+        postMessageInternal(
             {'id': requestMsg.id, 'error': "Invalid request, missing 'data'."}
         );
         return;
     }
     if (!Object.hasOwn(requestMsg.data, 'cmd') && requestMsg.data.cmd == null) {
-        postMessage(
+        postMessageInternal(
             {'id': requestMsg.id, 'error': "Invalid request, missing 'cmd'."}
         );
         return;
@@ -150,7 +155,7 @@ function handleMessage(e) {
     if (requestHandler) {
         requestHandler(requestMsg.id, requestMsg.data);
     } else {
-        postMessage(
+        postMessageInternal(
             {'id': requestMsg.id, 'error': "Invalid request, unknown command: '" + command + "'."}
         );
     }
