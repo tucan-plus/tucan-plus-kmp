@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "477888154c79407687d35b3cca2c1f0b",
+    "version": 3,
+    "identityHash": "2d69fa71df71109d208813fdced0c27d",
     "entities": [
       {
         "tableName": "TodoEntity",
@@ -66,7 +66,7 @@
       },
       {
         "tableName": "ModuleResultEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleResultsId` INTEGER NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `grade` TEXT, `credits` INTEGER NOT NULL, `resultdetailsUrl` TEXT, `gradeoverviewUrl` TEXT, `semester_id` INTEGER NOT NULL, `semester_year` INTEGER NOT NULL, `semester_semester` TEXT NOT NULL, PRIMARY KEY(`moduleResultsId`, `id`, `semester_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleResultsId` INTEGER NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `grade` TEXT NOT NULL, `credits` INTEGER NOT NULL, `resultdetailsUrl` TEXT, `gradeoverviewUrl` TEXT, `semester_id` INTEGER NOT NULL, `semester_year` INTEGER NOT NULL, `semester_semester` TEXT NOT NULL, PRIMARY KEY(`moduleResultsId`, `id`, `semester_id`))",
         "fields": [
           {
             "fieldPath": "moduleResultsId",
@@ -89,7 +89,8 @@
           {
             "fieldPath": "grade",
             "columnName": "grade",
-            "affinity": "TEXT"
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "credits",
@@ -138,7 +139,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '477888154c79407687d35b3cca2c1f0b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2d69fa71df71109d208813fdced0c27d')"
     ]
   }
 }

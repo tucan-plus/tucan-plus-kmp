@@ -30,7 +30,7 @@ class Converters {
     }
 }
 
-@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 2)
+@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 3)
 @TypeConverters(Converters::class)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {

@@ -72,6 +72,7 @@ actual suspend fun handleLogin(
 
 fun createDatabase(): AppDatabase {
     return Room.databaseBuilder<AppDatabase>("test.db")
+        .fallbackToDestructiveMigration(true)
         .setDriver(fromWorker(createWorker()))
         .build()
 }

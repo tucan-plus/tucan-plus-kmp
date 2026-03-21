@@ -69,7 +69,7 @@ object ModuleResultsConnector {
     data class Module(
         var id: String,
         val name: String,
-        val grade: ModuleGrade?,
+        val grade: ModuleGrade,
         val credits: Int,
         val resultdetailsUrl: String?,
         val gradeoverviewUrl: String?
@@ -317,7 +317,7 @@ object ModuleResultsConnector {
                         ) {
                             val moduleId: String
                             val moduleName: String
-                            val moduleGrade: ModuleGrade?
+                            var moduleGrade: ModuleGrade = ModuleGrade.NOCH_NICHT_GESETZT
                             val moduleCredits: Int
                             val resultdetailsUrl: String?
                             val gradeoverviewUrl: String?
@@ -335,7 +335,7 @@ object ModuleResultsConnector {
                                                     throw IllegalStateException("Unknown grade `$moduleGradeText`")
                                                 }
                                     } else {
-                                        moduleGrade = null;
+                                        moduleGrade = ModuleGrade.NOCH_NICHT_GESETZT;
                                     }
                                 }
                                 td {
