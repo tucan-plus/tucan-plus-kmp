@@ -30,7 +30,7 @@ class Converters {
     }
 }
 
-@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 5)
+@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 6)
 @TypeConverters(
     Converters::class,
     TucanUrl.RESULTDETAILS.Companion::class,
