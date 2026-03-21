@@ -34,23 +34,21 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 
 // https://github.com/tucan-plus/tucan-plus/blob/640bb9cbb9e3f8d22e8b9d6ddaabb5256b2eb0e6/crates/tucan-types/src/lib.rs#L366
-enum class ModuleGrade(val representation: String, val stringified: String = representation) {
-    G1_0("1,0"),
-    G1_3("1,3"),
-    G1_7("1,7"),
-    G2_0("2,0"),
-    G2_3("2,3"),
-    G2_7("2,7"),
-    G3_0("3,0"),
-    G3_3("3,3"),
-    G3_7("3,7"),
-    G4_0("4,0"),
-    G5_0("5,0"),
-    B("b"),
-    NB("nb"),
-    // TODO FIXME localize
-    NOCH_NICHT_GESETZT("noch nicht gesetzt", "-"),
-    NOCH_NICHT_GESETZT_EN("not set yet", "-")
+enum class ModuleGrade(val representation: (localizer: Localizer) -> String, val stringified: String) {
+    G1_0({ "1,0" }, "1,0"),
+    G1_3({ "1,3" }, "1,3"),
+    G1_7({ "1,7" }, "1,7"),
+    G2_0({ "2,0" }, "2,0"),
+    G2_3({ "2,3" }, "2,3"),
+    G2_7({ "2,7" }, "2,7"),
+    G3_0({ "3,0" }, "3,0"),
+    G3_3({ "3,3" }, "3,3"),
+    G3_7({ "3,7" }, "3,7"),
+    G4_0({ "4,0" }, "4,0"),
+    G5_0({ "5,0" }, "5,0"),
+    B({ "b" }, "b"),
+    NB({ "nb" }, "nb"),
+    NOCH_NICHT_GESETZT({ it.not_set_yet }, "-"),
 }
 
 enum class Semester {
@@ -332,12 +330,12 @@ object ModuleResultsConnector {
                                     if (peek() != null) {
                                         val moduleGradeText = extractText()
                                         moduleGrade =
-                                            ModuleGrade.entries.find { it.representation == moduleGradeText }
+                                            ModuleGrade.entries.find { it.representation(localizer) == moduleGradeText }
                                                 ?: run {
                                                     throw IllegalStateException("Unknown grade `$moduleGradeText`")
                                                 }
                                     } else {
-                                        moduleGrade = ModuleGrade.NOCH_NICHT_GESETZT;
+                                        moduleGrade = ModuleGrade.NOCH_NICHT_GESETZT
                                     }
                                 }
                                 td {
