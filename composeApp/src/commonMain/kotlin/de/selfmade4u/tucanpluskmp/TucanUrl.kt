@@ -38,7 +38,7 @@ sealed class TucanUrl {
         companion object {
             fun fromString(input: String): GRADEOVERVIEWModule {
                 val regex =
-                    Regex("""^/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=GRADEOVERVIEW&ARGUMENTS=-N(?<sessionId>\d+),-N(?<menuId>\d+),-AMOFF,-N(?<id>\d+),-N(?<p5>\d+).*$""")
+                    Regex("""^/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=GRADEOVERVIEW&ARGUMENTS=-N(?<sessionId>\d+),-N(?<menuId>\d+),-AMOFF,-N(?<id>\d+),-N0(,-N,-N\d+,-A,-N,-A,-N,-N,-N1)?$""")
                 val matchResult = regex.find(input) ?: throw IllegalArgumentException(input)
                 val id = matchResult.groups["id"]!!.value
                 return GRADEOVERVIEWModule(id.toLong())
