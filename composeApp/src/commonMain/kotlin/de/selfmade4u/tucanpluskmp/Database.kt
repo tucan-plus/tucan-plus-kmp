@@ -30,7 +30,7 @@ class Converters {
     }
 }
 
-@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 3)
+@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 5)
 @TypeConverters(Converters::class, TucanUrl.RESULTDETAILS.Companion::class)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {

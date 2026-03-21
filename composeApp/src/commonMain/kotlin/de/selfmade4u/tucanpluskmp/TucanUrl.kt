@@ -10,18 +10,22 @@ sealed class TucanUrl {
      */
     data class RESULTDETAILS(val id: Long) : TucanUrl() {
         companion object {
-            @TypeConverter
             fun fromString(input: String): RESULTDETAILS {
                 val regex =
                     Regex("""^/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=RESULTDETAILS&ARGUMENTS=-N(?<sessionId>\d+),-N(?<menuId>\d+),-N(?<id>\d+)(,-N(?<semester>\d+))?$""")
-                val matchResult = regex.find(input) ?: throw IllegalArgumentException()
+                val matchResult = regex.find(input) ?: throw IllegalArgumentException(input)
                 val id = matchResult.groups["id"]!!.value
                 return RESULTDETAILS(id.toLong())
             }
 
             @TypeConverter
-            fun toString(input: RESULTDETAILS): String {
-                return input.id.toString()
+            fun databaseFromLong(input: Long): RESULTDETAILS {
+                return RESULTDETAILS(input)
+            }
+
+            @TypeConverter
+            fun databaseToLong(input: RESULTDETAILS): Long {
+                return input.id
             }
         }
     }
