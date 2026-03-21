@@ -86,7 +86,9 @@ If you face any issues, please report them on [YouTrack](https://youtrack.jetbra
 ### Extension development
 
 ```
-./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution
+./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution --continuous
+
+./gradlew :composeApp:jsBrowserDevelopmentRun --continuous
 
 wasmJsBrowserDevelopmentRun # does not write to disk
 wasmJsBrowserDevelopmentWebpack # writes to disk, but misses some files
