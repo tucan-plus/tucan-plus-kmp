@@ -34,7 +34,7 @@ fun Start(backStack: NavBackStack<NavKey>, dataStore: DataStore<Settings?>) {
     // TODO https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary all material expressive?
     DetailedDrawerExample(backStack, "TUCaN Plus") { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding),) {
-            Text("eeeeeLogged in: ${value != null}")
+            Text("Logged in: ${value != null}")
             Button(
                 shapes = ButtonDefaults.shapes(),
 
