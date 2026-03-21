@@ -17,8 +17,9 @@
 import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 let sqlite3 = null;
+let poolUtil = null;
 
-// Maps to track of active database connections and prepared statements by their unique IDs.
+// Maps to track active database connections and prepared statements by their unique IDs.
 const databases = new Map(); // stores databaseId -> SQLiteDbObject
 const statements = new Map(); // stores statementId -> SQLiteStatementObject
 
@@ -29,7 +30,7 @@ let nextStatementId = 0;
 function openRequest(id, requestData) {
     try {
         const newDatabaseId = nextDatabaseId++;
-        const newDatabase = new sqlite3.oo1.OpfsDb(requestData.fileName);
+        const newDatabase = new poolUtil.OpfsSAHPoolDb(requestData.fileName);
         databases.set(newDatabaseId, newDatabase);
         postMessage({'id': id, data: {'databaseId': newDatabaseId}});
     } catch (error) {
@@ -73,8 +74,8 @@ function stepRequest(id, requestData) {
             'rows': [],
             'columnTypes': []
         };
-        statement.reset()
-        statement.clearBindings()
+        statement.reset();
+        statement.clearBindings();
         for (let i = 0; i < requestData.bindings.length; i++) {
             statement.bind(i + 1, requestData.bindings[i]);
         }
@@ -93,7 +94,7 @@ function stepRequest(id, requestData) {
 }
 
 function closeRequest(id, requestData) {
-    if (requestData.statementId) {
+    if (requestData.statementId !== undefined && requestData.statementId != null) {
         const statement = statements.get(requestData.statementId);
         if (!statement) {
             postMessage({'id': id, error: "Invalid statement ID: " + requestData.statementId});
@@ -107,7 +108,7 @@ function closeRequest(id, requestData) {
         }
     }
 
-    if (requestData.databaseId) {
+    if (requestData.databaseId !== undefined && requestData.databaseId != null) {
         const database = databases.get(requestData.databaseId);
         if (!database) {
             postMessage({'id': id, error: "Invalid database ID: " + requestData.databaseId});
@@ -165,8 +166,11 @@ onmessage = (e) => {
 };
 
 sqlite3InitModule().then(instance => {
-    sqlite3 = instance;
-    while (messageQueue.length > 0) {
-        handleMessage(messageQueue.shift());
-    }
+    instance.installOpfsSAHPoolVfs().then(thePoolUtil => {
+        poolUtil = thePoolUtil;
+        sqlite3 = instance;
+        while (messageQueue.length > 0) {
+            handleMessage(messageQueue.shift());
+        }
+    })
 });

@@ -1,9 +1,27 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.scene.SceneInfo
+import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
+import com.github.terrakok.navigation3.browser.ChronologicalBrowserNavigation
+import com.github.terrakok.navigation3.browser.buildBrowserHistoryFragment
+import com.github.terrakok.navigation3.browser.getBrowserHistoryFragmentName
+import com.github.terrakok.navigation3.browser.getBrowserHistoryFragmentParameters
+import kotlinx.browser.document
+import kotlinx.browser.window
+import kotlinx.coroutines.await
 import org.w3c.dom.Worker
 
 class WasmPlatform : Platform {
@@ -12,26 +30,16 @@ class WasmPlatform : Platform {
 
 actual fun getPlatform(): Platform = WasmPlatform()
 
+actual fun fromWorker(worker: Worker): WebWorkerSQLiteDriver {
+   return WebWorkerSQLiteDriver(worker)
+}
+
 @OptIn(ExperimentalWasmJsInterop::class)
-fun registerProtocolHandler(): Unit = js(
-    """{
-        navigator.registerProtocolHandler("web+dedatenlotsencampusnettuda", "http://localhost:8080/?to=%s");
-}"""
-)
-
-actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
-    return "https://localhost/?code=test"
+actual suspend fun getSessionCookie(): String {
+    try {
+        return getSessionCookieInternal().await<JsString>().toString()
+    } catch (e: JsException) {
+        println("js exception $e")
+        throw e
+    }
 }
-
-actual fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    return Room.databaseBuilder<AppDatabase>(
-        name = "test",
-    )
-}
-
-public actual fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver {
-    return WebWorkerSQLiteDriver(jsWorker())
-}
-
-private fun jsWorker(): Worker =
-    js("""new Worker(new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url))""")

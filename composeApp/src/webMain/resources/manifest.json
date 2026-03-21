@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "TUCaN Plus KMP",
+  "version": "0.1.0",
+  "description": "Quality of life improvements for TUCaN",
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"],
+    "type": "module"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tucan-plus-kmp@selfmade4u.de"
+    }
+  },
+  "host_permissions": [
+    "https://www.tucan.tu-darmstadt.de/*"
+  ],
+  "permissions": [
+    "declarativeNetRequestWithHostAccess",
+    "cookies"
+  ],
+  "action": {
+    "default_title": "Click to show an alert"
+  },
+  "options_page": "index.html",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "index.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  }
+}

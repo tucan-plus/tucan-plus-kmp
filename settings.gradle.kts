@@ -14,9 +14,6 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
-        maven {
-            url = uri("https://androidx.dev/snapshots/builds/14919321/artifacts/repository")
-        }
     }
 }
 
@@ -30,14 +27,11 @@ dependencyResolutionManagement {
             }
         }
         mavenCentral()
-        maven {
-            url = uri("https://androidx.dev/snapshots/builds/14919321/artifacts/repository")
-        }
     }
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+    //id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 include(":composeApp")

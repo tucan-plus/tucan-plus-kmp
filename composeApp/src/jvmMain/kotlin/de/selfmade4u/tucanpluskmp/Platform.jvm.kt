@@ -11,6 +11,9 @@ import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,6 +45,7 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
         withContext(Dispatchers.IO) {
             println("desktop getloginurl")
             val userHome = System.getProperty("user.home")
+            // for the native app
             Files.writeString(
                 Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"),
                 "[Desktop Entry]\n" +
@@ -90,3 +94,19 @@ fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
             }
         ),
 )
+
+fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
+    return Room.databaseBuilder<AppDatabase>(
+        name = "test",
+    )
+}
+
+fun getRoomDatabase(
+    builder: RoomDatabase.Builder<AppDatabase>
+): AppDatabase {
+    return builder
+        .fallbackToDestructiveMigration(true)
+        .setDriver(BundledSQLiteDriver())
+        .setQueryCoroutineContext(Dispatchers.Main)
+        .build()
+}

@@ -83,9 +83,10 @@ We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public S
 channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
 If you face any issues, please report them on [YouTrack](https://youtrack.jetbrains.com/newIssue?project=CMP).
 
-### Try Room3
-
-```bash
-./gradlew core:core:publish
+### Extension development
 
 ```
+./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution --continuous
+```
+
+Load unpacked build/dist/js/developmentExecutable/manifest.json

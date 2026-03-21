@@ -1,6 +1,7 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -16,7 +17,7 @@ plugins {
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(25)
-        vendor = JvmVendorSpec.JETBRAINS
+        //vendor = JvmVendorSpec.JETBRAINS
     }
 
     android {
@@ -45,13 +46,21 @@ kotlin {
     jvm()
 
     js {
-        browser()
+        browser {
+            commonWebpackConfig {
+                devtool = "inline-source-map"
+            }
+        }
         binaries.executable()
     }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        browser()
+        browser {
+            commonWebpackConfig {
+                devtool = "inline-source-map"
+            }
+        }
         binaries.executable()
     }
 
@@ -83,6 +92,7 @@ kotlin {
             implementation(libs.kotlin.test)
         }
         jvmMain.dependencies {
+            implementation(libs.androidx.sqlite.bundled)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
         }
@@ -92,7 +102,9 @@ kotlin {
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
-            implementation(npm(project.file("sqlite-web-worker")))
+            implementation(npm("@sqlite.org/sqlite-wasm", "3.50.1-build1"))
+            implementation(libs.navigation3.browser)
+            implementation(libs.kotlinx.browser)
         }
     }
 }
@@ -105,6 +117,8 @@ dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspWasmJs", libs.androidx.room.compiler)
+    add("kspJs", libs.androidx.room.compiler)
+    add("kspJvm", libs.androidx.room.compiler)
     //add("kspIosSimulatorArm64", libs.androidx.room.compiler)
     //add("kspIosArm64", libs.androidx.room.compiler)
 }

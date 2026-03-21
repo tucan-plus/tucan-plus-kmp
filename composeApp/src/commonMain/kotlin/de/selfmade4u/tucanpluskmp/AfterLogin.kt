@@ -47,7 +47,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 @Serializable
-data class Settings(val tokenResponse: TokenResponse, val sessionId: String, val sessionCookie: String, val lastRequestTime: Instant, val menuLocalizer: Localizer) {}
+data class Settings(val tokenResponse: TokenResponse?, val sessionId: String, val sessionCookie: String, val lastRequestTime: Instant, val menuLocalizer: Localizer) {}
 
 @Serializable
 data class TokenResponse(
@@ -76,12 +76,12 @@ object SettingsSerializer : OkioSerializer<Settings?> {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Preview
 fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>, dataStore: DataStore<Settings?> = FakeDataStore, uri: String = "https://localhost/?code=test") {
-    val code = Url(uri).parameters["code"]!!
-    println(code)
+    val uri = Url(uri);
     val client = HttpClient() {
         install(UserAgent) {
             agent = "https://github.com/tucan-plus/tucan-plus-kmp Moritz.Hedtke@t-online.de"
@@ -91,21 +91,10 @@ fun AfterLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) ba
             level = LogLevel.ALL
         }
     }
+    println(uri)
     LaunchedEffect(Unit) {
-        var response = client.submitForm(url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
-            formParameters = parameters {
-                append("client_id", "MobileApp")
-                append("code", code)
-                append("grant_type", "authorization_code")
-                append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
-            }
-        )
-        println(response)
-        val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
-        println(tokenResponse)
-        // now do the logincheck with that
-        loginTucan(client, tokenResponse, dataStore)
-        backStack[backStack.size - 1] = StartNavKey
+        //if (uri.parameters.contains("PRGNAME")) {
+        handleLogin(uri, client, dataStore, backStack)
     }
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {

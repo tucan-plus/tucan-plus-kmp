@@ -5,6 +5,8 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import io.ktor.client.HttpClient
+import io.ktor.http.Url
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -16,6 +18,13 @@ expect fun getPlatform(): Platform
 
 @Composable
 expect fun LoginHandler(backStack: NavBackStack<NavKey>)
+
+expect suspend fun handleLogin(
+    uri: Url,
+    client: HttpClient,
+    dataStore: DataStore<Settings?>,
+    backStack: NavBackStack<NavKey>
+);
 
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>

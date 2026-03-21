@@ -1,7 +1,15 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.UriHandler
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
+import kotlinx.browser.window
+import kotlinx.coroutines.await
 import org.w3c.dom.Worker
 
 class JsPlatform : Platform {
@@ -10,12 +18,11 @@ class JsPlatform : Platform {
 
 actual fun getPlatform(): Platform = JsPlatform()
 
-actual suspend fun getLoginUrl(uriHandler: UriHandler): String {
-    return "https://localhost/?code=test"
+actual fun fromWorker(worker: Worker): WebWorkerSQLiteDriver {
+    return WebWorkerSQLiteDriver(worker)
 }
 
-public actual fun createDefaultWebWorkerDriver(): WebWorkerSQLiteDriver {
-    return WebWorkerSQLiteDriver(
-        Worker(js("""new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url)"""))
-    )
+@OptIn(ExperimentalWasmJsInterop::class)
+actual suspend fun getSessionCookie(): String {
+    return getSessionCookieInternal().await()
 }
