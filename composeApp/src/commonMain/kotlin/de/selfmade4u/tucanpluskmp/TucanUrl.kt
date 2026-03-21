@@ -1,5 +1,6 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.room3.TypeConverter
 import kotlin.text.get
 
 sealed class TucanUrl {
@@ -9,12 +10,18 @@ sealed class TucanUrl {
      */
     data class RESULTDETAILS(val id: Long) : TucanUrl() {
         companion object {
+            @TypeConverter
             fun fromString(input: String): RESULTDETAILS {
                 val regex =
                     Regex("""^/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=RESULTDETAILS&ARGUMENTS=-N(?<sessionId>\d+),-N(?<menuId>\d+),-N(?<id>\d+)(,-N(?<semester>\d+))?$""")
                 val matchResult = regex.find(input) ?: throw IllegalArgumentException()
                 val id = matchResult.groups["id"]!!.value
                 return RESULTDETAILS(id.toLong())
+            }
+
+            @TypeConverter
+            fun toString(input: RESULTDETAILS): String {
+                return input.id.toString()
             }
         }
     }

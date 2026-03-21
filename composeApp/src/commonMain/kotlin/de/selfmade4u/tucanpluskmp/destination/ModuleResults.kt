@@ -44,6 +44,7 @@ import de.selfmade4u.tucanpluskmp.AppDatabase
 import de.selfmade4u.tucanpluskmp.DetailedDrawerExample
 import de.selfmade4u.tucanpluskmp.FakeDataStore
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.Semester
@@ -142,7 +143,7 @@ fun ModuleComposable(
         "Tin one ewfwf wefwe ewfw efw efwe wfwe fewfwe fweline",
         ModuleGrade.NOCH_NICHT_GESETZT,
         1,
-        "url",
+        TucanUrl.RESULTDETAILS(42),
         "url"
     )
 ) {

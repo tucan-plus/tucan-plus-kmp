@@ -5,6 +5,7 @@ import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
 import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TokenResponse
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.br
@@ -71,7 +72,7 @@ object ModuleResultsConnector {
         val name: String,
         val grade: ModuleGrade,
         val credits: Int,
-        val resultdetailsUrl: String?,
+        val resultdetailsUrl: TucanUrl.RESULTDETAILS?,
         val gradeoverviewUrl: String?
     )
 
@@ -319,7 +320,7 @@ object ModuleResultsConnector {
                             val moduleName: String
                             var moduleGrade: ModuleGrade = ModuleGrade.NOCH_NICHT_GESETZT
                             val moduleCredits: Int
-                            val resultdetailsUrl: String?
+                            val resultdetailsUrl: TucanUrl.RESULTDETAILS?
                             val gradeoverviewUrl: String?
                             tr {
                                 td { attribute("class", "tbdata"); moduleId = extractText() }
@@ -354,9 +355,9 @@ object ModuleResultsConnector {
                                     if (peek() != null) {
                                         a {
                                             attributeValue("id")
-                                            resultdetailsUrl = attributeValue(
+                                            resultdetailsUrl = TucanUrl.RESULTDETAILS.fromString(attributeValue(
                                                 "href",
-                                            )
+                                            ))
                                             text(localizer.module_results_exams)
                                         }
                                         script {

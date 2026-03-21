@@ -14,6 +14,7 @@ import androidx.room3.immediateTransaction
 import androidx.room3.useWriterConnection
 import de.selfmade4u.tucanpluskmp.AppDatabase
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector
@@ -91,8 +92,7 @@ data class ModuleResultEntity(
     // TODO FIXME nullable https://github.com/androidx/androidx/blob/351115de96497704880fb866cc69d826754baf08/room3/room3-compiler/src/main/kotlin/androidx/room3/solver/types/EnumColumnTypeAdapter.kt#L184
     val grade: ModuleGrade,
     val credits: Int,
-    // TODO FIXME remove session id for correct caching
-    val resultdetailsUrl: String?,
+    val resultdetailsUrl: TucanUrl.RESULTDETAILS?,
     val gradeoverviewUrl: String?
 )
 
