@@ -23,14 +23,11 @@
   "action": {
     "default_title": "Click to show an alert"
   },
-  "options_page": "build/dist/js/developmentExecutable/index.html",
+  "options_page": "index.html",
   "web_accessible_resources": [
     {
       "resources": [
-        "build/dist/js/developmentExecutable/index.html",
-        "build/dist/js/productionExecutable/index.html",
-        "build/dist/wasmJs/productionExecutable/index.html",
-        "build/dist/wasmJs/developmentExecutable/index.html"
+        "index.html"
       ],
       "matches": [
         "<all_urls>"
@@ -39,5 +36,11 @@
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  },
+  "cross_origin_embedder_policy": {
+    "value": "require-corp"
+  },
+  "cross_origin_opener_policy": {
+    "value": "same-origin"
   }
 }

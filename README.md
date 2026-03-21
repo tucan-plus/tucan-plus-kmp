@@ -85,49 +85,11 @@ If you face any issues, please report them on [YouTrack](https://youtrack.jetbra
 
 ### Extension development
 
-chrome-extension://beljbpcjdojfolompoclagcakkojdhlj/build/dist/wasmJs/developmentExecutable/index.html
-
-54aab10c-1df5-43b9-b5c1-942d4654c8a0
-
 ```
-rm -R ~/.gradle/caches/
-
-# maybe easier to debug than wasm
-./gradlew kotlinUpgradeYarnLock :composeApp:jsBrowserDevelopmentExecutableDistribution
-
-git clean -xdf
-./gradlew --no-build-cache --no-configuration-cache --refresh-dependencies kotlinUpgradeYarnLock
-
-/home/moritz/.cache/yarn/v6/npm-@androidx-sqlite-web-worker-0.0.0-1e6c73b7-b69c-4053-b012-f482f40533fc-1773706739537/node_modules/@androidx/sqlite-web-worker/worker.js
-
-grep -rIl 'sqlite3.installOpfsSAHPoolVfs().then' ~/.*
-
-grep -rIl sqlite3.installOpfsSAHPoolVfs
-
-rm -R /home/moritz/.cache/yarn/v6
-rm -Rf ~/.kotlin/kotlin-npm-tooling/
-rm -Rf ~/.gradle # this seems to have worked
-
-./gradlew kotlinUpgradeYarnLock kotlinWasmUpgradeYarnLock
-
-/home/moritz/Documents/support/sqlite/sqlite-web-worker-test/web-worker/worker.js:
-/home/moritz/Documents/androidx-main/frameworks/support/sqlite/sqlite-web-worker-test/web-worker/worker.js:
-
-rm -R /home/moritz/.cache/yarn/
-./gradlew :composeApp:wasmJsBrowserDevelopmentExecutableDistribution
+./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution
 
 wasmJsBrowserDevelopmentRun # does not write to disk
 wasmJsBrowserDevelopmentWebpack # writes to disk, but misses some files
-
-./composeApp/build/kotlin-webpack/wasmJs/developmentExecutable
-
-./composeApp/src/webMain/resources/index.html
-./composeApp/build/processedResources/wasmJs/main/index.html
-./build/wasm/packages/tucanpluskmp-composeApp/kotlin/index.html
-
-./composeApp/src/webMain/resources/index.html
-./composeApp/build/processedResources/wasmJs/main/index.html
-./composeApp/build/dist/wasmJs/developmentExecutable/index.html
-./build/wasm/packages/tucanpluskmp-composeApp/kotlin/index.html
-
 ```
+
+Load unpacked build/dist/js/developmentExecutable/manifest.json

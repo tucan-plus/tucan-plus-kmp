@@ -27,8 +27,8 @@ compose-multiplatform-adaptive = "1.3.0-alpha06" # no stable version released ye
 multiplatform-nav3-ui = "1.0.0-alpha06" # no stable version released yet, must be in sync with https://github.com/JetBrains/compose-multiplatform/releases
 datastore = "1.3.0-alpha07" # js/wasm target
 composeHotReload = "1.1.0-beta01" # fix certificate error
-room = "3.0.0-SNAPSHOT" # js/wasm target
-sqlite = "2.7.0-SNAPSHOT" # js/wasm target
+room = "3.0.0-alpha01" # js/wasm target
+sqlite = "2.7.0-alpha01" # js/wasm target
 
 [libraries]
 androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }

@@ -1,5 +1,5 @@
 chrome.runtime.onInstalled.addListener(() => {
-  const extensionUrl = chrome.runtime.getURL('/build/dist/js/developmentExecutable/index.html');
+  const extensionUrl = chrome.runtime.getURL('/index.html');
 
   const rules = [
     {
