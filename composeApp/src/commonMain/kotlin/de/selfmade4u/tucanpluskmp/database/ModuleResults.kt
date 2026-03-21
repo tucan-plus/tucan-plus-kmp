@@ -93,7 +93,7 @@ data class ModuleResultEntity(
     val grade: ModuleGrade,
     val credits: Int,
     val resultdetailsUrl: TucanUrl.RESULTDETAILS?,
-    val gradeoverviewUrl: String?
+    val gradeoverviewUrl: TucanUrl.GRADEOVERVIEWModule?
 )
 
 /** Within the timeframe validSince to validUntil, it is guaranteed that it had the specified content (minus theoretical ABA problem) */

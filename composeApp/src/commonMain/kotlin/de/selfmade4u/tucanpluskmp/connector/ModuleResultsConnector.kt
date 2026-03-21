@@ -73,7 +73,7 @@ object ModuleResultsConnector {
         val grade: ModuleGrade,
         val credits: Int,
         val resultdetailsUrl: TucanUrl.RESULTDETAILS?,
-        val gradeoverviewUrl: String?
+        val gradeoverviewUrl: TucanUrl.GRADEOVERVIEWModule?
     )
 
     data class ModuleResultsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var modules: List<Module>)
@@ -113,6 +113,7 @@ object ModuleResultsConnector {
             header("cache-control", "private, no-cache, no-store")
             maybeIgnoreHeader("x-firefox-spdy")
             maybeIgnoreHeader("vary")
+            maybeIgnoreHeader("x-android-received-millis")
             maybeIgnoreHeader("x-android-received-millis")
             maybeIgnoreHeader("x-android-response-source")
             maybeIgnoreHeader("x-android-selected-protocol")
@@ -321,7 +322,7 @@ object ModuleResultsConnector {
                             var moduleGrade: ModuleGrade = ModuleGrade.NOCH_NICHT_GESETZT
                             val moduleCredits: Int
                             val resultdetailsUrl: TucanUrl.RESULTDETAILS?
-                            val gradeoverviewUrl: String?
+                            val gradeoverviewUrl: TucanUrl.GRADEOVERVIEWModule?
                             tr {
                                 td { attribute("class", "tbdata"); moduleId = extractText() }
                                 moduleName = td { attribute("class", "tbdata"); extractText() }
@@ -373,9 +374,9 @@ object ModuleResultsConnector {
                                     if (peek() != null) {
                                         a {
                                             attributeValue("id")
-                                            gradeoverviewUrl = attributeValue(
+                                            gradeoverviewUrl = TucanUrl.GRADEOVERVIEWModule.fromString(attributeValue(
                                                 "href",
-                                            )
+                                            ))
                                             attribute("class", "link")
                                             attribute(
                                                 "title",

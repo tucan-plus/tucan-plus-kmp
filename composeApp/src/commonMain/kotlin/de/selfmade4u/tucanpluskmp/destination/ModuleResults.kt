@@ -144,7 +144,7 @@ fun ModuleComposable(
         ModuleGrade.NOCH_NICHT_GESETZT,
         1,
         TucanUrl.RESULTDETAILS(42),
-        "url"
+        TucanUrl.GRADEOVERVIEWModule(42)
     )
 ) {
     // https://developer.android.com/develop/ui/compose/layouts/basics
