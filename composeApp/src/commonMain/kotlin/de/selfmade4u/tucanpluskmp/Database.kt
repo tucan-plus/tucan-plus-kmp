@@ -11,6 +11,7 @@ import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
 import androidx.room3.TypeConverter
 import androidx.room3.TypeConverters
+import de.selfmade4u.tucanpluskmp.data.MyExams
 import de.selfmade4u.tucanpluskmp.database.ModuleResultDao
 import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
 import de.selfmade4u.tucanpluskmp.database.ModuleResultsDao
@@ -30,7 +31,7 @@ class Converters {
     }
 }
 
-@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 6)
+@Database(entities = [MyExams.MyExam::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 7)
 @TypeConverters(
     Converters::class,
     TucanUrl.RESULTDETAILS.Companion::class,
@@ -38,7 +39,7 @@ class Converters {
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun getDao(): TodoDao
+    abstract fun getMyExamsDao(): MyExams.MyExamsDao
     abstract fun getModuleResultsDao(): ModuleResultsDao
     abstract fun getModuleResultDao(): ModuleResultDao
 }
@@ -47,22 +48,3 @@ abstract class AppDatabase : RoomDatabase() {
 expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
     override fun initialize(): AppDatabase
 }
-
-@Dao
-interface TodoDao {
-    @Insert
-    suspend fun insert(item: TodoEntity)
-
-    @Query("SELECT count(*) FROM TodoEntity")
-    suspend fun count(): Int
-
-    @Query("SELECT * FROM TodoEntity")
-    fun getAllAsFlow(): Flow<List<TodoEntity>>
-}
-
-@Entity
-data class TodoEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val title: String,
-    val content: String
-)

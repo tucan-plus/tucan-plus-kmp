@@ -1,6 +1,6 @@
 package de.selfmade4u.tucanpluskmp.destination
 
-import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -16,9 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
-import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,7 +24,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -36,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,60 +44,50 @@ import de.selfmade4u.tucanpluskmp.DetailedDrawerExample
 import de.selfmade4u.tucanpluskmp.FakeDataStore
 import de.selfmade4u.tucanpluskmp.MyLoadingIndicator
 import de.selfmade4u.tucanpluskmp.Settings
-import de.selfmade4u.tucanpluskmp.TucanUrl
-import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
-import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.Semester
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
-import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
-import de.selfmade4u.tucanpluskmp.database.ModuleResults
+import de.selfmade4u.tucanpluskmp.data.MyExams
 import de.selfmade4u.tucanpluskmp.database.getCached
 import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
 import de.selfmade4u.tucanpluskmp.retrieveNotifier
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.imageResource
-import org.jetbrains.compose.resources.vectorResource
-import tucanpluskmp.composeapp.generated.resources.Res
-import tucanpluskmp.composeapp.generated.resources.menu_24px
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
-    val notifier = retrieveNotifier() // TODO FIXME remember?
+fun MyExamsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
     var isRefreshing by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        if (getCached(database).first() == null) {
-            refreshModuleResults(notifier, dataStore, database)
+        if (MyExams.getCached(database).first() == null) {
+            MyExams.refresh(dataStore, database)
         }
     }
-    val modules by getCached(database).collectAsStateWithLifecycle(null)
+    val modules by MyExams.getCached(database).collectAsStateWithLifecycle(null)
     val state = rememberPullToRefreshState()
     val scope = rememberCoroutineScope()
-    DetailedDrawerExample(backStack, "Modulergebnisse") { innerPadding ->
+    DetailedDrawerExample(backStack, "Meine Prüfungen") { innerPadding ->
         PullToRefreshBox(isRefreshing, onRefresh = {
             isRefreshing = true
             scope.launch {
-                refreshModuleResults(notifier, dataStore, database)
+                MyExams.refresh(dataStore, database)
                 isRefreshing = false
             }
         }, state = state, indicator = {
             MyLoadingIndicator(state, isRefreshing)
         }, modifier = Modifier.padding(innerPadding)) {
-            RenderModuleResults(modules)
+            RenderMyExams(modules)
         }
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun RenderModuleResults(modules: ModuleResults?) {
+private fun RenderMyExams(exams: List<MyExams.MyExam>?) {
     Column(Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())) {
         //LongBasicDropdownMenu()
-        when (val value = modules) {
+        when (exams) {
             null -> {
                 Column(
                     Modifier
@@ -108,10 +96,12 @@ private fun RenderModuleResults(modules: ModuleResults?) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) { CircularWavyProgressIndicator() }
             }
-            value -> {
-                value.moduleResults.forEach { module ->
-                    key(module.id) {
-                        ModuleComposable(module)
+            exams -> {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    exams.forEach { exam ->
+                        key(exam.id) {
+                            MyExamComposable(exam)
+                        }
                     }
                 }
             }
@@ -121,27 +111,24 @@ private fun RenderModuleResults(modules: ModuleResults?) {
 
 @Preview(widthDp = 200)
 @Composable
-fun ModuleComposable(
-    module: ModuleResultEntity = ModuleResultEntity(
-        42,
-        Semesterauswahl(1, 2025, Semester.Wintersemester),
+fun MyExamComposable(
+    exam: MyExams.MyExam = MyExams.MyExam(
+        "42",
         "id",
         "Tin one ewfwf wefwe ewfw efw efwe wfwe fewfwe fweline",
-        ModuleGrade.NOCH_NICHT_GESETZT,
-        1,
-        TucanUrl.RESULTDETAILS(42),
-        TucanUrl.GRADEOVERVIEWModule(42)
+        Semesterauswahl(1, 2025, Semester.Wintersemester),
+        "test",
+        "date",
     )
 ) {
     // https://developer.android.com/develop/ui/compose/layouts/basics
     Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(module.name)
-            Text(module.id, fontSize = 10.sp, color = Color.Gray)
+            Text(exam.name)
+            Text(exam.date)
         }
         Column(modifier = Modifier.fillMaxHeight(), horizontalAlignment = Alignment.End) {
-            Text("${module.credits} CP")
-            Text(module.grade.stringified)
+            Text(exam.id, fontSize = 10.sp, color = Color.Gray)
         }
     }
 }
