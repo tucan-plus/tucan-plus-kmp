@@ -29,6 +29,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
+import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
@@ -115,7 +116,8 @@ fun getNotifier(context: Context) = object : Notifier {
                 notificationManager.createNotificationChannel(channel)
             }
 
-            val intent = Intent(context, null).apply {
+            val intent = Intent().apply {
+                setClassName(context, "de.selfmade4u.tucanpluskmp.MainActivity")
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
             val pendingIntent: PendingIntent =
@@ -207,7 +209,7 @@ fun getRoomDatabase(
 ): AppDatabase {
     return builder
         .fallbackToDestructiveMigration(true)
-        .setDriver(BundledSQLiteDriver())
+        .setDriver(AndroidSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()
 }
