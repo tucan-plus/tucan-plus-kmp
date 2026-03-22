@@ -15,11 +15,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -37,6 +41,7 @@ import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import de.selfmade4u.tucanpluskmp.library.R
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.statement.bodyAsText
@@ -47,6 +52,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
+import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.vectorResource
+import tucanpluskmp.composeapp.generated.resources.Res
+import tucanpluskmp.composeapp.generated.resources.menu_24px
 import kotlin.jvm.java
 
 class AndroidPlatform : Platform {
@@ -125,7 +135,7 @@ fun getNotifier(context: Context) = object : Notifier {
 
 
             var builder = NotificationCompat.Builder(context, "CHANNEL_ID")
-                //.setSmallIcon(R.drawable.notification_icon)
+                .setSmallIcon(R.drawable.grading_24px)
                 .setContentTitle("title")
                 .setContentText("content")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

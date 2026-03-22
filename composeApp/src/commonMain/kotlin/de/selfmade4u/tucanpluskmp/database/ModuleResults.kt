@@ -1,5 +1,7 @@
 package de.selfmade4u.tucanpluskmp.database
 
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.datastore.core.DataStore
 import androidx.room3.Dao
 import androidx.room3.Embedded

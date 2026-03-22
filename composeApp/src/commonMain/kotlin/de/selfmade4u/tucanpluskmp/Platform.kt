@@ -1,6 +1,8 @@
 package de.selfmade4u.tucanpluskmp
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
 import androidx.navigation3.runtime.NavBackStack

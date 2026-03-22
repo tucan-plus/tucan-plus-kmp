@@ -52,5 +52,6 @@ kotlin {
         implementation(libs.okio)
         implementation(libs.androidx.datastore.core.okio)
         implementation(libs.androidx.work.runtime.ktx)
+        implementation(libs.compose.components.resources)
     }
 }

@@ -31,6 +31,13 @@ import kotlinx.coroutines.SupervisorJob
 import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
+import org.jetbrains.compose.resources.decodeToImageBitmap
+import org.jetbrains.compose.resources.decodeToImageVector
+import org.jetbrains.compose.resources.getDrawableResourceBytes
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.getSystemResourceEnvironment
+import tucanpluskmp.composeapp.generated.resources.Res
+import tucanpluskmp.composeapp.generated.resources.menu_24px
 import java.util.concurrent.TimeUnit
 
 class CoroutineDownloadWorker(

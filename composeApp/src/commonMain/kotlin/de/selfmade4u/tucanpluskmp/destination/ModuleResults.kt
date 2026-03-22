@@ -57,6 +57,10 @@ import de.selfmade4u.tucanpluskmp.retrieveNotifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.vectorResource
+import tucanpluskmp.composeapp.generated.resources.Res
+import tucanpluskmp.composeapp.generated.resources.menu_24px
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
