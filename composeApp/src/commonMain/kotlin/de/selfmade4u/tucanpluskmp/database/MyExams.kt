@@ -17,6 +17,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 // try here to use one table with per-element history
 object MyExams {
@@ -36,15 +39,17 @@ object MyExams {
                                 semester.id.toString().padStart(15, '0')
                             )) {
                                 is AuthenticatedResponse.Success<MyExamsConnector.MyExamsResponse> -> {
+                                    val time = Clock.System.now().toLocalDateTime(TimeZone.UTC)
                                     AuthenticatedResponse.Success(response.response.exams.map { m ->
                                         MyExam(
-                                            0,
                                             semester,
                                             m.id,
                                             m.name,
                                             m.coursedetailsUrl,
                                             m.examType,
-                                            m.date
+                                            m.date,
+                                            time,
+                                            time
                                         )
                                     })
                                 }
@@ -84,16 +89,71 @@ object MyExams {
         val date: String,
         var validSince: LocalDateTime,
         var validUntil: LocalDateTime,
-        val deleted: Boolean,
+        //val removed: Boolean, // exams can't be removed?
     )
+
+    fun MyExam.isContentEqual(other: MyExam): Boolean {
+        return semester == other.semester && id == other.id && name == other.name &&
+                coursedetailsUrl == other.coursedetailsUrl &&
+                examType == other.examType &&
+                date == other.date
+    }
 
     @Dao
     interface MyExamsDao {
-        @Query("SELECT *, MAX(validUntil) FROM myexams GROUP BY id, semester_id, examType")
-        suspend fun getAll(): List<MyExams>
+        @Query("SELECT *, MAX(validUntil) FROM MyExam GROUP BY id, semester_id, examType")
+        suspend fun getAll(): List<MyExam>
 
         @Insert
-        suspend fun insert(myExams: MyExams): Long
+        suspend fun insert(myExam: MyExam): Long
+    }
+
+    val comparator =
+        compareByDescending<MyExam> { it.semester.id }.thenBy { it.id }.thenBy { it.examType }
+
+    data class ExamKey(
+        val id: String,
+        val semesterId: Long
+    )
+
+    fun MyExam.key() = ExamKey(id, semester.id)
+
+    data class ExamDiff(
+        val added: List<MyExam>,
+        val removed: List<MyExam>,
+        val changed: List<Pair<MyExam, MyExam>>
+    )
+
+    fun diffExamsOptimized(
+        oldList: List<MyExam>,
+        newList: List<MyExam>
+    ): ExamDiff {
+
+        val oldMap = HashMap<ExamKey, MyExam>(oldList.size)
+        for (exam in oldList) {
+            oldMap[exam.key()] = exam
+        }
+
+        val added = mutableListOf<MyExam>()
+        val changed = mutableListOf<Pair<MyExam, MyExam>>()
+
+        for (newExam in newList) {
+            val key = newExam.key()
+            val oldExam = oldMap.remove(key)
+
+            when {
+                oldExam == null -> {
+                    added += newExam
+                }
+                !oldExam.isContentEqual(newExam) -> {
+                    changed += oldExam to newExam
+                }
+            }
+        }
+
+        val removed = oldMap.values.toList()
+
+        return ExamDiff(added, removed, changed)
     }
 
     // only store all once
@@ -101,21 +161,26 @@ object MyExams {
         database: AppDatabase,
         result: List<MyExam>
     ): List<MyExam> {
-        // TODO check whether there were changes?
         return database.useWriterConnection {
             it.immediateTransaction {
-                val myExamsId = database.myExamsDao().insert(MyExams(0))
-                val exams = result.map { m -> m.copy(myExamsId = myExamsId) }.sortedWith(compareByDescending<MyExam>{it.semester.id}.thenBy { it.id})
-                database.myExamsExamDao().insertAll(*exams.toTypedArray())
-                MyExamsWithExams(MyExams(myExamsId), exams)
+                // assume exams can't be removed. that can probably happen with studienbüro, right?
+                val oldExams = database.getMyExamsDao().getAll().sortedWith(comparator)
+                val exams = result.sortedWith(comparator)
+                val diff = diffExamsOptimized(oldExams, exams)
+
+                // TODO
+
+                //database.getMyExamsDao().insert(*exams.toTypedArray())
+                exams
             }
         }
     }
 
     suspend fun getCached(database: AppDatabase): List<MyExam>? {
-        val value = database.myExamsDao().getLast()
-        return value?.let { value ->
-            value.copy(exams = value.exams.sortedWith(compareByDescending<MyExam>{it.semester.id}.thenBy { it.id}))
+        val value = database.getMyExamsDao().getAll()
+        if (value.isEmpty()) {
+            return null
         }
+        return value.sortedWith(comparator)
     }
 }
