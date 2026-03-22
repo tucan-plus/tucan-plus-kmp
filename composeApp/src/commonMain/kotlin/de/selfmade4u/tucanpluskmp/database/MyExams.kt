@@ -68,7 +68,10 @@ object MyExams {
                     }
                 }
                 return when (agwef) {
-                    is AuthenticatedResponse.Success<List<MyExam>> -> AuthenticatedResponse.Success(persist(database, agwef.response))
+                    is AuthenticatedResponse.Success<List<MyExam>> -> {
+                        persist(database, agwef.response)
+                        AuthenticatedResponse.Success(agwef.response)
+                    }
                     else -> agwef.map()
                 }
             }
@@ -88,34 +91,29 @@ object MyExams {
         val date: String,
     )
 
+    val comparator =
+        compareByDescending<MyExam> { it.semester.id }.thenBy { it.id }.thenBy { it.examType }
+
     @Dao
     interface MyExamsDao {
         @Query("SELECT * FROM MyExam")
         suspend fun getAll(): List<MyExam>
 
-        @Delete
+        @Query("DELETE FROM MyExam")
         suspend fun deleteAll()
 
         @Upsert
         suspend fun upsert(vararg exams: MyExam)
     }
 
-    val comparator =
-        compareByDescending<MyExam> { it.semester.id }.thenBy { it.id }.thenBy { it.examType }
-
-    // only store all once
     suspend fun persist(
         database: AppDatabase,
         result: List<MyExam>
-    ): List<MyExam> {
+    ) {
         return database.useWriterConnection {
             it.immediateTransaction {
-                val oldExams = database.getMyExamsDao().getAll()
-                val exams = result.sortedWith(comparator)
-
                 database.getMyExamsDao().deleteAll()
-                database.getMyExamsDao().upsert(*exams.toTypedArray())
-                exams
+                database.getMyExamsDao().upsert(*result.toTypedArray())
             }
         }
     }
