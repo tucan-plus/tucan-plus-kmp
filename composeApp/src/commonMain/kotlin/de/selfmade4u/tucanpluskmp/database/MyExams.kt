@@ -15,9 +15,13 @@ import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.MyExamsConnector
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
+import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
+import de.selfmade4u.tucanpluskmp.database.ModuleResults
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -97,7 +101,7 @@ object MyExams {
     @Dao
     interface MyExamsDao {
         @Query("SELECT * FROM MyExam")
-        suspend fun getAll(): List<MyExam>
+        fun getAll(): Flow<List<MyExam>>
 
         @Query("DELETE FROM MyExam")
         suspend fun deleteAll()
@@ -118,11 +122,11 @@ object MyExams {
         }
     }
 
-    suspend fun getCached(database: AppDatabase): List<MyExam>? {
-        val value = database.getMyExamsDao().getAll()
-        if (value.isEmpty()) {
-            return null
+    fun getCached(database: AppDatabase): Flow<List<MyExam>?> {
+        return database.getMyExamsDao().getAll().map {
+            it.ifEmpty {
+                null
+            }
         }
-        return value
     }
 }

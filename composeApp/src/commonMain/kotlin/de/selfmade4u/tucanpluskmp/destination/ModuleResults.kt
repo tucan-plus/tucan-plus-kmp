@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.LoadingIndicator
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -89,28 +90,6 @@ fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), da
         }
     }
 }
-
-@Composable
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun BoxScope.LoadingIndicator(
-    state: PullToRefreshState,
-    isRefreshing: Boolean
-) {
-    PullToRefreshDefaults.LoadingIndicator(
-        state = state,
-        isRefreshing = isRefreshing,
-        modifier = Modifier
-            .align(Alignment.TopCenter)
-            .semantics {
-                contentDescription = if (isRefreshing) {
-                    "Refreshing"
-                } else {
-                    "Not Refreshing"
-                }
-            },
-    )
-}
-
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

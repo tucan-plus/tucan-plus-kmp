@@ -65,16 +65,16 @@ fun DetailedDrawerExample(
                             }
                         }
                     )
-                    /*NavigationDrawerItem(
+                    NavigationDrawerItem(
                         label = { Text("Meine Prüfungen") },
                         selected = false,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                //backStack.add(MyExamsNavKey)
+                                backStack.add(MyExamsKey)
                             }
                         }
-                    )*/
+                    )
                 }
             }
         },
