@@ -45,14 +45,13 @@ object MyExams {
                                 semester.id.toString().padStart(15, '0')
                             )) {
                                 is AuthenticatedResponse.Success<MyExamsConnector.MyExamsResponse> -> {
-                                    val time = Clock.System.now().toLocalDateTime(TimeZone.UTC)
                                     AuthenticatedResponse.Success(response.response.exams.map { m ->
                                         MyExam(
                                             m.id,
                                             m.name,
-                                            m.coursedetailsUrl,
-                                            semester,
                                             m.examType,
+                                            semester,
+                                            m.coursedetailsUrl,
                                             m.date,
                                         )
                                     })

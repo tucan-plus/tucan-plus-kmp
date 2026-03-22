@@ -10,6 +10,7 @@ import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.br
 import de.selfmade4u.tucanpluskmp.connector.Common.parseBase
 import de.selfmade4u.tucanpluskmp.connector.Common.parseCommonHeaders
+import de.selfmade4u.tucanpluskmp.data.MyExams
 import de.selfmade4u.tucanpluskmp.div
 import de.selfmade4u.tucanpluskmp.form
 import de.selfmade4u.tucanpluskmp.h1
@@ -36,7 +37,7 @@ import io.ktor.http.HttpStatusCode
 // loop semester by semester because otherwise we can't really associate entries with their semester. maybe just not support the "all"?
 object MyExamsConnector {
 
-    data class MyExamsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var exams: List<Exam>)
+    data class MyExamsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var exams: List<MyExams.MyExam>)
 
 
     suspend fun getUncached(
@@ -60,7 +61,7 @@ object MyExamsConnector {
     }
 
     fun Root.parseResults(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<MyExamsResponse> {
-        val exams = mutableListOf<Exam>()
+        val exams = mutableListOf<MyExams.MyExam>()
         val semesters = mutableListOf<Semesterauswahl>()
         var selectedSemester: Semesterauswahl? = null
         // menu id changes depending on language
@@ -331,11 +332,12 @@ object MyExamsConnector {
                                     }
                                 }
                             }
-                            val exam = Exam(
+                            val exam = MyExams.MyExam(
                                 id,
                                 name,
-                                coursedetailsUrl,
                                 examType,
+                                selectedSemester!!,
+                                coursedetailsUrl,
                                 date,
                             )
                             exams.add(exam)
@@ -347,12 +349,4 @@ object MyExamsConnector {
         }
         return response
     }
-
-    data class Exam(
-        var id: String,
-        val name: String,
-        val coursedetailsUrl: String,
-        val examType: String,
-        val date: String
-    )
 }
