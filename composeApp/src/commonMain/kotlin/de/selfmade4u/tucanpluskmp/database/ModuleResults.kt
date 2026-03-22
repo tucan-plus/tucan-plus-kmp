@@ -13,6 +13,7 @@ import androidx.room3.Transaction
 import androidx.room3.immediateTransaction
 import androidx.room3.useWriterConnection
 import de.selfmade4u.tucanpluskmp.AppDatabase
+import de.selfmade4u.tucanpluskmp.Notifier
 import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
@@ -32,6 +33,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
 suspend fun refreshModuleResults(
+    notifier: Notifier,
     credentialSettingsDataStore: DataStore<Settings?>,
     database: AppDatabase
 ): AuthenticatedResponse<ModuleResults> {
@@ -73,7 +75,7 @@ suspend fun refreshModuleResults(
                 }
             }
             return when (agwef) {
-                is AuthenticatedResponse.Success<List<ModuleResultEntity>> -> AuthenticatedResponse.Success(persist(database, agwef.response))
+                is AuthenticatedResponse.Success<List<ModuleResultEntity>> -> AuthenticatedResponse.Success(persist(notifier, database, agwef.response))
                 else -> agwef.map()
             }
         }
@@ -137,6 +139,7 @@ interface ModuleResultDao {
 
 // only store all once
 suspend fun persist(
+    notifier: Notifier,
     database: AppDatabase,
     result: List<ModuleResultEntity>
 ): ModuleResults {
@@ -170,6 +173,9 @@ suspend fun persist(
                 val moduleResultsId = database.getModuleResultsDao().insertOrReplace(ModuleResultsEntity(0, time, time))
                 val modules = result.map { m -> m.copy(moduleResultsId = moduleResultsId) }.sortedWith(compareByDescending<ModuleResultEntity>{it.semester.id}.thenBy { it.id})
                 database.getModuleResultDao().insertAll(*modules.toTypedArray())
+
+                notifier.sendNotification()
+
                 ModuleResults(ModuleResultsEntity(moduleResultsId, time, time), modules)
             }
         }

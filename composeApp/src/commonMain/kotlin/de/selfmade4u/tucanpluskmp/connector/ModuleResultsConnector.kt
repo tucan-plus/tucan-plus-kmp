@@ -4,7 +4,6 @@ import androidx.datastore.core.DataStore
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
 import de.selfmade4u.tucanpluskmp.Settings
-import de.selfmade4u.tucanpluskmp.TokenResponse
 import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
@@ -151,7 +150,7 @@ object ModuleResultsConnector {
                     attribute("type", "text/javascript")
                 }
                 h1 { text("Zugang verweigert") }
-                return@parseBase ParserResponse.SessionTimeout<ModuleResultsResponse>()
+                return@parseBase ParserResponse.SessionTimeout()
             }
             if (pageType == "timeout") {
                 script {
@@ -165,7 +164,7 @@ object ModuleResultsConnector {
                         text("Bitte melden Sie sich erneut an.")
                     }
                 }
-                return@parseBase ParserResponse.SessionTimeout<ModuleResultsResponse>()
+                return@parseBase ParserResponse.SessionTimeout()
             }
             check(pageType == "course_results")
             script {

@@ -23,6 +23,7 @@ kotlin {
     android {
         namespace = "de.selfmade4u.tucanpluskmp.library"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
 
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -99,6 +100,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.androidx.browser)
+            implementation(libs.accompanist.permissions)
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)

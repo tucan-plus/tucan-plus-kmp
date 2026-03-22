@@ -26,6 +26,16 @@ expect suspend fun handleLogin(
     backStack: NavBackStack<NavKey>
 );
 
+@Composable
+expect fun RequestNotificationPermission()
+
+interface Notifier {
+    fun sendNotification()
+}
+
+@Composable
+expect fun retrieveNotifier(): Notifier
+
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>
         get() = flow {
@@ -36,3 +46,4 @@ object FakeDataStore : DataStore<Settings?> {
         TODO("Not yet implemented")
     }
 }
+

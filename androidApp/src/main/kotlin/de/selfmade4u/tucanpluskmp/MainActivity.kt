@@ -45,7 +45,7 @@ class CoroutineDownloadWorker(
                 context.filesDir.resolve("tucanplus-config.json").toOkioPath()
             }
             val database = SettingsDataStore.getDatabase(context)
-            when (val response = refreshModuleResults(dataStore, database)) {
+            when (val response = refreshModuleResults(getNotifier(context), dataStore, database)) {
                 is AuthenticatedResponse.NetworkLikelyTooSlow<*> -> {
                     println("NETWORK TOO SLOW, RETRYING")
                     return Result.retry()
@@ -119,6 +119,8 @@ class MainActivity : ComponentActivity() {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .setRequiresBatteryNotLow(true)
             .build()
+
+        // TODO request permission for notifications
 
         // TODO don't do this blocking at startup
         WorkManager.getInstance(this).enqueueUniquePeriodicWork("periodic-update",

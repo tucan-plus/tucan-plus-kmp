@@ -27,13 +27,15 @@ fun Start(backStack: NavBackStack<NavKey>, dataStore: DataStore<Settings?>) {
     LaunchedEffect(Unit) {
         if (dataStore.data.first() == null) {
             backStack[backStack.size - 1] = LoginNavKey
+        } else {
         }
     }
-   // val context = LocalContext.current
+    // val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     // TODO https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary all material expressive?
     DetailedDrawerExample(backStack, "TUCaN Plus") { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding),) {
+        Column(modifier = Modifier.padding(innerPadding)) {
+            RequestNotificationPermission()
             Text("Logged in: ${value != null}")
             Button(
                 shapes = ButtonDefaults.shapes(),
