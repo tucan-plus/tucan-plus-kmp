@@ -14,6 +14,10 @@ plugins {
     alias(libs.plugins.androidx.room)
 }
 
+compose.resources {
+    publicResClass = true
+}
+
 kotlin {
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(25)
@@ -23,6 +27,7 @@ kotlin {
     android {
         namespace = "de.selfmade4u.tucanpluskmp.library"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
 
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -99,6 +104,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.androidx.browser)
+            implementation(libs.accompanist.permissions)
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
@@ -119,8 +125,6 @@ dependencies {
     add("kspWasmJs", libs.androidx.room.compiler)
     add("kspJs", libs.androidx.room.compiler)
     add("kspJvm", libs.androidx.room.compiler)
-    //add("kspIosSimulatorArm64", libs.androidx.room.compiler)
-    //add("kspIosArm64", libs.androidx.room.compiler)
 }
 
 compose.desktop {

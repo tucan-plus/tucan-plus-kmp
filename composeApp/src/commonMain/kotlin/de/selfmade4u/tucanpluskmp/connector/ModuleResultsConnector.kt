@@ -4,7 +4,7 @@ import androidx.datastore.core.DataStore
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
 import de.selfmade4u.tucanpluskmp.Settings
-import de.selfmade4u.tucanpluskmp.TokenResponse
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.br
@@ -33,23 +33,21 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 
 // https://github.com/tucan-plus/tucan-plus/blob/640bb9cbb9e3f8d22e8b9d6ddaabb5256b2eb0e6/crates/tucan-types/src/lib.rs#L366
-enum class ModuleGrade(val representation: String, val stringified: String = representation) {
-    G1_0("1,0"),
-    G1_3("1,3"),
-    G1_7("1,7"),
-    G2_0("2,0"),
-    G2_3("2,3"),
-    G2_7("2,7"),
-    G3_0("3,0"),
-    G3_3("3,3"),
-    G3_7("3,7"),
-    G4_0("4,0"),
-    G5_0("5,0"),
-    B("b"),
-    NB("nb"),
-    // TODO FIXME localize
-    NOCH_NICHT_GESETZT("noch nicht gesetzt", "-"),
-    NOCH_NICHT_GESETZT_EN("not set yet", "-")
+enum class ModuleGrade(val representation: (localizer: Localizer) -> String, val stringified: String) {
+    G1_0({ "1,0" }, "1,0"),
+    G1_3({ "1,3" }, "1,3"),
+    G1_7({ "1,7" }, "1,7"),
+    G2_0({ "2,0" }, "2,0"),
+    G2_3({ "2,3" }, "2,3"),
+    G2_7({ "2,7" }, "2,7"),
+    G3_0({ "3,0" }, "3,0"),
+    G3_3({ "3,3" }, "3,3"),
+    G3_7({ "3,7" }, "3,7"),
+    G4_0({ "4,0" }, "4,0"),
+    G5_0({ "5,0" }, "5,0"),
+    B({ "b" }, "b"),
+    NB({ "nb" }, "nb"),
+    NOCH_NICHT_GESETZT({ it.not_set_yet }, "-"),
 }
 
 enum class Semester {
@@ -71,8 +69,8 @@ object ModuleResultsConnector {
         val name: String,
         val grade: ModuleGrade,
         val credits: Int,
-        val resultdetailsUrl: String?,
-        val gradeoverviewUrl: String?
+        val resultdetailsUrl: TucanUrl.RESULTDETAILS?,
+        val gradeoverviewUrl: TucanUrl.GRADEOVERVIEWModule?
     )
 
     data class ModuleResultsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var modules: List<Module>)
@@ -113,6 +111,7 @@ object ModuleResultsConnector {
             maybeIgnoreHeader("x-firefox-spdy")
             maybeIgnoreHeader("vary")
             maybeIgnoreHeader("x-android-received-millis")
+            maybeIgnoreHeader("x-android-received-millis")
             maybeIgnoreHeader("x-android-response-source")
             maybeIgnoreHeader("x-android-selected-protocol")
             maybeIgnoreHeader("x-android-sent-millis")
@@ -151,7 +150,7 @@ object ModuleResultsConnector {
                     attribute("type", "text/javascript")
                 }
                 h1 { text("Zugang verweigert") }
-                return@parseBase ParserResponse.SessionTimeout<ModuleResultsResponse>()
+                return@parseBase ParserResponse.SessionTimeout()
             }
             if (pageType == "timeout") {
                 script {
@@ -165,7 +164,7 @@ object ModuleResultsConnector {
                         text("Bitte melden Sie sich erneut an.")
                     }
                 }
-                return@parseBase ParserResponse.SessionTimeout<ModuleResultsResponse>()
+                return@parseBase ParserResponse.SessionTimeout()
             }
             check(pageType == "course_results")
             script {
@@ -319,8 +318,8 @@ object ModuleResultsConnector {
                             val moduleName: String
                             var moduleGrade: ModuleGrade = ModuleGrade.NOCH_NICHT_GESETZT
                             val moduleCredits: Int
-                            val resultdetailsUrl: String?
-                            val gradeoverviewUrl: String?
+                            val resultdetailsUrl: TucanUrl.RESULTDETAILS?
+                            val gradeoverviewUrl: TucanUrl.GRADEOVERVIEWModule?
                             tr {
                                 td { attribute("class", "tbdata"); moduleId = extractText() }
                                 moduleName = td { attribute("class", "tbdata"); extractText() }
@@ -330,12 +329,12 @@ object ModuleResultsConnector {
                                     if (peek() != null) {
                                         val moduleGradeText = extractText()
                                         moduleGrade =
-                                            ModuleGrade.entries.find { it.representation == moduleGradeText }
+                                            ModuleGrade.entries.find { it.representation(localizer) == moduleGradeText }
                                                 ?: run {
                                                     throw IllegalStateException("Unknown grade `$moduleGradeText`")
                                                 }
                                     } else {
-                                        moduleGrade = ModuleGrade.NOCH_NICHT_GESETZT;
+                                        moduleGrade = ModuleGrade.NOCH_NICHT_GESETZT
                                     }
                                 }
                                 td {
@@ -354,9 +353,9 @@ object ModuleResultsConnector {
                                     if (peek() != null) {
                                         a {
                                             attributeValue("id")
-                                            resultdetailsUrl = attributeValue(
+                                            resultdetailsUrl = TucanUrl.RESULTDETAILS.fromString(attributeValue(
                                                 "href",
-                                            )
+                                            ))
                                             text(localizer.module_results_exams)
                                         }
                                         script {
@@ -372,9 +371,9 @@ object ModuleResultsConnector {
                                     if (peek() != null) {
                                         a {
                                             attributeValue("id")
-                                            gradeoverviewUrl = attributeValue(
+                                            gradeoverviewUrl = TucanUrl.GRADEOVERVIEWModule.fromString(attributeValue(
                                                 "href",
-                                            )
+                                            ))
                                             attribute("class", "link")
                                             attribute(
                                                 "title",

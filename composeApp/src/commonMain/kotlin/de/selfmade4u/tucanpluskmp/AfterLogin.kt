@@ -135,9 +135,10 @@ suspend fun loginTucan(
             refreshHeader
         )!!
     val sessionId = sessionIdMatch.groupValues[1]
+    val menuLocalizer = if (sessionIdMatch.groupValues[2] == "019")  { GermanLocalizer } else { EnglishLocalizer }
     println(sessionId)
     println(cookie)
     dataStore.updateData {
-        Settings(tokenResponse, sessionId, cookie, Clock.System.now(), GermanLocalizer)
+        Settings(tokenResponse, sessionId, cookie, Clock.System.now(), menuLocalizer)
     }
 }

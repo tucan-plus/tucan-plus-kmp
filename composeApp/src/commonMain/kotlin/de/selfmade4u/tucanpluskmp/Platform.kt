@@ -1,6 +1,8 @@
 package de.selfmade4u.tucanpluskmp
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.UriHandler
 import androidx.datastore.core.DataStore
 import androidx.navigation3.runtime.NavBackStack
@@ -26,6 +28,16 @@ expect suspend fun handleLogin(
     backStack: NavBackStack<NavKey>
 );
 
+@Composable
+expect fun RequestNotificationPermission()
+
+interface Notifier {
+    fun sendNotification()
+}
+
+@Composable
+expect fun retrieveNotifier(): Notifier
+
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>
         get() = flow {
@@ -36,3 +48,4 @@ object FakeDataStore : DataStore<Settings?> {
         TODO("Not yet implemented")
     }
 }
+

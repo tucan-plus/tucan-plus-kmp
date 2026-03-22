@@ -1,5 +1,7 @@
 package de.selfmade4u.tucanpluskmp.database
 
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.datastore.core.DataStore
 import androidx.room3.Dao
 import androidx.room3.Embedded
@@ -13,7 +15,9 @@ import androidx.room3.Transaction
 import androidx.room3.immediateTransaction
 import androidx.room3.useWriterConnection
 import de.selfmade4u.tucanpluskmp.AppDatabase
+import de.selfmade4u.tucanpluskmp.Notifier
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector
@@ -31,6 +35,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
 suspend fun refreshModuleResults(
+    notifier: Notifier,
     credentialSettingsDataStore: DataStore<Settings?>,
     database: AppDatabase
 ): AuthenticatedResponse<ModuleResults> {
@@ -72,7 +77,7 @@ suspend fun refreshModuleResults(
                 }
             }
             return when (agwef) {
-                is AuthenticatedResponse.Success<List<ModuleResultEntity>> -> AuthenticatedResponse.Success(persist(database, agwef.response))
+                is AuthenticatedResponse.Success<List<ModuleResultEntity>> -> AuthenticatedResponse.Success(persist(notifier, database, agwef.response))
                 else -> agwef.map()
             }
         }
@@ -91,9 +96,8 @@ data class ModuleResultEntity(
     // TODO FIXME nullable https://github.com/androidx/androidx/blob/351115de96497704880fb866cc69d826754baf08/room3/room3-compiler/src/main/kotlin/androidx/room3/solver/types/EnumColumnTypeAdapter.kt#L184
     val grade: ModuleGrade,
     val credits: Int,
-    // TODO FIXME remove session id for correct caching
-    val resultdetailsUrl: String?,
-    val gradeoverviewUrl: String?
+    val resultdetailsUrl: TucanUrl.RESULTDETAILS?,
+    val gradeoverviewUrl: TucanUrl.GRADEOVERVIEWModule?
 )
 
 /** Within the timeframe validSince to validUntil, it is guaranteed that it had the specified content (minus theoretical ABA problem) */
@@ -137,6 +141,7 @@ interface ModuleResultDao {
 
 // only store all once
 suspend fun persist(
+    notifier: Notifier,
     database: AppDatabase,
     result: List<ModuleResultEntity>
 ): ModuleResults {
@@ -170,6 +175,9 @@ suspend fun persist(
                 val moduleResultsId = database.getModuleResultsDao().insertOrReplace(ModuleResultsEntity(0, time, time))
                 val modules = result.map { m -> m.copy(moduleResultsId = moduleResultsId) }.sortedWith(compareByDescending<ModuleResultEntity>{it.semester.id}.thenBy { it.id})
                 database.getModuleResultDao().insertAll(*modules.toTypedArray())
+
+                notifier.sendNotification()
+
                 ModuleResults(ModuleResultsEntity(moduleResultsId, time, time), modules)
             }
         }

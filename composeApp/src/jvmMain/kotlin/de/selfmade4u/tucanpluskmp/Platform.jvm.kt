@@ -14,9 +14,15 @@ import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import io.ktor.client.HttpClient
+import io.ktor.client.request.forms.submitForm
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.Url
+import io.ktor.http.parameters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
@@ -37,6 +43,32 @@ class JVMPlatform : Platform {
 }
 
 actual fun getPlatform(): Platform = JVMPlatform()
+
+// TODO FIXME duplication with android
+actual suspend fun handleLogin(
+    uri: Url,
+    client: HttpClient,
+    dataStore: DataStore<Settings?>,
+    backStack: NavBackStack<NavKey>
+) {
+    val code = uri.parameters["code"]!!
+    println(code)
+    var response = client.submitForm(
+        url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
+        formParameters = parameters {
+            append("client_id", "MobileApp")
+            append("code", code)
+            append("grant_type", "authorization_code")
+            append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
+        }
+    )
+    println(response)
+    val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
+    println(tokenResponse)
+    // now do the logincheck with that
+    loginTucan(client, tokenResponse, dataStore)
+    backStack[backStack.size - 1] = StartNavKey
+}
 
 @Composable
 actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
@@ -97,7 +129,7 @@ fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
 
 fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
     return Room.databaseBuilder<AppDatabase>(
-        name = "test",
+        name = "test.db",
     )
 }
 

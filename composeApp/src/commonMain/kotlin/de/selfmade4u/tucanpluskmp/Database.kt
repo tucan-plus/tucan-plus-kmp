@@ -30,8 +30,12 @@ class Converters {
     }
 }
 
-@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 3)
-@TypeConverters(Converters::class)
+@Database(entities = [TodoEntity::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 6)
+@TypeConverters(
+    Converters::class,
+    TucanUrl.RESULTDETAILS.Companion::class,
+    TucanUrl.GRADEOVERVIEWModule.Companion::class
+)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getDao(): TodoDao

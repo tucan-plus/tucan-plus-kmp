@@ -1,12 +1,23 @@
 package de.selfmade4u.tucanpluskmp
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.UriHandler
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -17,7 +28,13 @@ import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.AndroidSQLiteDriver
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
+import de.selfmade4u.tucanpluskmp.library.R
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.statement.bodyAsText
@@ -28,13 +45,113 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
-import java.io.File
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
 }
 
 actual fun getPlatform(): Platform = AndroidPlatform()
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+actual fun RequestNotificationPermission() {
+    val notificationPermissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        rememberPermissionState(
+            android.Manifest.permission.POST_NOTIFICATIONS
+        )
+    } else {
+        object : PermissionState {
+            override val permission: String
+                get() = "android.permission.POST_NOTIFICATIONS"
+            override val status: PermissionStatus
+                get() = PermissionStatus.Granted
+
+            override fun launchPermissionRequest() {
+
+            }
+        }
+    }
+
+    if (notificationPermissionState.status.isGranted) {
+        Text("Notification permission granted")
+    } else {
+        Column {
+            val textToShow = if (notificationPermissionState.status.shouldShowRationale) {
+                // If the user has denied the permission but the rationale can be shown,
+                // then gently explain why the app requires this permission
+                "The notification permission is important for this app. Please grant the permission."
+            } else {
+                // If it's the first time the user lands on this feature, or the user
+                // doesn't want to be asked again for this permission, explain that the
+                // permission is required
+                "Notification permission required for this feature to be available. " +
+                        "Please grant the permission"
+            }
+            Text(textToShow)
+            Button(onClick = { notificationPermissionState.launchPermissionRequest() }) {
+                Text("Request permission")
+            }
+        }
+    }
+}
+
+private const val GRADE_CHANGES_CHANNEL = "GRADE_CHANGES"
+
+fun getNotifier(context: Context) = object : Notifier {
+
+        override fun sendNotification() {
+            val name = "Notenänderungen"
+            val descriptionText = "Jegliche Änderungen deiner Noten"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(GRADE_CHANGES_CHANNEL, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system.
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+
+            val intent = Intent().apply {
+                setClassName(context, "de.selfmade4u.tucanpluskmp.MainActivity")
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            val pendingIntent: PendingIntent =
+                PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+            val builder = NotificationCompat.Builder(context, GRADE_CHANGES_CHANNEL)
+                .setSmallIcon(R.drawable.grading_24px)
+                .setContentTitle("Notenänderung")
+                .setContentText("Überraschung!")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+
+            with(NotificationManagerCompat.from(context)) {
+                if (ActivityCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    // TODO: Consider calling
+                    // ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    // public fun onRequestPermissionsResult(requestCode: Int, permissions: Array&lt;out String&gt;,
+                    //                                        grantResults: IntArray)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+
+                    return@with
+                }
+                notify(42, builder.build())
+            }
+        }
+}
+
+@Composable
+actual fun retrieveNotifier(): Notifier {
+    val context = LocalContext.current
+    return getNotifier(context)
+}
 
 @Composable
 actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
@@ -85,7 +202,7 @@ fun getRoomDatabase(
 ): AppDatabase {
     return builder
         .fallbackToDestructiveMigration(true)
-        .setDriver(BundledSQLiteDriver())
+        .setDriver(AndroidSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()
 }

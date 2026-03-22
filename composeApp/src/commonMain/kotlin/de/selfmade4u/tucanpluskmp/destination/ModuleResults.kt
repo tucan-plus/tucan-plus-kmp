@@ -44,6 +44,7 @@ import de.selfmade4u.tucanpluskmp.AppDatabase
 import de.selfmade4u.tucanpluskmp.DetailedDrawerExample
 import de.selfmade4u.tucanpluskmp.FakeDataStore
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.Semester
@@ -52,17 +53,23 @@ import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
 import de.selfmade4u.tucanpluskmp.database.ModuleResults
 import de.selfmade4u.tucanpluskmp.database.getCached
 import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
+import de.selfmade4u.tucanpluskmp.retrieveNotifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.vectorResource
+import tucanpluskmp.composeapp.generated.resources.Res
+import tucanpluskmp.composeapp.generated.resources.menu_24px
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
+    val notifier = retrieveNotifier() // TODO FIXME remember?
     var isRefreshing by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         if (getCached(database).first() == null) {
-            refreshModuleResults(dataStore, database)
+            refreshModuleResults(notifier, dataStore, database)
         }
     }
     val modules by getCached(database).collectAsStateWithLifecycle(null)
@@ -72,7 +79,7 @@ fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), da
         PullToRefreshBox(isRefreshing, onRefresh = {
             isRefreshing = true
             scope.launch {
-                refreshModuleResults(dataStore, database)
+                refreshModuleResults(notifier, dataStore, database)
                 isRefreshing = false
             }
         }, state = state, indicator = {
@@ -142,8 +149,8 @@ fun ModuleComposable(
         "Tin one ewfwf wefwe ewfw efw efwe wfwe fewfwe fweline",
         ModuleGrade.NOCH_NICHT_GESETZT,
         1,
-        "url",
-        "url"
+        TucanUrl.RESULTDETAILS(42),
+        TucanUrl.GRADEOVERVIEWModule(42)
     )
 ) {
     // https://developer.android.com/develop/ui/compose/layouts/basics

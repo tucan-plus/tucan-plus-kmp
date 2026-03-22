@@ -1,4 +1,5 @@
 [versions]
+accompanistPermissions = "0.37.3"
 agp = "9.1.0"
 android-compileSdk = "36"
 android-minSdk = "26"
@@ -31,6 +32,7 @@ room = "3.0.0-alpha01" # js/wasm target
 sqlite = "2.7.0-alpha01" # js/wasm target
 
 [libraries]
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
 androidx-datastore-core-okio = { module = "androidx.datastore:datastore-core-okio", version.ref = "datastore" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }

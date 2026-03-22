@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 3,
-    "identityHash": "2d69fa71df71109d208813fdced0c27d",
+    "version": 6,
+    "identityHash": "c7e0e2b7b013b7266f8af4ddb5612f0b",
     "entities": [
       {
         "tableName": "TodoEntity",
@@ -66,7 +66,7 @@
       },
       {
         "tableName": "ModuleResultEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleResultsId` INTEGER NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `grade` TEXT NOT NULL, `credits` INTEGER NOT NULL, `resultdetailsUrl` TEXT, `gradeoverviewUrl` TEXT, `semester_id` INTEGER NOT NULL, `semester_year` INTEGER NOT NULL, `semester_semester` TEXT NOT NULL, PRIMARY KEY(`moduleResultsId`, `id`, `semester_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleResultsId` INTEGER NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `grade` TEXT NOT NULL, `credits` INTEGER NOT NULL, `resultdetailsUrl` INTEGER, `gradeoverviewUrl` INTEGER, `semester_id` INTEGER NOT NULL, `semester_year` INTEGER NOT NULL, `semester_semester` TEXT NOT NULL, PRIMARY KEY(`moduleResultsId`, `id`, `semester_id`))",
         "fields": [
           {
             "fieldPath": "moduleResultsId",
@@ -101,12 +101,12 @@
           {
             "fieldPath": "resultdetailsUrl",
             "columnName": "resultdetailsUrl",
-            "affinity": "TEXT"
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "gradeoverviewUrl",
             "columnName": "gradeoverviewUrl",
-            "affinity": "TEXT"
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "semester.id",
@@ -139,7 +139,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2d69fa71df71109d208813fdced0c27d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c7e0e2b7b013b7266f8af4ddb5612f0b')"
     ]
   }
 }

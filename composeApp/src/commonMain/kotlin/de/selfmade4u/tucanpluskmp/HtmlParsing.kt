@@ -15,6 +15,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.toMap
+import kotlin.collections.mapValues
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -217,7 +218,7 @@ suspend fun <T> response(
         MyDatabase.getDatabase(context)
     }*/
     try {
-        val result = Response(response, response.headers.toMap().toMutableMap()).init()
+        val result = Response(response, response.headers.entries().groupBy({ it.key.lowercase() }, { it.value }).mapValues { (_, values) -> values.flatten() }.toMutableMap()).init()
         /*db?.cacheDao()?.insertAll(
             CacheEntry(
                 0,

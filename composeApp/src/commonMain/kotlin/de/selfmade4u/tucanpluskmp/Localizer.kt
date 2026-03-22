@@ -82,6 +82,7 @@ sealed interface Localizer {
     val module_results_exams: String
     val module_results_grade_statistics: String
     val module_results_semester_gpa: String
+    val not_set_yet: String
 }
 
 @Serializable
@@ -177,6 +178,8 @@ object GermanLocalizer : Localizer {
         get() = "Notenspiegel"
     override val module_results_semester_gpa: String
         get() = "Semester-GPA"
+    override val not_set_yet: String
+        get() = "noch nicht gesetzt"
 }
 
 @Serializable
@@ -272,5 +275,7 @@ object EnglishLocalizer : Localizer {
         get() = "Grade statistics"
     override val module_results_semester_gpa: String
         get() = "Semester GPA"
+    override val not_set_yet: String
+        get() = "not set yet"
 
 }
