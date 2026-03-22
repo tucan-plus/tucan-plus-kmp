@@ -55,14 +55,14 @@ import kotlinx.coroutines.launch
 fun MyExamsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase, isLoading: MutableState<Boolean> = mutableStateOf(false)) {
     var isRefreshing by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        if (getCached(database).first() == null) {
+        if (MyExams.getCached(database).first() == null) {
             MyExams.refresh(dataStore, database)
         }
     }
     val modules by MyExams.getCached(database).collectAsStateWithLifecycle(null)
     val state = rememberPullToRefreshState()
     val scope = rememberCoroutineScope()
-    DetailedDrawerExample(backStack, "Modulergebnisse") { innerPadding ->
+    DetailedDrawerExample(backStack, "Meine Prüfungen") { innerPadding ->
         PullToRefreshBox(isRefreshing, onRefresh = {
             isRefreshing = true
             scope.launch {
