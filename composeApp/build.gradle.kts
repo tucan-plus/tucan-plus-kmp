@@ -19,6 +19,10 @@ compose.resources {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     jvmToolchain {
         languageVersion = JavaLanguageVersion.of(25)
         //vendor = JvmVendorSpec.JETBRAINS
