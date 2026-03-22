@@ -9,6 +9,7 @@ import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.br
 import de.selfmade4u.tucanpluskmp.connector.Common.parseBase
+import de.selfmade4u.tucanpluskmp.connector.Common.parseCommonHeaders
 import de.selfmade4u.tucanpluskmp.div
 import de.selfmade4u.tucanpluskmp.form
 import de.selfmade4u.tucanpluskmp.h1
@@ -30,7 +31,6 @@ import de.selfmade4u.tucanpluskmp.th
 import de.selfmade4u.tucanpluskmp.thead
 import de.selfmade4u.tucanpluskmp.tr
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpStatusCode
 
 // https://github.com/tucan-plus/tucan-plus/blob/640bb9cbb9e3f8d22e8b9d6ddaabb5256b2eb0e6/crates/tucan-types/src/lib.rs#L366
 enum class ModuleGrade(val representation: (localizer: Localizer) -> String, val stringified: String) {
@@ -88,34 +88,7 @@ object ModuleResultsConnector {
 
     suspend fun parseModuleResponse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<ModuleResultsResponse> {
         return response(response) {
-            status(HttpStatusCode.OK)
-            header(
-                "content-security-policy",
-                "frame-src https://dsf.tucan.tu-darmstadt.de; frame-ancestors 'self' https://dsf.tucan.tu-darmstadt.de;"
-            )
-            header("content-type", "text/html")
-            header("x-content-type-options", "nosniff")
-            header("x-xss-protection", "1; mode=block")
-            header("referrer-policy", "strict-origin")
-            header("x-frame-options", "SAMEORIGIN")
-            maybeHeader("x-powered-by", listOf("ASP.NET"))
-            header("server", "Microsoft-IIS/10.0")
-            header("strict-transport-security", "max-age=31536000; includeSubDomains")
-            ignoreHeader("mgxpamiddlewarewaittime") // 0 or 16
-            ignoreHeader("date")
-            ignoreHeader("dl-served-by")
-            maybeHeader("connection", listOf("close"))
-            header("pragma", "no-cache")
-            header("expires", "0")
-            header("cache-control", "private, no-cache, no-store")
-            maybeIgnoreHeader("x-firefox-spdy")
-            maybeIgnoreHeader("vary")
-            maybeIgnoreHeader("x-android-received-millis")
-            maybeIgnoreHeader("x-android-received-millis")
-            maybeIgnoreHeader("x-android-response-source")
-            maybeIgnoreHeader("x-android-selected-protocol")
-            maybeIgnoreHeader("x-android-sent-millis")
-            maybeIgnoreHeader("content-length")
+            parseCommonHeaders()
             root {
                 parseModuleResults(menuId, sessionId, menuLocalizer)
             }
@@ -424,3 +397,4 @@ object ModuleResultsConnector {
         return response
     }
 }
+

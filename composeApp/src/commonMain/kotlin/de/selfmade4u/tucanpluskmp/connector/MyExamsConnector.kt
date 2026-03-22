@@ -9,6 +9,7 @@ import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.br
 import de.selfmade4u.tucanpluskmp.connector.Common.parseBase
+import de.selfmade4u.tucanpluskmp.connector.Common.parseCommonHeaders
 import de.selfmade4u.tucanpluskmp.div
 import de.selfmade4u.tucanpluskmp.form
 import de.selfmade4u.tucanpluskmp.h1
@@ -51,32 +52,7 @@ object MyExamsConnector {
 
     suspend fun parse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<MyExamsResponse> {
         return response(response) {
-            status(HttpStatusCode.OK)
-            header(
-                "Content-Security-Policy",
-                "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval';"
-            )
-            header("Content-Type", "text/html")
-            header("X-Content-Type-Options", "nosniff")
-            header("X-XSS-Protection", "1; mode=block")
-            header("Referrer-Policy", "strict-origin")
-            header("X-Frame-Options", "SAMEORIGIN")
-            maybeHeader("X-Powered-By", listOf("ASP.NET"))
-            header("Server", "Microsoft-IIS/10.0")
-            header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
-            ignoreHeader("MgMiddlewareWaitTime") // 0 or 16
-            ignoreHeader("Date")
-            //ignoreHeader("Content-Length")
-            header("Connection", "close")
-            header("Pragma", "no-cache")
-            header("Expires", "0")
-            header("Cache-Control", "private, no-cache, no-store")
-            maybeIgnoreHeader("vary")
-            maybeIgnoreHeader("x-android-received-millis")
-            maybeIgnoreHeader("x-android-response-source")
-            maybeIgnoreHeader("x-android-selected-protocol")
-            maybeIgnoreHeader("x-android-sent-millis")
-            maybeIgnoreHeader("content-length")
+            parseCommonHeaders()
             root {
                 parseResults(menuId, sessionId, menuLocalizer)
             }

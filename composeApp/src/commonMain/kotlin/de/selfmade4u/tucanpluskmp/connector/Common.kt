@@ -5,6 +5,7 @@ import de.selfmade4u.tucanpluskmp.EnglishLocalizer
 import de.selfmade4u.tucanpluskmp.GermanLocalizer
 import de.selfmade4u.tucanpluskmp.Head
 import de.selfmade4u.tucanpluskmp.Localizer
+import de.selfmade4u.tucanpluskmp.Response
 import de.selfmade4u.tucanpluskmp.Root
 import de.selfmade4u.tucanpluskmp.TextAndId
 import de.selfmade4u.tucanpluskmp.a
@@ -28,6 +29,7 @@ import de.selfmade4u.tucanpluskmp.script
 import de.selfmade4u.tucanpluskmp.span
 import de.selfmade4u.tucanpluskmp.title
 import de.selfmade4u.tucanpluskmp.ul
+import io.ktor.http.HttpStatusCode
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -961,5 +963,36 @@ object Common {
         // 15186000
         // wise 2025
         return 15176000 + ((year - 2025)*2 + offset) * 10000
+    }
+
+     fun Response.parseCommonHeaders() {
+        status(HttpStatusCode.OK)
+        header(
+            "content-security-policy",
+            "frame-src https://dsf.tucan.tu-darmstadt.de; frame-ancestors 'self' https://dsf.tucan.tu-darmstadt.de;"
+        )
+        header("content-type", "text/html")
+        header("x-content-type-options", "nosniff")
+        header("x-xss-protection", "1; mode=block")
+        header("referrer-policy", "strict-origin")
+        header("x-frame-options", "SAMEORIGIN")
+        maybeHeader("x-powered-by", listOf("ASP.NET"))
+        header("server", "Microsoft-IIS/10.0")
+        header("strict-transport-security", "max-age=31536000; includeSubDomains")
+        ignoreHeader("mgxpamiddlewarewaittime") // 0 or 16
+        ignoreHeader("date")
+        ignoreHeader("dl-served-by")
+        maybeHeader("connection", listOf("close"))
+        header("pragma", "no-cache")
+        header("expires", "0")
+        header("cache-control", "private, no-cache, no-store")
+        maybeIgnoreHeader("x-firefox-spdy")
+        maybeIgnoreHeader("vary")
+        maybeIgnoreHeader("x-android-received-millis")
+        maybeIgnoreHeader("x-android-received-millis")
+        maybeIgnoreHeader("x-android-response-source")
+        maybeIgnoreHeader("x-android-selected-protocol")
+        maybeIgnoreHeader("x-android-sent-millis")
+        maybeIgnoreHeader("content-length")
     }
 }
