@@ -44,6 +44,20 @@ class JVMPlatform : Platform {
 
 actual fun getPlatform(): Platform = JVMPlatform()
 
+@Composable
+actual fun RequestNotificationPermission() {
+
+}
+
+@Composable
+actual fun retrieveNotifier(): Notifier {
+    return object : Notifier {
+        override fun sendNotification() {
+            println("sending notification")
+        }
+    }
+}
+
 // TODO FIXME duplication with android
 actual suspend fun handleLogin(
     uri: Url,
