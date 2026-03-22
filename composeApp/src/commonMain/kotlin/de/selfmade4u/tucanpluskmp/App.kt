@@ -110,7 +110,7 @@ fun App(uri: String?, dataStore: DataStore<Settings?> = FakeDataStore, database:
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun BoxScope.LoadingIndicator(
+fun BoxScope.MyLoadingIndicator(
     state: PullToRefreshState,
     isRefreshing: Boolean
 ) {

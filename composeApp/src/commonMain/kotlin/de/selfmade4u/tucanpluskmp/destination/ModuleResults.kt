@@ -44,6 +44,7 @@ import androidx.navigation3.runtime.NavKey
 import de.selfmade4u.tucanpluskmp.AppDatabase
 import de.selfmade4u.tucanpluskmp.DetailedDrawerExample
 import de.selfmade4u.tucanpluskmp.FakeDataStore
+import de.selfmade4u.tucanpluskmp.MyLoadingIndicator
 import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
@@ -84,7 +85,7 @@ fun ModuleResultsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), da
                 isRefreshing = false
             }
         }, state = state, indicator = {
-            LoadingIndicator(state, isRefreshing)
+            MyLoadingIndicator(state, isRefreshing)
         }, modifier = Modifier.padding(innerPadding)) {
             RenderModuleResults(modules)
         }

@@ -1,5 +1,6 @@
 package de.selfmade4u.tucanpluskmp.destination
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,6 +42,7 @@ import androidx.navigation3.runtime.NavKey
 import de.selfmade4u.tucanpluskmp.AppDatabase
 import de.selfmade4u.tucanpluskmp.DetailedDrawerExample
 import de.selfmade4u.tucanpluskmp.FakeDataStore
+import de.selfmade4u.tucanpluskmp.MyLoadingIndicator
 import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.connector.Semester
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
@@ -70,7 +73,7 @@ fun MyExamsComposable(backStack: NavBackStack<NavKey> = NavBackStack(), dataStor
                 isRefreshing = false
             }
         }, state = state, indicator = {
-            LoadingIndicator(state, isRefreshing)
+            MyLoadingIndicator(state, isRefreshing)
         }, modifier = Modifier.padding(innerPadding)) {
             RenderMyExams(modules)
         }
@@ -94,9 +97,11 @@ private fun RenderMyExams(exams: List<MyExams.MyExam>?) {
                 ) { CircularWavyProgressIndicator() }
             }
             exams -> {
-                exams.forEach { exam ->
-                    key(exam.id) {
-                        MyExamComposable(exam)
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    exams.forEach { exam ->
+                        key(exam.id) {
+                            MyExamComposable(exam)
+                        }
                     }
                 }
             }
@@ -120,10 +125,10 @@ fun MyExamComposable(
     Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
         Column(modifier = Modifier.weight(1f)) {
             Text(exam.name)
-            Text(exam.id, fontSize = 10.sp, color = Color.Gray)
+            Text(exam.date)
         }
         Column(modifier = Modifier.fillMaxHeight(), horizontalAlignment = Alignment.End) {
-            Text(exam.date)
+            Text(exam.id, fontSize = 10.sp, color = Color.Gray)
         }
     }
 }
