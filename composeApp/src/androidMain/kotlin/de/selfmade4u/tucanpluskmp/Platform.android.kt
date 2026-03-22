@@ -133,11 +133,10 @@ fun getNotifier(context: Context) = object : Notifier {
             val pendingIntent: PendingIntent =
                 PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-
-            var builder = NotificationCompat.Builder(context, "CHANNEL_ID")
+            val builder = NotificationCompat.Builder(context, "CHANNEL_ID")
                 .setSmallIcon(R.drawable.grading_24px)
-                .setContentTitle("title")
-                .setContentText("content")
+                .setContentTitle("Notenänderung")
+                .setContentText("Überraschung!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
@@ -158,7 +157,6 @@ fun getNotifier(context: Context) = object : Notifier {
 
                     return@with
                 }
-                // notificationId is a unique int for each notification that you must define.
                 notify(42, builder.build())
             }
         }
