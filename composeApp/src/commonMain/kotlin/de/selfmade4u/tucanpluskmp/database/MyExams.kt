@@ -2,10 +2,12 @@ package de.selfmade4u.tucanpluskmp.data
 
 import androidx.datastore.core.DataStore
 import androidx.room3.Dao
+import androidx.room3.Delete
 import androidx.room3.Embedded
 import androidx.room3.Entity
 import androidx.room3.Insert
 import androidx.room3.Query
+import androidx.room3.Upsert
 import androidx.room3.immediateTransaction
 import androidx.room3.useWriterConnection
 import de.selfmade4u.tucanpluskmp.AppDatabase
@@ -42,14 +44,12 @@ object MyExams {
                                     val time = Clock.System.now().toLocalDateTime(TimeZone.UTC)
                                     AuthenticatedResponse.Success(response.response.exams.map { m ->
                                         MyExam(
-                                            semester,
                                             m.id,
                                             m.name,
                                             m.coursedetailsUrl,
+                                            semester,
                                             m.examType,
                                             m.date,
-                                            time,
-                                            time
                                         )
                                     })
                                 }
@@ -76,85 +76,32 @@ object MyExams {
         }
     }
 
-    // https://www.sqlite.org/lang_select.html#bare_columns_in_an_aggregate_query
     // there can be multiple exams with different types for one course
-    @Entity(primaryKeys = ["myExamsId", "id", "semester_id", "examType"])
+    @Entity(primaryKeys = ["id", "semester_id", "examType"])
     data class MyExam(
-        @Embedded(prefix = "semester_")
-        var semester: Semesterauswahl,
         var id: String,
         val name: String,
-        val coursedetailsUrl: String,
         val examType: String,
+        @Embedded(prefix = "semester_")
+        var semester: Semesterauswahl,
+        val coursedetailsUrl: String,
         val date: String,
-        var validSince: LocalDateTime,
-        var validUntil: LocalDateTime,
-        //val removed: Boolean, // exams can't be removed?
     )
-
-    fun MyExam.isContentEqual(other: MyExam): Boolean {
-        return semester == other.semester && id == other.id && name == other.name &&
-                coursedetailsUrl == other.coursedetailsUrl &&
-                examType == other.examType &&
-                date == other.date
-    }
 
     @Dao
     interface MyExamsDao {
-        @Query("SELECT *, MAX(validUntil) FROM MyExam GROUP BY id, semester_id, examType")
+        @Query("SELECT * FROM MyExam")
         suspend fun getAll(): List<MyExam>
 
-        @Insert
-        suspend fun insert(myExam: MyExam): Long
+        @Delete
+        suspend fun deleteAll()
+
+        @Upsert
+        suspend fun upsert(vararg exams: MyExam)
     }
 
     val comparator =
         compareByDescending<MyExam> { it.semester.id }.thenBy { it.id }.thenBy { it.examType }
-
-    data class ExamKey(
-        val id: String,
-        val semesterId: Long
-    )
-
-    fun MyExam.key() = ExamKey(id, semester.id)
-
-    data class ExamDiff(
-        val added: List<MyExam>,
-        val removed: List<MyExam>,
-        val changed: List<Pair<MyExam, MyExam>>
-    )
-
-    fun diffExamsOptimized(
-        oldList: List<MyExam>,
-        newList: List<MyExam>
-    ): ExamDiff {
-
-        val oldMap = HashMap<ExamKey, MyExam>(oldList.size)
-        for (exam in oldList) {
-            oldMap[exam.key()] = exam
-        }
-
-        val added = mutableListOf<MyExam>()
-        val changed = mutableListOf<Pair<MyExam, MyExam>>()
-
-        for (newExam in newList) {
-            val key = newExam.key()
-            val oldExam = oldMap.remove(key)
-
-            when {
-                oldExam == null -> {
-                    added += newExam
-                }
-                !oldExam.isContentEqual(newExam) -> {
-                    changed += oldExam to newExam
-                }
-            }
-        }
-
-        val removed = oldMap.values.toList()
-
-        return ExamDiff(added, removed, changed)
-    }
 
     // only store all once
     suspend fun persist(
@@ -163,14 +110,11 @@ object MyExams {
     ): List<MyExam> {
         return database.useWriterConnection {
             it.immediateTransaction {
-                // assume exams can't be removed. that can probably happen with studienbüro, right?
-                val oldExams = database.getMyExamsDao().getAll().sortedWith(comparator)
+                val oldExams = database.getMyExamsDao().getAll()
                 val exams = result.sortedWith(comparator)
-                val diff = diffExamsOptimized(oldExams, exams)
 
-                // TODO
-
-                //database.getMyExamsDao().insert(*exams.toTypedArray())
+                database.getMyExamsDao().deleteAll()
+                database.getMyExamsDao().upsert(*exams.toTypedArray())
                 exams
             }
         }
@@ -181,6 +125,6 @@ object MyExams {
         if (value.isEmpty()) {
             return null
         }
-        return value.sortedWith(comparator)
+        return value
     }
 }
