@@ -8,22 +8,16 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.annotation.RequiresPermission
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -34,7 +28,6 @@ import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.sqlite.driver.AndroidSQLiteDriver
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.PermissionStatus
@@ -52,12 +45,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
-import org.jetbrains.compose.resources.imageResource
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.vectorResource
-import tucanpluskmp.composeapp.generated.resources.Res
-import tucanpluskmp.composeapp.generated.resources.menu_24px
-import kotlin.jvm.java
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -108,23 +95,21 @@ actual fun RequestNotificationPermission() {
     }
 }
 
+private const val GRADE_CHANGES_CHANNEL = "GRADE_CHANGES"
+
 fun getNotifier(context: Context) = object : Notifier {
 
         override fun sendNotification() {
-            // Create the NotificationChannel, but only on API 26+ because
-            // the NotificationChannel class is not in the Support Library.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val name = "CHANNEL"
-                val descriptionText = "channel description"
-                val importance = NotificationManager.IMPORTANCE_DEFAULT
-                val channel = NotificationChannel("CHANNEL_ID", name, importance).apply {
-                    description = descriptionText
-                }
-                // Register the channel with the system.
-                val notificationManager: NotificationManager =
-                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.createNotificationChannel(channel)
+            val name = "Notenänderungen"
+            val descriptionText = "Jegliche Änderungen deiner Noten"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(GRADE_CHANGES_CHANNEL, name, importance).apply {
+                description = descriptionText
             }
+            // Register the channel with the system.
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
 
             val intent = Intent().apply {
                 setClassName(context, "de.selfmade4u.tucanpluskmp.MainActivity")
@@ -133,7 +118,7 @@ fun getNotifier(context: Context) = object : Notifier {
             val pendingIntent: PendingIntent =
                 PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-            val builder = NotificationCompat.Builder(context, "CHANNEL_ID")
+            val builder = NotificationCompat.Builder(context, GRADE_CHANGES_CHANNEL)
                 .setSmallIcon(R.drawable.grading_24px)
                 .setContentTitle("Notenänderung")
                 .setContentText("Überraschung!")
