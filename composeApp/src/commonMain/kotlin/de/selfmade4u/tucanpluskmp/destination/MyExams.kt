@@ -44,6 +44,7 @@ import de.selfmade4u.tucanpluskmp.DetailedDrawerExample
 import de.selfmade4u.tucanpluskmp.FakeDataStore
 import de.selfmade4u.tucanpluskmp.MyLoadingIndicator
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.Semester
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
 import de.selfmade4u.tucanpluskmp.data.MyExams
@@ -117,7 +118,7 @@ fun MyExamComposable(
         "id",
         "Tin one ewfwf wefwe ewfw efw efwe wfwe fewfwe fweline",
         Semesterauswahl(1, 2025, Semester.Wintersemester),
-        "test",
+        TucanUrl.COURSEDETAILS(42, 42),
         "date",
     )
 ) {

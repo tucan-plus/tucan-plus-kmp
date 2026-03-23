@@ -12,6 +12,7 @@ import androidx.room3.immediateTransaction
 import androidx.room3.useWriterConnection
 import de.selfmade4u.tucanpluskmp.AppDatabase
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.MyExamsConnector
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
@@ -90,7 +91,8 @@ object MyExams {
         val examType: String,
         @Embedded(prefix = "semester_")
         var semester: Semesterauswahl,
-        val coursedetailsUrl: String,
+        @Embedded(prefix = "coursedetails_")
+        val coursedetailsUrl: TucanUrl.COURSEDETAILS,
         val date: String,
     )
 

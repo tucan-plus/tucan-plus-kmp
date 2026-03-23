@@ -5,6 +5,7 @@ import com.fleeksoft.ksoup.nodes.TextNode
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.br
@@ -256,7 +257,7 @@ object MyExamsConnector {
                         ) {
                             val id: String
                             val name: String
-                            val coursedetailsUrl: String
+                            val coursedetailsUrl: TucanUrl.CourseOrModuleDetails
                             val examType: String
                             val date: String
                             tr {
@@ -272,8 +273,8 @@ object MyExamsConnector {
                                         if (peekAttribute()?.key == "name") {
                                             attribute("name", "eventLink");
                                         }
-                                        // link coursedetails
-                                        coursedetailsUrl = attributeValue("href");
+                                        // link coursedetails or moduledetails
+                                        coursedetailsUrl = TucanUrl.CourseOrModuleDetails.fromString(attributeValue("href"));
                                         // module title
                                         name = extractText()
                                     }
