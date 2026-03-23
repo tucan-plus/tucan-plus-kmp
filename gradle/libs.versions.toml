@@ -71,6 +71,7 @@ androidx-room-compiler = { module = "androidx.room3:room3-compiler", version.ref
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-sqlite-web = { module = "androidx.sqlite:sqlite-web", version.ref = "sqlite" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

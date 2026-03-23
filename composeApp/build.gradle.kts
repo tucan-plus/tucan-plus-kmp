@@ -99,11 +99,15 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.ui.test)
         }
         jvmMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+        }
+        jvmTest.dependencies {
+            implementation(compose.desktop.currentOs)
         }
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
