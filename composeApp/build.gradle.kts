@@ -1,3 +1,6 @@
+import com.teamscale.TeamscaleUpload
+import com.teamscale.extension.TeamscaleTaskExtension
+import com.teamscale.reporting.testwise.TestwiseCoverageReport
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -12,6 +15,36 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    id("com.teamscale") version "36.4.0"
+}
+
+teamscale {
+    server {
+        url = "https://teamscale.selfmade4u.de/"
+        project = "tucan-plus-kmp"
+        userName = "admin"
+        userAccessToken = System.getProperty("teamscale.access-token")
+    }
+}
+
+val testwiseCoverageReport by tasks.registering(TestwiseCoverageReport::class) {
+    executionData(tasks.test)
+}
+
+tasks.test {
+    useJUnitPlatform()
+    finalizedBy(testwiseCoverageReport)
+    configure<JacocoTaskExtension> {
+        includes = listOf("tia.*")
+    }
+    configure<TeamscaleTaskExtension> {
+        collectTestwiseCoverage = true
+    }
+}
+
+tasks.register<TeamscaleUpload>("teamscaleTestUpload") {
+    partition = "Unit Tests"
+    from(tasks.named("testwiseCoverageReport"))
 }
 
 compose.resources {
