@@ -34,8 +34,6 @@ class Converters {
 @Database(entities = [MyExams.MyExam::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 7)
 @TypeConverters(
     Converters::class,
-    TucanUrl.RESULTDETAILS.Companion::class,
-    TucanUrl.GRADEOVERVIEWModule.Companion::class
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {

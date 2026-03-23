@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "56b6706d14116574670334bbff5ea490",
+    "identityHash": "fba18c1f02556a502c1f349ebc23ae18",
     "entities": [
       {
         "tableName": "MyExam",
@@ -98,7 +98,7 @@
       },
       {
         "tableName": "ModuleResultEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleResultsId` INTEGER NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `grade` TEXT NOT NULL, `credits` INTEGER NOT NULL, `resultdetailsUrl` INTEGER, `gradeoverviewUrl` INTEGER, `semester_id` INTEGER NOT NULL, `semester_year` INTEGER NOT NULL, `semester_semester` TEXT NOT NULL, PRIMARY KEY(`moduleResultsId`, `id`, `semester_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`moduleResultsId` INTEGER NOT NULL, `id` TEXT NOT NULL, `name` TEXT NOT NULL, `grade` TEXT NOT NULL, `credits` INTEGER NOT NULL, `semester_id` INTEGER NOT NULL, `semester_year` INTEGER NOT NULL, `semester_semester` TEXT NOT NULL, `resultdetails_id` INTEGER, `gradeoverview_id` INTEGER, PRIMARY KEY(`moduleResultsId`, `id`, `semester_id`))",
         "fields": [
           {
             "fieldPath": "moduleResultsId",
@@ -131,16 +131,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "resultdetailsUrl",
-            "columnName": "resultdetailsUrl",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "gradeoverviewUrl",
-            "columnName": "gradeoverviewUrl",
-            "affinity": "INTEGER"
-          },
-          {
             "fieldPath": "semester.id",
             "columnName": "semester_id",
             "affinity": "INTEGER",
@@ -157,6 +147,16 @@
             "columnName": "semester_semester",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "resultdetailsUrl.id",
+            "columnName": "resultdetails_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "gradeoverviewUrl.id",
+            "columnName": "gradeoverview_id",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -171,7 +171,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '56b6706d14116574670334bbff5ea490')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fba18c1f02556a502c1f349ebc23ae18')"
     ]
   }
 }

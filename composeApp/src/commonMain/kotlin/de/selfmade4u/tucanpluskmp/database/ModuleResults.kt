@@ -94,7 +94,9 @@ data class ModuleResultEntity(
     // TODO FIXME nullable https://github.com/androidx/androidx/blob/351115de96497704880fb866cc69d826754baf08/room3/room3-compiler/src/main/kotlin/androidx/room3/solver/types/EnumColumnTypeAdapter.kt#L184
     val grade: ModuleGrade,
     val credits: Int,
+    @Embedded(prefix = "resultdetails_")
     val resultdetailsUrl: TucanUrl.RESULTDETAILS?,
+    @Embedded(prefix = "gradeoverview_")
     val gradeoverviewUrl: TucanUrl.GRADEOVERVIEWModule?
 )
 
