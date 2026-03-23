@@ -33,7 +33,6 @@ import de.selfmade4u.tucanpluskmp.th
 import de.selfmade4u.tucanpluskmp.thead
 import de.selfmade4u.tucanpluskmp.tr
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpStatusCode
 
 // loop semester by semester because otherwise we can't really associate entries with their semester. maybe just not support the "all"?
 object MyExamsConnector {
@@ -257,7 +256,7 @@ object MyExamsConnector {
                         ) {
                             val id: String
                             val name: String
-                            val coursedetailsUrl: TucanUrl.CourseOrModuleDetails
+                            val coursedetailsOrModuleDetails: TucanUrl.CourseOrModuleDetails
                             val examType: String
                             val date: String
                             tr {
@@ -273,8 +272,7 @@ object MyExamsConnector {
                                         if (peekAttribute()?.key == "name") {
                                             attribute("name", "eventLink");
                                         }
-                                        // link coursedetails or moduledetails
-                                        coursedetailsUrl = TucanUrl.CourseOrModuleDetails.fromString(attributeValue("href"));
+                                        coursedetailsOrModuleDetails = TucanUrl.CourseOrModuleDetails.fromString(attributeValue("href"));
                                         // module title
                                         name = extractText()
                                     }
@@ -338,7 +336,8 @@ object MyExamsConnector {
                                 name,
                                 examType,
                                 selectedSemester!!,
-                                coursedetailsUrl,
+                                coursedetailsOrModuleDetails as? TucanUrl.COURSEDETAILS,
+                                coursedetailsOrModuleDetails as? TucanUrl.MODULEDETAILS,
                                 date,
                             )
                             exams.add(exam)

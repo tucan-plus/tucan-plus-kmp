@@ -31,7 +31,7 @@ class Converters {
     }
 }
 
-@Database(entities = [MyExams.MyExam::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 7)
+@Database(entities = [MyExams.MyExam::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 8)
 @TypeConverters(
     Converters::class,
 )

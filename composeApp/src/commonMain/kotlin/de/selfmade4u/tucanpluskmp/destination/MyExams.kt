@@ -119,7 +119,8 @@ fun MyExamComposable(
         "Tin one ewfwf wefwe ewfw efw efwe wfwe fewfwe fweline",
         Semesterauswahl(1, 2025, Semester.Wintersemester),
         TucanUrl.COURSEDETAILS(42, 42),
-        "date",
+        TucanUrl.MODULEDETAILS(42),
+    "date",
     )
 ) {
     // https://developer.android.com/develop/ui/compose/layouts/basics

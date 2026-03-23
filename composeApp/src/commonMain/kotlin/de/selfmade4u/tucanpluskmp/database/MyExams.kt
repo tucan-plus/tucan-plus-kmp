@@ -46,16 +46,7 @@ object MyExams {
                                 semester.id.toString().padStart(15, '0')
                             )) {
                                 is AuthenticatedResponse.Success<MyExamsConnector.MyExamsResponse> -> {
-                                    AuthenticatedResponse.Success(response.response.exams.map { m ->
-                                        MyExam(
-                                            m.id,
-                                            m.name,
-                                            m.examType,
-                                            semester,
-                                            m.coursedetailsUrl,
-                                            m.date,
-                                        )
-                                    })
+                                    AuthenticatedResponse.Success(response.response.exams)
                                 }
                                 else -> response.map<List<MyExam>>()
                             }
@@ -83,7 +74,7 @@ object MyExams {
         }
     }
 
-    // there can be multiple exams with different types for one course
+    // there can be multiple exams with di>fferent types for one course
     @Entity(primaryKeys = ["id", "semester_id", "examType"])
     data class MyExam(
         var id: String,
@@ -91,8 +82,11 @@ object MyExams {
         val examType: String,
         @Embedded(prefix = "semester_")
         var semester: Semesterauswahl,
+        // one of these two is set. for thesis the moduledetails is set, otherwise coursedetails is set
         @Embedded(prefix = "coursedetails_")
-        val coursedetailsUrl: TucanUrl.COURSEDETAILS,
+        val coursedetailsUrl: TucanUrl.COURSEDETAILS?,
+        @Embedded(prefix = "moduledetails_")
+        val moduledetailsUrl: TucanUrl.MODULEDETAILS?,
         val date: String,
     )
 
