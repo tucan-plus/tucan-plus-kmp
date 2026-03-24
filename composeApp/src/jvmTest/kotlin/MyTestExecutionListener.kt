@@ -1,36 +1,11 @@
 package de.selfmade4u.tucanpluskmp
 
 import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.reporting.FileEntry
-import org.junit.platform.engine.support.descriptor.ClassSource
-import org.junit.platform.engine.support.descriptor.MethodSource
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestIdentifier
-import org.junit.platform.launcher.TestPlan
 import java.io.File
-import java.net.URL
-import java.nio.file.Paths
 
 class MyTestExecutionListener : TestExecutionListener {
-
-    fun getPathFromTestIdentifier(testIdentifier: TestIdentifier): String? {
-        val clazz: Class<*> = when (val source = testIdentifier.source.orElse(null)) {
-            is ClassSource -> source.javaClass
-            is MethodSource -> Class.forName(source.className)
-            else -> return null // Not a class-based test
-        }
-
-        // 2. Resolve the physical path
-        return getClassFilePath(clazz)
-    }
-
-    fun getClassFilePath(clazz: Class<*>): String? {
-        val resourceName = "${clazz.simpleName}.class"
-        val url: URL? = clazz.getResource(resourceName)
-
-        // Returns the absolute path to the .class file
-        return url?.path
-    }
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
         if (testIdentifier.isContainer)
@@ -47,6 +22,8 @@ class MyTestExecutionListener : TestExecutionListener {
         if (testIdentifier.isContainer)
             return;
 
+        // we should use the jacoco reporting stuff to get the uniform path.
+
         val agent = org.jacoco.agent.rt.RT.getAgent()
         val executionData = agent.getExecutionData(true)
         val folder = "./build/jacoco/${testIdentifier.displayName}/"
@@ -54,12 +31,13 @@ class MyTestExecutionListener : TestExecutionListener {
         File("$folder/metadata.json").writeText("""
             { "testInfo": 
               {
-                "uniformPath": "${getPathFromTestIdentifier(testIdentifier)}", 
+                "uniformPath": "null", 
                 "result": "PASSED",
                 "duration": 1 
               }
              }
         """.trimIndent())
+        // TODO teamscale needs the xml files
         File("$folder/JACOCO/jvmTest.exec").writeBytes(executionData)
         println("DUMPED")
     }
