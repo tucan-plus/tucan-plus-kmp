@@ -20,34 +20,40 @@ jacoco {
 }
 
 // ./gradlew :composeApp:cleanJvmTest :composeApp:jvmTest
-tasks.register<JacocoReport>("jvmTestCodeCoverageReport") {
-    group = "Verification"
-    description = "Generates Jacoco coverage reports for the JVM target."
 
-    // 1. Depend on the unit test task
-    dependsOn(tasks.named("jvmTest"))
+val execFiles = fileTree(layout.buildDirectory.dir("jacoco")) {
+    include("*.exec")
+}
 
-    // 2. Define which execution data to use
-    executionData.setFrom(fileTree(layout.buildDirectory) {
-        include("jacoco/jvmTest.exec")
-    })
+execFiles.forEach { execFile ->
+    println(execFile)
+    val namePart = execFile.name.removeSuffix(".exec")
 
-    // 3. Point to the compiled .class files (excluding generated code)
-    val classFiles = fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
-        exclude("**/R.class", "**/BuildConfig.*")
+    tasks.register("jacocoReport_$namePart", JacocoReport::class) {
+        dependsOn(tasks.named("jvmTest"))
+
+        executionData.setFrom(execFile)
+
+        sourceDirectories.setFrom(files(
+            "src/commonMain/kotlin",
+            "src/jvmMain/kotlin"
+        ))
+        classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
+            exclude("**/R.class", "**/BuildConfig.*")
+        })
+
+        reports {
+            xml.required.set(true)
+            xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/$namePart/JACOCO/coverage.xml"))
+
+            html.required.set(false)
+            csv.required.set(false)
+        }
     }
-    classDirectories.setFrom(classFiles)
+}
 
-    // 4. Map back to your source code for the report visualization
-    sourceDirectories.setFrom(files(
-        "src/commonMain/kotlin",
-        "src/jvmMain/kotlin"
-    ))
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true) // Generates a readable website in build/reports/jacoco
-    }
+tasks.register("jacocoReportAll") {
+    dependsOn(tasks.withType(JacocoReport::class))
 }
 
 compose.resources {
