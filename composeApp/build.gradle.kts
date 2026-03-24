@@ -1,10 +1,6 @@
-import com.teamscale.TeamscaleUpload
-import com.teamscale.extension.TeamscaleTaskExtension
-import com.teamscale.reporting.testwise.TestwiseCoverageReport
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -15,36 +11,38 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
-    id("com.teamscale") version "36.4.0"
+    jacoco
 }
 
-teamscale {
-    server {
-        url = "https://teamscale.selfmade4u.de/"
-        project = "tucan-plus-kmp"
-        userName = "admin"
-        userAccessToken = System.getProperty("teamscale.access-token")
+// ./gradlew :composeApp:cleanJvmTest :composeApp:jvmTest
+tasks.register<JacocoReport>("jvmTestCodeCoverageReport") {
+    group = "Verification"
+    description = "Generates Jacoco coverage reports for the JVM target."
+
+    // 1. Depend on the unit test task
+    dependsOn(tasks.named("jvmTest"))
+
+    // 2. Define which execution data to use
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        include("jacoco/jvmTest.exec")
+    })
+
+    // 3. Point to the compiled .class files (excluding generated code)
+    val classFiles = fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
+        exclude("**/R.class", "**/BuildConfig.*")
     }
-}
+    classDirectories.setFrom(classFiles)
 
-val testwiseCoverageReport by tasks.registering(TestwiseCoverageReport::class) {
-    executionData(tasks.test)
-}
+    // 4. Map back to your source code for the report visualization
+    sourceDirectories.setFrom(files(
+        "src/commonMain/kotlin",
+        "src/jvmMain/kotlin"
+    ))
 
-tasks.test {
-    useJUnitPlatform()
-    finalizedBy(testwiseCoverageReport)
-    configure<JacocoTaskExtension> {
-        includes = listOf("tia.*")
+    reports {
+        xml.required.set(true)
+        html.required.set(true) // Generates a readable website in build/reports/jacoco
     }
-    configure<TeamscaleTaskExtension> {
-        collectTestwiseCoverage = true
-    }
-}
-
-tasks.register<TeamscaleUpload>("teamscaleTestUpload") {
-    partition = "Unit Tests"
-    from(tasks.named("testwiseCoverageReport"))
 }
 
 compose.resources {
