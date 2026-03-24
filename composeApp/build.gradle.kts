@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.jacocoAgent
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -12,6 +13,10 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
     jacoco
+}
+
+jacoco {
+    toolVersion = "0.8.14"
 }
 
 // ./gradlew :composeApp:cleanJvmTest :composeApp:jvmTest
@@ -145,6 +150,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.junit.jupiter)
             implementation(libs.junit.platform.launcher)
+            compileOnly("org.jacoco:org.jacoco.agent:0.8.14:runtime")
         }
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
