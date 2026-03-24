@@ -83,7 +83,11 @@ kotlin {
         }
     }*/
 
-    jvm()
+    jvm() {
+        tasks.named<Test>("jvmTest") {
+            useJUnitPlatform()
+        }
+    }
 
     js {
         browser {
@@ -139,6 +143,8 @@ kotlin {
         }
         jvmTest.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.junit.jupiter)
+            implementation(libs.junit.platform.launcher)
         }
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
