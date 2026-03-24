@@ -19,11 +19,13 @@ jacoco {
     toolVersion = "0.8.14"
 }
 
-// ./gradlew :composeApp:cleanJvmTest :composeApp:jvmTest
+// ./gradlew clean :composeApp:jvmTest :composeApp:jacocoReportAll
 
 val execFiles = fileTree(layout.buildDirectory.dir("jacoco")) {
     include("*.exec")
 }
+
+println(execFiles)
 
 execFiles.forEach { execFile ->
     println(execFile)
