@@ -41,7 +41,7 @@ abstract class JacocoReportsMultipleContainer {
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportBase.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportsContainer.java
-@CacheableTask
+//@CacheableTask
 abstract class JacocoReportMultiple : SourceTask() {
     @get:Incremental
     @get:PathSensitive(PathSensitivity.NONE)
@@ -89,6 +89,7 @@ abstract class JacocoReportMultiple : SourceTask() {
 
     @TaskAction
     fun execute(inputChanges: InputChanges) {
+        println("EXECUTING")
         val queue = this.workerExecutor.noIsolation()
 
         println(

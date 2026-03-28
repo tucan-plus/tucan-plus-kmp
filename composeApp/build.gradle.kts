@@ -38,7 +38,8 @@ jacoco {
 // https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/report-generator/src/main/kotlin/com/teamscale/report/testwise/jacoco/JaCoCoTestwiseReportGenerator.kt#L28
 
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
-    dependsOn(tasks.named("jvmTest"))
+    println("configuring")
+    //dependsOn(tasks.named("jvmTest"))
     executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {
         include("*.exec")
     })
@@ -95,25 +96,6 @@ kotlin {
     jvm() {
         tasks.named<Test>("jvmTest") {
             useJUnitPlatform()
-
-            testLogging {
-                showStandardStreams = true
-                events("started", "passed", "skipped", "failed")
-            }
-
-            addTestListener(object : TestListener {
-                override fun beforeSuite(suite: TestDescriptor?) {
-                    println("before suite")
-                }
-
-                override fun beforeTest(testDescriptor: TestDescriptor?) {
-                    println("before test $testDescriptor")
-                }
-
-                override fun afterTest(testDescriptor: TestDescriptor?, result: TestResult?) {
-                    println("after test $testDescriptor $result")
-                }
-            })
         }
     }
 
