@@ -14,7 +14,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
     jacoco
-    id("de.selfmade4u.jacoco.GreetingPlugin")
+    id("de.selfmade4u.jacoco_report_multiple_plugin")
 }
 
 tasks.withType<Test>().configureEach {
