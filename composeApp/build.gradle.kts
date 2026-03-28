@@ -88,6 +88,11 @@ kotlin {
     jvm{
         tasks.named<Test>("jvmTest") {
             useJUnitPlatform()
+            configure<JacocoTaskExtension> {
+                output = JacocoTaskExtension.Output.NONE
+                isDumpOnExit = false
+                destinationFile = null
+            }
         }
         tasks.withType<Test>().configureEach {
             // Force the JVM to include the resources directory in the classpath

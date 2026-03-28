@@ -43,6 +43,7 @@ abstract class JacocoReportsMultipleContainer {
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportBase.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportsContainer.java
+@CacheableTask
 abstract class JacocoReportMultiple : DefaultTask() {
     @get:Incremental
     @get:PathSensitive(PathSensitivity.NAME_ONLY) // we need the name to name the output
