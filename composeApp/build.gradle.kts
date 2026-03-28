@@ -1,3 +1,4 @@
+import de.selfmade4u.jacoco.JacocoReportMultiple
 import org.gradle.kotlin.dsl.jacocoAgent
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -13,7 +14,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
     jacoco
-    id("GreetingPlugin")
+    id("de.selfmade4u.jacoco.GreetingPlugin")
 }
 
 tasks.withType<Test>().configureEach {
@@ -26,12 +27,6 @@ jacoco {
 
 // ./gradlew clean :composeApp:jvmTest :composeApp:jacocoReportAll
 
-val execFiles = fileTree(layout.buildDirectory.dir("jacoco")) {
-    include("*.exec")
-}
-
-println(execFiles)
-
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://www.eclemma.org/jacoco/trunk/doc/ant.html
 // https://docs.gradle.org/current/userguide/custom_tasks.html#sec:implementing_an_incremental_task
@@ -41,35 +36,29 @@ println(execFiles)
 // https://github.com/cqse/teamscale-java-profiler/blob/master/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/TestwiseCoverageReport.kt
 // https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/internal/TestwiseCoverageReporting.kt#L20
 // https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/report-generator/src/main/kotlin/com/teamscale/report/testwise/jacoco/JaCoCoTestwiseReportGenerator.kt#L28
-execFiles.forEach { execFile ->
-    println(execFile)
-    val namePart = execFile.name.removeSuffix(".exec")
 
-    tasks.register("jacocoReport_$namePart", JacocoReport::class) {
-        dependsOn(tasks.named("jvmTest"))
+tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
+    dependsOn(tasks.named("jvmTest"))
 
-        executionData.setFrom(execFile)
+    executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {
+        include("*.exec")
+    })
 
-        sourceDirectories.setFrom(files(
-            "src/commonMain/kotlin",
-            "src/jvmMain/kotlin"
-        ))
-        classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
-            exclude("**/R.class", "**/BuildConfig.*")
-        })
+    sourceDirectories.setFrom(files(
+        "src/commonMain/kotlin",
+        "src/jvmMain/kotlin"
+    ))
+    classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    })
 
-        reports {
-            xml.required.set(true)
-            xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/$namePart/JACOCO/coverage.xml"))
+    reports {
+        xml.required.set(true)
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/TODO/JACOCO/coverage.xml"))
 
-            html.required.set(false)
-            csv.required.set(false)
-        }
+        html.required.set(false)
+        csv.required.set(false)
     }
-}
-
-tasks.register("jacocoReportAll") {
-    dependsOn(tasks.withType(JacocoReport::class))
 }
 
 compose.resources {
