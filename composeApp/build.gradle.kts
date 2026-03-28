@@ -25,6 +25,12 @@ jacoco {
     toolVersion = "0.8.14"
 }
 
+// dumps coverage:
+// ./gradlew --info :composeApp:cleanJvmTest :composeApp:jvmTest --tests de.selfmade4u.tucanpluskmp.MyTest
+
+// does not dump coverage
+// ./gradlew --info clean :composeApp:jvmTest  --tests de.selfmade4u.tucanpluskmp.MyTest
+
 // ./gradlew clean :composeApp:jvmTest :composeApp:jacocoReportAll
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
