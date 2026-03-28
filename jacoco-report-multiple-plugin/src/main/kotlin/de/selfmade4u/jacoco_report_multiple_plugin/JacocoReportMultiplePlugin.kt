@@ -35,7 +35,7 @@ import javax.inject.Inject
 
 abstract class JacocoReportsMultipleContainer {
 
-    @get:OutputFile
+    @get:OutputDirectory
     abstract val xmlOutputLocation: DirectoryProperty
 }
 
@@ -82,12 +82,14 @@ abstract class JacocoReportMultiple : DefaultTask() {
     @TaskAction
     fun execute(inputChanges: InputChanges) {
         println("EXECUTING")
-        val queue = this.workerExecutor.noIsolation()
+        val queue = this.workerExecutor.classLoaderIsolation()
 
         println(
             if (inputChanges.isIncremental) "Executing incrementally"
             else "Executing non-incrementally"
         )
+
+        reports.xmlOutputLocation.asFile.get().mkdirs()
 
         // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java looks very suspicous like this
         inputChanges.getFileChanges(executionData).forEach { change ->
@@ -95,7 +97,7 @@ abstract class JacocoReportMultiple : DefaultTask() {
 
             println("${change.changeType}: ${change.normalizedPath}")
             // TODO FIXME
-            val targetFile = reports.xmlOutputLocation.file(change.normalizedPath).get()
+            val targetFile = reports.xmlOutputLocation.file(change.normalizedPath.removeSuffix(".exec")+".xml").get()
             if (change.changeType == ChangeType.REMOVED) {
                 targetFile.asFile.delete()
             } else {
