@@ -44,23 +44,6 @@ jacoco {
 // https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/report-generator/src/main/kotlin/com/teamscale/report/testwise/jacoco/JaCoCoTestwiseReportGenerator.kt#L28
 
 // Skipping task ':composeApp:jacocoReportAll' as it has no source files and no previous output files.
-tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
-    println("configuring")
-    //dependsOn(tasks.named("jvmTest"))
-    executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {
-        include("*.exec")
-    })
-
-    sourceDirectories.setFrom(files(
-        "src/commonMain/kotlin",
-        "src/jvmMain/kotlin"
-    ))
-    classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
-        exclude("**/R.class", "**/BuildConfig.*")
-    })
-
-    reports.xmlOutputLocation.set(layout.buildDirectory.dir("reports/jacoco"))
-}
 
 compose.resources {
     publicResClass = true
@@ -200,4 +183,22 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
+    println("configuring")
+    dependsOn(tasks.named("jvmTest"))
+    executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {
+        include("*.exec")
+    })
+
+    sourceDirectories.setFrom(files(
+        "src/commonMain/kotlin",
+        "src/jvmMain/kotlin"
+    ))
+    classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    })
+
+    reports.xmlOutputLocation.set(layout.buildDirectory.dir("jacoco"))
 }

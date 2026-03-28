@@ -89,15 +89,14 @@ abstract class JacocoReportMultiple : DefaultTask() {
             else "Executing non-incrementally"
         )
 
-        reports.xmlOutputLocation.asFile.get().mkdirs()
-
         // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java looks very suspicous like this
         inputChanges.getFileChanges(executionData).forEach { change ->
             if (change.fileType == FileType.DIRECTORY) return@forEach
 
             println("${change.changeType}: ${change.normalizedPath}")
-            // TODO FIXME
-            val targetFile = reports.xmlOutputLocation.file(change.normalizedPath.removeSuffix(".exec")+".xml").get()
+            val name = change.normalizedPath.removeSuffix(".exec")
+            reports.xmlOutputLocation.file("$name/JACOCO/").get().asFile.mkdirs()
+            val targetFile = reports.xmlOutputLocation.file("$name/JACOCO/$name.xml").get()
             if (change.changeType == ChangeType.REMOVED) {
                 targetFile.asFile.delete()
             } else {
@@ -110,11 +109,9 @@ abstract class JacocoReportMultiple : DefaultTask() {
                     this.getExecutionData().convention(executionData);
 
                     this.getGenerateHtml().convention(false);
-                    //this.getHtmlDestination().convention(reports.getHtml().getOutputLocation());
                     this.getGenerateXml().convention(true);
                     this.getXmlDestination().convention(targetFile);
                     this.getGenerateCsv().convention(false);
-                    //this.getCsvDestination().convention(reports.getCsv().getOutputLocation());
                 }
             }
         }
