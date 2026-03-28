@@ -24,6 +24,8 @@ jacoco {
     toolVersion = "0.8.14"
 }
 
+// ./gradlew clean :composeApp:jvmProcessResources
+
 // dumps coverage:
 // ./gradlew --info :composeApp:cleanJvmTest :composeApp:jvmTest --tests de.selfmade4u.tucanpluskmp.MyTest
 
@@ -83,10 +85,17 @@ kotlin {
         }
     }*/
 
-    jvm() {
+    jvm{
         tasks.named<Test>("jvmTest") {
             useJUnitPlatform()
-            // dependsOn(tasks.named("jvm"))
+        }
+        tasks.withType<Test>().configureEach {
+            // Force the JVM to include the resources directory in the classpath
+            val jvmMainResources = project.file("src/jvmTest/resources")
+            inputs.dir(jvmMainResources)
+
+            // Some ServiceLoaders need the context class loader set specifically
+            systemProperty("java.util.ServiceLoader.debug", "true")
         }
     }
 
