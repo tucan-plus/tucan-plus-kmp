@@ -200,15 +200,11 @@ compose.desktop {
     }
 }
 
-fun getXmlFilesCollection(): FileCollection {
-    val execFiles = fileTree(layout.buildDirectory.dir("jacoco")) {
-        include("*.exec")
-    }
-
+fun getXmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
     // This creates a derived collection
     return project.files(provider {
         execFiles.map { file ->
-            File(file.parent, file.name.replace(".exec", ".xml"))
+            File(file.parent + "/JACOCO", file.name.replace(".exec", ".xml"))
         }
     })
 }
@@ -216,9 +212,10 @@ fun getXmlFilesCollection(): FileCollection {
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     println("configuring")
     dependsOn(tasks.named("jvmTest"))
-    executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {
-        include("*.exec")
-    })
+    val execData = fileTree(layout.buildDirectory.dir("jacoco")) {
+        include("**/*.exec")
+    }
+    executionData.setFrom(execData)
 
     sourceDirectories.setFrom(files(
         "src/commonMain/kotlin",
@@ -228,5 +225,5 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
         exclude("**/R.class", "**/BuildConfig.*")
     })
 
-    reports.xmlOutputLocation.setFrom(getXmlFilesCollection())
+    reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
 }

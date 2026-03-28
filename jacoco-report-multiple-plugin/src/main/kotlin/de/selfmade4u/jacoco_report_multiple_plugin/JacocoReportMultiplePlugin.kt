@@ -43,7 +43,7 @@ abstract class JacocoReportsMultipleContainer {
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportBase.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportsContainer.java
-@CacheableTask
+//@CacheableTask
 abstract class JacocoReportMultiple : DefaultTask() {
     @get:Incremental
     @get:PathSensitive(PathSensitivity.NAME_ONLY) // we need the name to name the output
@@ -89,6 +89,9 @@ abstract class JacocoReportMultiple : DefaultTask() {
             if (inputChanges.isIncremental) "Executing incrementally"
             else "Executing non-incrementally"
         )
+
+        println("executionData ${executionData.files}")
+        println("reports.xmlOutputLocation ${reports.xmlOutputLocation.files}")
 
         // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java looks very suspicous like this
         inputChanges.getFileChanges(executionData).forEach { change ->
