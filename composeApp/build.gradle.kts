@@ -39,7 +39,6 @@ jacoco {
 
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     dependsOn(tasks.named("jvmTest"))
-
     executionData.setFrom(fileTree(layout.buildDirectory.dir("jacoco")) {
         include("*.exec")
     })

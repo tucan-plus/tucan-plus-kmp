@@ -2,13 +2,23 @@ package de.selfmade4u.jacoco_report_multiple_plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileType
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.reporting.ConfigurableReport
+import org.gradle.api.reporting.DirectoryReport
+import org.gradle.api.reporting.ReportContainer
+import org.gradle.api.reporting.Reporting
+import org.gradle.api.reporting.SingleFileReport
 import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.IgnoreEmptyDirectories
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -45,21 +55,41 @@ abstract class GenerateMD5 : WorkAction<MD5WorkParameters> {
     }
 }
 
+interface JacocoReportsMultipleContainer : ReportContainer<ConfigurableReport> {
+
+    @get:Internal
+    val html: DirectoryReport
+
+    @get:Internal
+    val xml: SingleFileReport
+
+    @get:Internal
+    val csv: SingleFileReport
+}
+
+// https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
+// https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportBase.java
+// https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportsContainer.java
 @CacheableTask
-abstract class JacocoReportMultiple : SourceTask() {
+abstract class JacocoReportMultiple : SourceTask(), Reporting<JacocoReportsMultipleContainer> {
     @get:Incremental
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-    @get:InputDirectory
-    abstract val inputDir: DirectoryProperty
+    @get:PathSensitive(PathSensitivity.NONE)
+    @get:InputFiles
+    abstract val executionData: DirectoryProperty
+
+    @get:IgnoreEmptyDirectories
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:InputFiles
+    abstract val sourceDirectories: ConfigurableFileCollection
+
+    @get:Classpath
+    abstract val classDirectories: ConfigurableFileCollection
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
     @get:Input
     abstract val inputProperty: Property<String>
-
-    @get:OutputDirectory
-    abstract val destinationDirectory: DirectoryProperty?
 
     @get:Inject
     abstract val workerExecutor: WorkerExecutor?
@@ -73,7 +103,7 @@ abstract class JacocoReportMultiple : SourceTask() {
             else "Executing non-incrementally"
         )
 
-        inputChanges.getFileChanges(inputDir).forEach { change ->
+        /*inputChanges.getFileChanges(inputDir).forEach { change ->
             if (change.fileType == FileType.DIRECTORY) return@forEach
 
             println("${change.changeType}: ${change.normalizedPath}")
@@ -92,7 +122,7 @@ abstract class JacocoReportMultiple : SourceTask() {
                 this.sourceFile.set(sourceFile)
                 this.mD5File.set(md5File)
             }
-        }
+        }*/
     }
 }
 
