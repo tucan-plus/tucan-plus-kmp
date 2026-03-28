@@ -1,27 +1,22 @@
 package de.selfmade4u.jacoco_report_multiple_plugin
 
-import org.gradle.api.Action
+import org.gradle.api.Incubating
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileType
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.api.reporting.ConfigurableReport
-import org.gradle.api.reporting.DirectoryReport
-import org.gradle.api.reporting.ReportContainer
-import org.gradle.api.reporting.Reporting
-import org.gradle.api.reporting.SingleFileReport
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.IgnoreEmptyDirectories
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -84,6 +79,9 @@ abstract class JacocoReportMultiple : SourceTask() {
     @get:Classpath
     abstract val classDirectories: ConfigurableFileCollection
 
+    @get:Classpath
+    abstract val jacocoClasspath: FileCollection
+
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
@@ -98,6 +96,19 @@ abstract class JacocoReportMultiple : SourceTask() {
 
     @get:Nested
     abstract val reports: JacocoReportsMultipleContainer
+
+    @get:Input
+    abstract val reportProjectName: Property<String>
+
+    @get:Incubating
+    @get:Optional
+    @get:Input
+    abstract val sourceEncoding: Property<String>
+
+    init {
+        reportProjectName.convention(project.name)
+        reportProjectName.disallowChanges()
+    }
 
     @TaskAction
     fun execute(inputChanges: InputChanges) {
@@ -118,19 +129,19 @@ abstract class JacocoReportMultiple : SourceTask() {
                 targetFile.delete()
             } else {
                 queue.submit(JacocoReportAction::class.java) {
-                    getAntLibraryClasspath().convention(getJacocoClasspath());
-                    getProjectName().convention(getReportProjectName());
-                    getEncoding().convention(getSourceEncoding());
-                    getAllSourcesDirs().convention(getAllSourceDirs());
-                    getAllClassesDirs().convention(getAllClassDirs());
-                    getExecutionData().convention(getExecutionData());
+                    this.getAntLibraryClasspath().convention(jacocoClasspath);
+                    this.getProjectName().convention(reportProjectName);
+                    this.getEncoding().convention(sourceEncoding);
+                    this.getAllSourcesDirs().convention(sourceDirectories);
+                    this.getAllClassesDirs().convention(classDirectories);
+                    this.getExecutionData().convention(executionData);
 
-                    getGenerateHtml().convention(reports.getHtml().getRequired());
-                    getHtmlDestination().convention(reports.getHtml().getOutputLocation());
-                    getGenerateXml().convention(reports.getXml().getRequired());
-                    getXmlDestination().convention(reports.getXml().getOutputLocation());
-                    getGenerateCsv().convention(reports.getCsv().getRequired());
-                    getCsvDestination().convention(reports.getCsv().getOutputLocation());
+                    this.getGenerateHtml().convention(false);
+                    //this.getHtmlDestination().convention(reports.getHtml().getOutputLocation());
+                    this.getGenerateXml().convention(true);
+                    this.getXmlDestination().convention(reports.xmlOutputLocation);
+                    this.getGenerateCsv().convention(false);
+                    //this.getCsvDestination().convention(reports.getCsv().getOutputLocation());
                 }
                 targetFile.writeText(change.file.readText().reversed())
             }
