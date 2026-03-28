@@ -1,5 +1,4 @@
 import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
-import org.gradle.kotlin.dsl.jacocoAgent
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -47,6 +46,7 @@ jacoco {
 
 compose.resources {
     publicResClass = true
+    generateResClass = always
 }
 
 kotlin {
@@ -86,6 +86,7 @@ kotlin {
     jvm() {
         tasks.named<Test>("jvmTest") {
             useJUnitPlatform()
+            // dependsOn(tasks.named("jvm"))
         }
     }
 
@@ -185,6 +186,19 @@ compose.desktop {
     }
 }
 
+fun getXmlFilesCollection(): FileCollection {
+    val execFiles = fileTree(layout.buildDirectory.dir("jacoco")) {
+        include("*.exec")
+    }
+
+    // This creates a derived collection
+    return project.files(provider {
+        execFiles.map { file ->
+            File(file.parent, file.name.replace(".exec", ".xml"))
+        }
+    })
+}
+
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     println("configuring")
     dependsOn(tasks.named("jvmTest"))
@@ -200,5 +214,5 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
         exclude("**/R.class", "**/BuildConfig.*")
     })
 
-    reports.xmlOutputLocation.set(layout.buildDirectory.dir("jacoco"))
+    reports.xmlOutputLocation.setFrom(getXmlFilesCollection())
 }

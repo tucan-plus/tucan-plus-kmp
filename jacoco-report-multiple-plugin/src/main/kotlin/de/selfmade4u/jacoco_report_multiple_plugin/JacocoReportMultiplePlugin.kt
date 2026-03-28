@@ -21,6 +21,7 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SourceTask
@@ -35,14 +36,13 @@ import javax.inject.Inject
 
 abstract class JacocoReportsMultipleContainer {
 
-    @get:OutputDirectory
-    abstract val xmlOutputLocation: DirectoryProperty
+    @get:OutputFiles
+    abstract val xmlOutputLocation: ConfigurableFileCollection
 }
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportBase.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportsContainer.java
-@CacheableTask
 abstract class JacocoReportMultiple : DefaultTask() {
     @get:Incremental
     @get:PathSensitive(PathSensitivity.NAME_ONLY) // we need the name to name the output
@@ -95,10 +95,11 @@ abstract class JacocoReportMultiple : DefaultTask() {
 
             println("${change.changeType}: ${change.normalizedPath}")
             val name = change.normalizedPath.removeSuffix(".exec")
-            reports.xmlOutputLocation.file("$name/JACOCO/").get().asFile.mkdirs()
-            val targetFile = reports.xmlOutputLocation.file("$name/JACOCO/$name.xml").get()
+
+            val targetFile = reports.xmlOutputLocation.find { it.name == "$name.xml" }!!
+            println("targetFile $targetFile")
             if (change.changeType == ChangeType.REMOVED) {
-                targetFile.asFile.delete()
+                targetFile.delete()
             } else {
                 queue.submit(JacocoReportAction::class.java) {
                     this.getAntLibraryClasspath().convention(jacocoClasspath);
@@ -110,7 +111,7 @@ abstract class JacocoReportMultiple : DefaultTask() {
 
                     this.getGenerateHtml().convention(false);
                     this.getGenerateXml().convention(true);
-                    this.getXmlDestination().convention(targetFile);
+                    this.getXmlDestination().set(targetFile);
                     this.getGenerateCsv().convention(false);
                 }
             }
