@@ -28,6 +28,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.jacoco.JacocoReportAction
 import org.gradle.work.ChangeType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
@@ -100,14 +101,15 @@ abstract class JacocoReportMultiple : SourceTask() {
 
     @TaskAction
     fun execute(inputChanges: InputChanges) {
-        val workQueue = this.workerExecutor.noIsolation()
+        val queue = this.workerExecutor.noIsolation()
 
         println(
             if (inputChanges.isIncremental) "Executing incrementally"
             else "Executing non-incrementally"
         )
 
-        /*inputChanges.getFileChanges(inputDir).forEach { change ->
+        // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java looks very suspicous like this
+        inputChanges.getFileChanges(executionData).forEach { change ->
             if (change.fileType == FileType.DIRECTORY) return@forEach
 
             println("${change.changeType}: ${change.normalizedPath}")
@@ -115,18 +117,24 @@ abstract class JacocoReportMultiple : SourceTask() {
             if (change.changeType == ChangeType.REMOVED) {
                 targetFile.delete()
             } else {
+                queue.submit(JacocoReportAction::class.java) {
+                    getAntLibraryClasspath().convention(getJacocoClasspath());
+                    getProjectName().convention(getReportProjectName());
+                    getEncoding().convention(getSourceEncoding());
+                    getAllSourcesDirs().convention(getAllSourceDirs());
+                    getAllClassesDirs().convention(getAllClassDirs());
+                    getExecutionData().convention(getExecutionData());
+
+                    getGenerateHtml().convention(reports.getHtml().getRequired());
+                    getHtmlDestination().convention(reports.getHtml().getOutputLocation());
+                    getGenerateXml().convention(reports.getXml().getRequired());
+                    getXmlDestination().convention(reports.getXml().getOutputLocation());
+                    getGenerateCsv().convention(reports.getCsv().getRequired());
+                    getCsvDestination().convention(reports.getCsv().getOutputLocation());
+                }
                 targetFile.writeText(change.file.readText().reversed())
             }
         }
-
-        // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java looks very suspicous like this
-        for (sourceFile in getSource().getFiles()) {
-            val md5File = this.destinationDirectory!!.file(sourceFile.getName() + ".md5")
-            workQueue.submit(GenerateMD5::class.java) {
-                this.sourceFile.set(sourceFile)
-                this.mD5File.set(md5File)
-            }
-        }*/
     }
 }
 
