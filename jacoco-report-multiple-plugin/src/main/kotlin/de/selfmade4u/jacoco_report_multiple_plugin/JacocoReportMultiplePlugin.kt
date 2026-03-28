@@ -1,11 +1,13 @@
 package de.selfmade4u.jacoco_report_multiple_plugin
 
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileType
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.reporting.ConfigurableReport
 import org.gradle.api.reporting.DirectoryReport
@@ -71,11 +73,11 @@ interface JacocoReportsMultipleContainer : ReportContainer<ConfigurableReport> {
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportBase.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportsContainer.java
 @CacheableTask
-abstract class JacocoReportMultiple : SourceTask(), Reporting<JacocoReportsMultipleContainer> {
+abstract class JacocoReportMultiple : SourceTask() {
     @get:Incremental
     @get:PathSensitive(PathSensitivity.NONE)
     @get:InputFiles
-    abstract val executionData: DirectoryProperty
+    abstract val executionData: ConfigurableFileCollection
 
     @get:IgnoreEmptyDirectories
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -92,7 +94,13 @@ abstract class JacocoReportMultiple : SourceTask(), Reporting<JacocoReportsMulti
     abstract val inputProperty: Property<String>
 
     @get:Inject
-    abstract val workerExecutor: WorkerExecutor?
+    abstract val workerExecutor: WorkerExecutor
+
+    @get:Inject
+    abstract val objects: ObjectFactory
+
+    @get:Input
+    abstract val reports: JacocoReportsMultipleContainer
 
     @TaskAction
     fun execute(inputChanges: InputChanges) {

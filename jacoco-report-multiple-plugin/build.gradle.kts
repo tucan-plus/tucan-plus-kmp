@@ -1,6 +1,5 @@
 plugins {
     `kotlin-dsl`
-    `java-gradle-plugin`
 }
 
 group = "de.selfmade4u"

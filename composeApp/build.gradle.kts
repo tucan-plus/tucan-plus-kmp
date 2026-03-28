@@ -51,13 +51,11 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
         exclude("**/R.class", "**/BuildConfig.*")
     })
 
-    reports {
-        xml.required.set(true)
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/TODO/JACOCO/coverage.xml"))
-
-        html.required.set(false)
-        csv.required.set(false)
-    }
+    reports.xml.required.set(true)
+    reports.xml.required.set(true)
+    reports.xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/TODO/JACOCO/coverage.xml"))
+    reports.html.required.set(false)
+    reports.csv.required.set(false)
 }
 
 compose.resources {
