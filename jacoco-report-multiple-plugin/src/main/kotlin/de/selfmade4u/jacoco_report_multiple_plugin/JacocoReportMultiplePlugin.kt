@@ -1,5 +1,6 @@
 package de.selfmade4u.jacoco_report_multiple_plugin
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.Incubating
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -41,8 +42,8 @@ abstract class JacocoReportsMultipleContainer {
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportBase.java
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReportsContainer.java
-//@CacheableTask
-abstract class JacocoReportMultiple : SourceTask() {
+@CacheableTask
+abstract class JacocoReportMultiple : DefaultTask() {
     @get:Incremental
     @get:PathSensitive(PathSensitivity.NONE)
     @get:InputFiles

@@ -37,6 +37,7 @@ jacoco {
 // https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/internal/TestwiseCoverageReporting.kt#L20
 // https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/report-generator/src/main/kotlin/com/teamscale/report/testwise/jacoco/JaCoCoTestwiseReportGenerator.kt#L28
 
+// Skipping task ':composeApp:jacocoReportAll' as it has no source files and no previous output files.
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     println("configuring")
     //dependsOn(tasks.named("jvmTest"))
