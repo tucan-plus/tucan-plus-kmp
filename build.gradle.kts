@@ -10,4 +10,6 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.androidx.room) apply false
+    id("GreetingPlugin")
+
 }

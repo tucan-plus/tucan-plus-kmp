@@ -50,6 +50,15 @@ val execFiles = fileTree(layout.buildDirectory.dir("jacoco")) {
 
 println(execFiles)
 
+// https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
+// https://www.eclemma.org/jacoco/trunk/doc/ant.html
+// https://docs.gradle.org/current/userguide/custom_tasks.html#sec:implementing_an_incremental_task
+// https://docs.gradle.org/current/userguide/worker_api.html#converting_to_worker_api
+// https://docs.gradle.org/current/userguide/build_cache.html#sec:using_annotations_to_enable_task_caching
+
+// https://github.com/cqse/teamscale-java-profiler/blob/master/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/TestwiseCoverageReport.kt
+// https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/internal/TestwiseCoverageReporting.kt#L20
+// https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/report-generator/src/main/kotlin/com/teamscale/report/testwise/jacoco/JaCoCoTestwiseReportGenerator.kt#L28
 execFiles.forEach { execFile ->
     println(execFile)
     val namePart = execFile.name.removeSuffix(".exec")
