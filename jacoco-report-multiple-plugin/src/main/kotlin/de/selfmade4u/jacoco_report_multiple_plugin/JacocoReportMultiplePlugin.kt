@@ -21,7 +21,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SourceTask
@@ -57,16 +59,10 @@ abstract class GenerateMD5 : WorkAction<MD5WorkParameters> {
     }
 }
 
-interface JacocoReportsMultipleContainer : ReportContainer<ConfigurableReport> {
+abstract class JacocoReportsMultipleContainer {
 
-    @get:Internal
-    val html: DirectoryReport
-
-    @get:Internal
-    val xml: SingleFileReport
-
-    @get:Internal
-    val csv: SingleFileReport
+    @get:OutputFile
+    abstract val xmlOutputLocation: RegularFileProperty
 }
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
@@ -99,12 +95,12 @@ abstract class JacocoReportMultiple : SourceTask() {
     @get:Inject
     abstract val objects: ObjectFactory
 
-    @get:Input
+    @get:Nested
     abstract val reports: JacocoReportsMultipleContainer
 
     @TaskAction
     fun execute(inputChanges: InputChanges) {
-        val workQueue = this.workerExecutor!!.noIsolation()
+        val workQueue = this.workerExecutor.noIsolation()
 
         println(
             if (inputChanges.isIncremental) "Executing incrementally"
