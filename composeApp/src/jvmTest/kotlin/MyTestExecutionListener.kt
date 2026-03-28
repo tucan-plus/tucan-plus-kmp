@@ -11,10 +11,6 @@ import kotlin.jvm.optionals.getOrNull
 
 class MyTestExecutionListener : TestExecutionListener {
 
-    init {
-        val agent = org.jacoco.agent.rt.RT.getAgent()
-    }
-
     override fun executionStarted(testIdentifier: TestIdentifier) {
         if (testIdentifier.isContainer)
             return;

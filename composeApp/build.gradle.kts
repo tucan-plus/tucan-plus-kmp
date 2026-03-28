@@ -34,6 +34,8 @@ jacoco {
 
 // ./gradlew clean :composeApp:jvmTest :composeApp:jacocoReportAll
 
+// ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
+
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://www.eclemma.org/jacoco/trunk/doc/ant.html
 // https://docs.gradle.org/current/userguide/custom_tasks.html#sec:implementing_an_incremental_task
