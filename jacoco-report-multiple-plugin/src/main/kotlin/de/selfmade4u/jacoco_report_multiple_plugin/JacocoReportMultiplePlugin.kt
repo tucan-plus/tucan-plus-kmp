@@ -36,7 +36,7 @@ import javax.inject.Inject
 abstract class JacocoReportsMultipleContainer {
 
     @get:OutputFile
-    abstract val xmlOutputLocation: RegularFileProperty
+    abstract val xmlOutputLocation: DirectoryProperty
 }
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
@@ -45,7 +45,7 @@ abstract class JacocoReportsMultipleContainer {
 @CacheableTask
 abstract class JacocoReportMultiple : DefaultTask() {
     @get:Incremental
-    @get:PathSensitive(PathSensitivity.NONE)
+    @get:PathSensitive(PathSensitivity.NAME_ONLY) // we need the name to name the output
     @get:InputFiles
     abstract val executionData: ConfigurableFileCollection
 
@@ -60,17 +60,8 @@ abstract class JacocoReportMultiple : DefaultTask() {
     @get:Classpath
     abstract var jacocoClasspath: FileCollection
 
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
-
-    @get:Input
-    abstract val inputProperty: Property<String>
-
     @get:Inject
     abstract val workerExecutor: WorkerExecutor
-
-    @get:Inject
-    abstract val objects: ObjectFactory
 
     @get:Nested
     abstract val reports: JacocoReportsMultipleContainer
@@ -103,9 +94,10 @@ abstract class JacocoReportMultiple : DefaultTask() {
             if (change.fileType == FileType.DIRECTORY) return@forEach
 
             println("${change.changeType}: ${change.normalizedPath}")
-            val targetFile = outputDir.file(change.normalizedPath).get().asFile
+            // TODO FIXME
+            val targetFile = reports.xmlOutputLocation.file(change.normalizedPath).get()
             if (change.changeType == ChangeType.REMOVED) {
-                targetFile.delete()
+                targetFile.asFile.delete()
             } else {
                 queue.submit(JacocoReportAction::class.java) {
                     this.getAntLibraryClasspath().convention(jacocoClasspath);
@@ -118,11 +110,10 @@ abstract class JacocoReportMultiple : DefaultTask() {
                     this.getGenerateHtml().convention(false);
                     //this.getHtmlDestination().convention(reports.getHtml().getOutputLocation());
                     this.getGenerateXml().convention(true);
-                    this.getXmlDestination().convention(reports.xmlOutputLocation);
+                    this.getXmlDestination().convention(targetFile);
                     this.getGenerateCsv().convention(false);
                     //this.getCsvDestination().convention(reports.getCsv().getOutputLocation());
                 }
-                targetFile.writeText(change.file.readText().reversed())
             }
         }
     }

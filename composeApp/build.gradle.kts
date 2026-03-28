@@ -53,7 +53,7 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
         exclude("**/R.class", "**/BuildConfig.*")
     })
 
-    reports.xmlOutputLocation.set(layout.buildDirectory.file("reports/jacoco/TODO/JACOCO/coverage.xml"))
+    reports.xmlOutputLocation.set(layout.buildDirectory.dir("reports/jacoco"))
 }
 
 compose.resources {
