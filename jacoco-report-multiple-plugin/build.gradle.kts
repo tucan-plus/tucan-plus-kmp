@@ -1,12 +1,13 @@
 plugins {
     `kotlin-dsl`
+    `java-gradle-plugin`
 }
 
 group = "de.selfmade4u"
 version = "1.0.0"
 
 repositories {
-    gradlePluginPortal()
+    mavenCentral()
 }
 
 dependencies {

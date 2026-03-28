@@ -1,4 +1,4 @@
-package de.selfmade4u.jacoco_report_multiple_plugin.de.selfmade4u.jacoco_report_multiple_plugin
+package de.selfmade4u.jacoco_report_multiple_plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -96,7 +96,7 @@ abstract class JacocoReportMultiple : SourceTask() {
     }
 }
 
-abstract class JacocoReportMultiplePlugin : Plugin<Project> {
+public abstract class JacocoReportMultiplePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         project.tasks.register("JacocoReportMultiplePlugin") {
             doLast {

@@ -1,4 +1,4 @@
-import de.selfmade4u.jacoco.JacocoReportMultiple
+import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
 import org.gradle.kotlin.dsl.jacocoAgent
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
