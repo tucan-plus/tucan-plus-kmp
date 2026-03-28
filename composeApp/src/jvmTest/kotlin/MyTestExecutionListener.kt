@@ -54,7 +54,9 @@ class MyTestExecutionListener : TestExecutionListener {
 
         val agent = org.jacoco.agent.rt.RT.getAgent()
         val executionData = agent.getExecutionData(true)
-        File("./build/jacoco/${name}.metadata.json").writeText("""
+
+        File("./build/jacoco/${name}").mkdirs()
+        File("./build/jacoco/${name}/metadata.json").writeText("""
             { "testInfo": 
               {
                 "uniformPath": "$slashName",
@@ -67,7 +69,7 @@ class MyTestExecutionListener : TestExecutionListener {
               }
              }
         """.trimIndent())
-        File("./build/jacoco/${name}.exec").writeBytes(executionData)
+        File("./build/jacoco/$name/$name.exec").writeBytes(executionData)
         println("DUMPED")
     }
 
