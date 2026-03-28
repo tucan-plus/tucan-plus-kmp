@@ -3,6 +3,7 @@ package de.selfmade4u.jacoco_report_multiple_plugin
 import org.gradle.api.Incubating
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileCollection
@@ -24,36 +25,12 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.jacoco.JacocoReportAction
+import org.gradle.kotlin.dsl.withType
 import org.gradle.work.ChangeType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
-import org.gradle.workers.WorkAction
-import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
 import javax.inject.Inject
-
-interface MD5WorkParameters : WorkParameters {
-    val sourceFile: RegularFileProperty
-    val mD5File: RegularFileProperty
-}
-
-abstract class GenerateMD5 : WorkAction<MD5WorkParameters> {
-    override fun execute() {
-        try {
-            val sourceFile: File = getParameters().sourceFile.getAsFile().get()
-            val md5File: File = getParameters().mD5File.getAsFile().get()
-            val stream: InputStream = FileInputStream(sourceFile)
-            println("Generating MD5 for " + sourceFile.getName() + "...")
-            // Artificially make this task slower.
-            Thread.sleep(3000)
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-    }
-}
 
 abstract class JacocoReportsMultipleContainer {
 
@@ -80,7 +57,7 @@ abstract class JacocoReportMultiple : SourceTask() {
     abstract val classDirectories: ConfigurableFileCollection
 
     @get:Classpath
-    abstract val jacocoClasspath: FileCollection
+    abstract var jacocoClasspath: FileCollection
 
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
@@ -150,11 +127,13 @@ abstract class JacocoReportMultiple : SourceTask() {
 }
 
 public abstract class JacocoReportMultiplePlugin : Plugin<Project> {
+
+    val ANT_CONFIGURATION_NAME: String = "jacocoAnt"
+
     override fun apply(project: Project) {
-        project.tasks.register("JacocoReportMultiplePlugin") {
-            doLast {
-                println("Hello world from the build file!")
-            }
+        val config: Configuration = project.getConfigurations().getAt(ANT_CONFIGURATION_NAME);
+        project.tasks.withType<JacocoReportMultiple> {
+            jacocoClasspath = config
         }
     }
 }
