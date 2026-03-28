@@ -13,29 +13,11 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
     jacoco
+    id("GreetingPlugin")
 }
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-
-    testLogging {
-        showStandardStreams = true
-        events("started", "passed", "failed")
-    }
-
-    addTestListener(object : TestListener {
-        override fun beforeSuite(suite: TestDescriptor?) {
-            println("before suite")
-        }
-
-        override fun beforeTest(testDescriptor: TestDescriptor?) {
-            println("before test $testDescriptor")
-        }
-
-        override fun afterTest(testDescriptor: TestDescriptor?, result: TestResult?) {
-            println("after test $testDescriptor $result")
-        }
-    })
 }
 
 jacoco {
