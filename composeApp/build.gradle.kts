@@ -36,6 +36,8 @@ jacoco {
 
 // ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
 
+// java -jar org.jacoco.cli-0.8.14-nodeps.jar execinfo "/home/moritz/IdeaProjects/TUCaN Plus KMP/composeApp/build/jacoco/TucanUrlTest.testCOURSEDETAILS()/TucanUrlTest.testCOURSEDETAILS().exec"
+
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://www.eclemma.org/jacoco/trunk/doc/ant.html
 // https://docs.gradle.org/current/userguide/custom_tasks.html#sec:implementing_an_incremental_task
@@ -211,6 +213,15 @@ fun getXmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
     })
 }
 
+fun geHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
+    // This creates a derived collection
+    return project.files(provider {
+        execFiles.map { file ->
+            File(file.parent + "/html")
+        }
+    })
+}
+
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     println("configuring")
     dependsOn(tasks.named("jvmTest"))
@@ -228,4 +239,5 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     })
 
     reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
+    reports.htmlOutputLocation.setFrom(geHtmlFilesCollection(execData))
 }

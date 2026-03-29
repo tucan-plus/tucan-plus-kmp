@@ -32,12 +32,16 @@ import org.gradle.work.ChangeType
 import org.gradle.work.Incremental
 import org.gradle.work.InputChanges
 import org.gradle.workers.WorkerExecutor
+import java.io.File
 import javax.inject.Inject
 
 abstract class JacocoReportsMultipleContainer {
 
     @get:OutputFiles
     abstract val xmlOutputLocation: ConfigurableFileCollection
+
+    @get:OutputFiles
+    abstract val htmlOutputLocation: ConfigurableFileCollection
 }
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
@@ -46,7 +50,7 @@ abstract class JacocoReportsMultipleContainer {
 //@CacheableTask
 abstract class JacocoReportMultiple : DefaultTask() {
     @get:Incremental
-    @get:PathSensitive(PathSensitivity.NAME_ONLY) // we need the name to name the output
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:InputFiles
     abstract val executionData: ConfigurableFileCollection
 
@@ -92,16 +96,22 @@ abstract class JacocoReportMultiple : DefaultTask() {
 
         println("executionData ${executionData.files}")
         println("reports.xmlOutputLocation ${reports.xmlOutputLocation.files}")
+        println("reports.htmlOutputLocation ${reports.htmlOutputLocation.files}")
+        println("classDirectories $classDirectories")
+        println("executionData $executionData")
 
         // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java looks very suspicous like this
         inputChanges.getFileChanges(executionData).forEach { change ->
             if (change.fileType == FileType.DIRECTORY) return@forEach
 
             println("${change.changeType}: ${change.normalizedPath}")
-            val name = change.normalizedPath.removeSuffix(".exec")
+            val name = change.file.nameWithoutExtension
 
             val targetFile = reports.xmlOutputLocation.find { it.name == "$name.xml" }!!
+            val htmlOutput = reports.htmlOutputLocation.find { File(it.parent).name == name }!!
             println("targetFile $targetFile")
+            println("htmlOutput $htmlOutput")
+            println("executionData ${change.normalizedPath}")
             if (change.changeType == ChangeType.REMOVED) {
                 targetFile.delete()
             } else {
@@ -111,9 +121,10 @@ abstract class JacocoReportMultiple : DefaultTask() {
                     this.getEncoding().convention(sourceEncoding);
                     this.getAllSourcesDirs().convention(sourceDirectories);
                     this.getAllClassesDirs().convention(classDirectories);
-                    this.getExecutionData().convention(executionData);
+                    this.getExecutionData().convention(change.file);
 
-                    this.getGenerateHtml().convention(false);
+                    this.getGenerateHtml().convention(true);
+                    this.htmlDestination.set(htmlOutput);
                     this.getGenerateXml().convention(true);
                     this.getXmlDestination().set(targetFile);
                     this.getGenerateCsv().convention(false);
@@ -123,7 +134,8 @@ abstract class JacocoReportMultiple : DefaultTask() {
     }
 }
 
-public abstract class JacocoReportMultiplePlugin : Plugin<Project> {
+@Suppress("unused")
+abstract class JacocoReportMultiplePlugin : Plugin<Project> {
 
     val ANT_CONFIGURATION_NAME: String = "jacocoAnt"
 
