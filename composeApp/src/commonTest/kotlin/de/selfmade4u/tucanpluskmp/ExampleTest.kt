@@ -1,69 +1,35 @@
 package de.selfmade4u.tucanpluskmp
 
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
+import androidx.datastore.core.DataStore
+import androidx.room3.Room
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.updateAndGet
 import kotlin.test.Test
+
+object InMemoryDataStore : DataStore<Settings?> {
+    private val _data = MutableStateFlow<Settings?>(null)
+    override val data: Flow<Settings?> = _data.asStateFlow()
+
+    override suspend fun updateData(transform: suspend (t: Settings?) -> Settings?): Settings? {
+        return _data.updateAndGet { transform(it) }
+    }
+}
 
 class ExampleTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun myTest() = runComposeUiTest {
-        // Declares a mock UI to demonstrate API calls
-        //
-        // Replace with your own declarations to test the code of your project
         setContent {
-            var text by remember { mutableStateOf("Hello") }
-            Text(
-                text = text,
-                modifier = Modifier.testTag("text")
-            )
-            Button(
-                onClick = { text = "Compose" },
-                modifier = Modifier.testTag("button")
-            ) {
-                Text("Click me")
-            }
+            App(null, InMemoryDataStore, getTestDatabase())
         }
-
-        // Tests the declared UI with assertions and actions of the Compose Multiplatform testing API
-        onNodeWithTag("text").assertTextEquals("Hello")
-        onNodeWithTag("button").performClick()
-        onNodeWithTag("text").assertTextEquals("Compose")
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun myTest2() = runComposeUiTest {
-        // Declares a mock UI to demonstrate API calls
-        //
-        // Replace with your own declarations to test the code of your project
-        setContent {
-            var text by remember { mutableStateOf("Hello") }
-            Text(
-                text = text,
-                modifier = Modifier.testTag("text")
-            )
-            Button(
-                onClick = { text = "Compose" },
-                modifier = Modifier.testTag("button")
-            ) {
-                Text("Click me")
-            }
-        }
-
-        // Tests the declared UI with assertions and actions of the Compose Multiplatform testing API
         onNodeWithTag("text").assertTextEquals("Hello")
         onNodeWithTag("button").performClick()
         onNodeWithTag("text").assertTextEquals("Compose")

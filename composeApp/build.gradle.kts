@@ -154,6 +154,7 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.ui.test)
+            implementation(libs.androidx.room.testing)
         }
         jvmMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
