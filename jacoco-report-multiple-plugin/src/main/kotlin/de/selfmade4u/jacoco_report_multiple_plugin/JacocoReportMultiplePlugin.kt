@@ -123,8 +123,8 @@ abstract class JacocoReportMultiple : DefaultTask() {
                     this.getAllClassesDirs().convention(classDirectories);
                     this.getExecutionData().convention(change.file);
 
-                    this.getGenerateHtml().convention(true);
-                    this.htmlDestination.set(htmlOutput);
+                    this.getGenerateHtml().convention(false); // true
+                    //this.htmlDestination.set(htmlOutput);
                     this.getGenerateXml().convention(true);
                     this.getXmlDestination().set(targetFile);
                     this.getGenerateCsv().convention(false);
