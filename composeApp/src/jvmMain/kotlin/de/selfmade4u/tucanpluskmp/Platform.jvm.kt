@@ -92,6 +92,7 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
             println("desktop getloginurl")
             val userHome = System.getProperty("user.home")
             // for the native app
+            // TODO FIXME if multiple applications are running, this should still work so maybe use a randomly generated name?
             Files.writeString(
                 Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"),
                 "[Desktop Entry]\n" +
