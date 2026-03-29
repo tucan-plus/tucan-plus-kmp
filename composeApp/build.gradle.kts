@@ -25,7 +25,8 @@ jacoco {
 }
 
 // TODO FIXME if you actually delete the build directory, this fails
-// ./gradlew clean :composeApp:jvmTest :composeApp:jacocoReportAll
+// rm -R composeApp/build/jacoco/
+// ./gradlew --stacktrace clean :composeApp:jvmTest :composeApp:jacocoReportAll
 // ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
@@ -37,8 +38,6 @@ jacoco {
 // https://github.com/cqse/teamscale-java-profiler/blob/master/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/TestwiseCoverageReport.kt
 // https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/internal/TestwiseCoverageReporting.kt#L20
 // https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/report-generator/src/main/kotlin/com/teamscale/report/testwise/jacoco/JaCoCoTestwiseReportGenerator.kt#L28
-
-// Skipping task ':composeApp:jacocoReportAll' as it has no source files and no previous output files.
 
 compose.resources {
     publicResClass = true
@@ -196,20 +195,19 @@ compose.desktop {
 }
 
 fun getXmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
-    // This creates a derived collection
-    return project.files(provider {
-        execFiles.map { file ->
-            File(file.parent + "/JACOCO", file.name.replace(".exec", ".xml"))
+    val xmlFilesProvider = execFiles.elements.map { locations ->
+        locations.map { location ->
+            val file = location.asFile
+            file.parentFile.resolve("JACOCO").resolve(file.name.replace(".exec", ".xml"))
         }
-    })
+    }
+
+    return project.files(xmlFilesProvider)
 }
 
-fun geHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
-    // This creates a derived collection
-    return project.files(provider {
-        execFiles.map { file ->
-            File(file.parent + "/html")
-        }
+fun getHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
+    return project.files(execFiles.elements.map { fileSystemLocations ->
+        fileSystemLocations.map { it.asFile.parentFile.resolve("html") }
     })
 }
 
@@ -230,5 +228,5 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     })
 
     reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
-    reports.htmlOutputLocation.setFrom(geHtmlFilesCollection(execData))
+    reports.htmlOutputLocation.setFrom(getHtmlFilesCollection(execData))
 }
