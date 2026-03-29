@@ -74,7 +74,7 @@ object MyExams {
         }
     }
 
-    // there can be multiple exams with di>fferent types for one course
+    // there can be multiple exams with different types for one course
     @Entity(primaryKeys = ["id", "semester_id", "examType"])
     data class MyExam(
         var id: String,

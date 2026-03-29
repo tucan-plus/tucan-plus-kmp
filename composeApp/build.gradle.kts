@@ -24,19 +24,9 @@ jacoco {
     toolVersion = "0.8.14"
 }
 
-// ./gradlew clean :composeApp:jvmProcessResources
-
-// dumps coverage:
-// ./gradlew --info :composeApp:cleanJvmTest :composeApp:jvmTest --tests de.selfmade4u.tucanpluskmp.MyTest
-
-// does not dump coverage
-// ./gradlew --info clean :composeApp:jvmTest  --tests de.selfmade4u.tucanpluskmp.MyTest
-
+// TODO FIXME if you actually delete the build directory, this fails
 // ./gradlew clean :composeApp:jvmTest :composeApp:jacocoReportAll
-
 // ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
-
-// java -jar org.jacoco.cli-0.8.14-nodeps.jar execinfo "/home/moritz/IdeaProjects/TUCaN Plus KMP/composeApp/build/jacoco/TucanUrlTest.testCOURSEDETAILS()/TucanUrlTest.testCOURSEDETAILS().exec"
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://www.eclemma.org/jacoco/trunk/doc/ant.html
