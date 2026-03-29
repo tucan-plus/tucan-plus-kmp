@@ -12,6 +12,7 @@ androidx-lifecycle = "2.10.0"
 androidx-testExt = "1.3.0"
 composeMultiplatform = "1.10.3" # https://github.com/JetBrains/compose-multiplatform/releases check versions in sync
 junit = "4.13.2"
+junitJupiter = "6.0.3"
 kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 kotlinxBrowser = "0.5.0"
@@ -21,21 +22,25 @@ navigation3Browser = "0.3.1"
 okio = "3.17.0"
 ksoup = "0.2.6"
 ksp = "2.3.6"
-browser = "1.9.0"
-workRuntimeKtx = "2.11.1"
+browser = "1.10.0"
+workRuntimeKtx = "2.11.2"
 material3 = "1.10.0-alpha05" # compatibility with compose multiplatform (see https://github.com/JetBrains/compose-multiplatform/releases) and LoadingIndicator support
 compose-multiplatform-adaptive = "1.3.0-alpha06" # no stable version released yet, must be in sync with https://github.com/JetBrains/compose-multiplatform/releases
 multiplatform-nav3-ui = "1.0.0-alpha06" # no stable version released yet, must be in sync with https://github.com/JetBrains/compose-multiplatform/releases
 datastore = "1.3.0-alpha07" # js/wasm target
 composeHotReload = "1.1.0-beta01" # fix certificate error
-room = "3.0.0-alpha01" # js/wasm target
-sqlite = "2.7.0-alpha01" # js/wasm target
+room = "3.0.0-alpha02" # js/wasm target
+sqlite = "2.7.0-alpha02" # js/wasm target
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
 androidx-datastore-core-okio = { module = "androidx.datastore:datastore-core-okio", version.ref = "datastore" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
+junit-platform-engine = { module = "org.junit.platform:junit-platform-engine" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -68,9 +73,11 @@ serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-jso
 ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 androidx-room-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room" }
+androidx-room-testing = { module = "androidx.room3:room3-testing", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 androidx-sqlite-web = { module = "androidx.sqlite:sqlite-web", version.ref = "sqlite" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
+ui-test = { module = "org.jetbrains.compose.ui:ui-test", version.ref = "composeMultiplatform" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

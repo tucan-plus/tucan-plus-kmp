@@ -1,7 +1,7 @@
+import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -12,10 +12,36 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    jacoco
+    id("de.selfmade4u.jacoco_report_multiple_plugin")
 }
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.14"
+}
+
+// TODO FIXME if you actually delete the build directory, this fails
+// rm -R composeApp/build/jacoco/
+// ./gradlew --stacktrace clean :composeApp:jvmTest :composeApp:jacocoReportAll
+// ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
+
+// https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
+// https://www.eclemma.org/jacoco/trunk/doc/ant.html
+// https://docs.gradle.org/current/userguide/custom_tasks.html#sec:implementing_an_incremental_task
+// https://docs.gradle.org/current/userguide/worker_api.html#converting_to_worker_api
+// https://docs.gradle.org/current/userguide/build_cache.html#sec:using_annotations_to_enable_task_caching
+
+// https://github.com/cqse/teamscale-java-profiler/blob/master/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/TestwiseCoverageReport.kt
+// https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/teamscale-gradle-plugin/src/main/kotlin/com/teamscale/reporting/testwise/internal/TestwiseCoverageReporting.kt#L20
+// https://github.com/cqse/teamscale-java-profiler/blob/527d0d5cda4c13713b0bd707ae2d48ceb7d3309b/report-generator/src/main/kotlin/com/teamscale/report/testwise/jacoco/JaCoCoTestwiseReportGenerator.kt#L28
 
 compose.resources {
     publicResClass = true
+    generateResClass = always
 }
 
 kotlin {
@@ -52,7 +78,24 @@ kotlin {
         }
     }*/
 
-    jvm()
+    jvm{
+        tasks.named<Test>("jvmTest") {
+            useJUnitPlatform()
+            configure<JacocoTaskExtension> {
+                output = JacocoTaskExtension.Output.NONE
+                isDumpOnExit = false
+                destinationFile = null
+            }
+        }
+        tasks.withType<Test>().configureEach {
+            // Force the JVM to include the resources directory in the classpath
+            val jvmMainResources = project.file("src/jvmTest/resources")
+            inputs.dir(jvmMainResources)
+
+            // Some ServiceLoaders need the context class loader set specifically
+            systemProperty("java.util.ServiceLoader.debug", "true")
+        }
+    }
 
     js {
         browser {
@@ -99,11 +142,19 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.ui.test)
+            implementation(libs.androidx.room.testing)
         }
         jvmMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
+        }
+        jvmTest.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(libs.junit.jupiter)
+            implementation(libs.junit.platform.launcher)
+            compileOnly("org.jacoco:org.jacoco.agent:0.8.14:runtime")
         }
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
@@ -141,4 +192,41 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+fun getXmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
+    val xmlFilesProvider = execFiles.elements.map { locations ->
+        locations.map { location ->
+            val file = location.asFile
+            file.parentFile.resolve("JACOCO").resolve(file.name.replace(".exec", ".xml"))
+        }
+    }
+
+    return project.files(xmlFilesProvider)
+}
+
+fun getHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
+    return project.files(execFiles.elements.map { fileSystemLocations ->
+        fileSystemLocations.map { it.asFile.parentFile.resolve("html") }
+    })
+}
+
+tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
+    println("configuring")
+    dependsOn(tasks.named("jvmTest"))
+    val execData = fileTree(layout.buildDirectory.dir("jacoco")) {
+        include("**/*.exec")
+    }
+    executionData.setFrom(execData)
+
+    sourceDirectories.setFrom(files(
+        "src/commonMain/kotlin",
+        "src/jvmMain/kotlin"
+    ))
+    classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    })
+
+    reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
+    reports.htmlOutputLocation.setFrom(getHtmlFilesCollection(execData))
 }

@@ -44,6 +44,20 @@ class JVMPlatform : Platform {
 
 actual fun getPlatform(): Platform = JVMPlatform()
 
+@Composable
+actual fun RequestNotificationPermission() {
+
+}
+
+@Composable
+actual fun retrieveNotifier(): Notifier {
+    return object : Notifier {
+        override fun sendNotification() {
+            println("sending notification")
+        }
+    }
+}
+
 // TODO FIXME duplication with android
 actual suspend fun handleLogin(
     uri: Url,
@@ -78,6 +92,7 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
             println("desktop getloginurl")
             val userHome = System.getProperty("user.home")
             // for the native app
+            // TODO FIXME if multiple applications are running, this should still work so maybe use a randomly generated name?
             Files.writeString(
                 Paths.get(userHome, ".local", "share", "applications", "tucanplus.desktop"),
                 "[Desktop Entry]\n" +

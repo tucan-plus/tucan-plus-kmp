@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
@@ -66,6 +67,7 @@ private val config = SavedStateConfiguration {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun App(uri: String?, dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase) {
     println("uri $uri")
@@ -94,7 +96,7 @@ fun App(uri: String?, dataStore: DataStore<Settings?> = FakeDataStore, database:
             MyExamsComposable(backStack, dataStore, database)
         }
     }
-    MaterialTheme(colorScheme = if (isSystemInDarkTheme()) {
+    MaterialExpressiveTheme(colorScheme = if (isSystemInDarkTheme()) {
         darkColorScheme()
     } else {
         lightColorScheme()

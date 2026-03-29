@@ -12,6 +12,7 @@ import androidx.room3.immediateTransaction
 import androidx.room3.useWriterConnection
 import de.selfmade4u.tucanpluskmp.AppDatabase
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.MyExamsConnector
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
@@ -45,17 +46,7 @@ object MyExams {
                                 semester.id.toString().padStart(15, '0')
                             )) {
                                 is AuthenticatedResponse.Success<MyExamsConnector.MyExamsResponse> -> {
-                                    val time = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-                                    AuthenticatedResponse.Success(response.response.exams.map { m ->
-                                        MyExam(
-                                            m.id,
-                                            m.name,
-                                            m.coursedetailsUrl,
-                                            semester,
-                                            m.examType,
-                                            m.date,
-                                        )
-                                    })
+                                    AuthenticatedResponse.Success(response.response.exams)
                                 }
                                 else -> response.map<List<MyExam>>()
                             }
@@ -91,7 +82,11 @@ object MyExams {
         val examType: String,
         @Embedded(prefix = "semester_")
         var semester: Semesterauswahl,
-        val coursedetailsUrl: String,
+        // one of these two is set. for thesis the moduledetails is set, otherwise coursedetails is set
+        @Embedded(prefix = "coursedetails_")
+        val coursedetailsUrl: TucanUrl.COURSEDETAILS?,
+        @Embedded(prefix = "moduledetails_")
+        val moduledetailsUrl: TucanUrl.MODULEDETAILS?,
         val date: String,
     )
 

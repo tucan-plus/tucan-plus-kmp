@@ -5,11 +5,13 @@ import com.fleeksoft.ksoup.nodes.TextNode
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
 import de.selfmade4u.tucanpluskmp.Settings
+import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.br
 import de.selfmade4u.tucanpluskmp.connector.Common.parseBase
 import de.selfmade4u.tucanpluskmp.connector.Common.parseCommonHeaders
+import de.selfmade4u.tucanpluskmp.data.MyExams
 import de.selfmade4u.tucanpluskmp.div
 import de.selfmade4u.tucanpluskmp.form
 import de.selfmade4u.tucanpluskmp.h1
@@ -31,12 +33,11 @@ import de.selfmade4u.tucanpluskmp.th
 import de.selfmade4u.tucanpluskmp.thead
 import de.selfmade4u.tucanpluskmp.tr
 import io.ktor.client.statement.HttpResponse
-import io.ktor.http.HttpStatusCode
 
 // loop semester by semester because otherwise we can't really associate entries with their semester. maybe just not support the "all"?
 object MyExamsConnector {
 
-    data class MyExamsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var exams: List<Exam>)
+    data class MyExamsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var exams: List<MyExams.MyExam>)
 
 
     suspend fun getUncached(
@@ -60,7 +61,7 @@ object MyExamsConnector {
     }
 
     fun Root.parseResults(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<MyExamsResponse> {
-        val exams = mutableListOf<Exam>()
+        val exams = mutableListOf<MyExams.MyExam>()
         val semesters = mutableListOf<Semesterauswahl>()
         var selectedSemester: Semesterauswahl? = null
         // menu id changes depending on language
@@ -255,7 +256,7 @@ object MyExamsConnector {
                         ) {
                             val id: String
                             val name: String
-                            val coursedetailsUrl: String
+                            val coursedetailsOrModuleDetails: TucanUrl.CourseOrModuleDetails
                             val examType: String
                             val date: String
                             tr {
@@ -271,8 +272,7 @@ object MyExamsConnector {
                                         if (peekAttribute()?.key == "name") {
                                             attribute("name", "eventLink");
                                         }
-                                        // link coursedetails
-                                        coursedetailsUrl = attributeValue("href");
+                                        coursedetailsOrModuleDetails = TucanUrl.CourseOrModuleDetails.fromString(attributeValue("href"));
                                         // module title
                                         name = extractText()
                                     }
@@ -331,11 +331,13 @@ object MyExamsConnector {
                                     }
                                 }
                             }
-                            val exam = Exam(
+                            val exam = MyExams.MyExam(
                                 id,
                                 name,
-                                coursedetailsUrl,
                                 examType,
+                                selectedSemester!!,
+                                coursedetailsOrModuleDetails as? TucanUrl.COURSEDETAILS,
+                                coursedetailsOrModuleDetails as? TucanUrl.MODULEDETAILS,
                                 date,
                             )
                             exams.add(exam)
@@ -347,12 +349,4 @@ object MyExamsConnector {
         }
         return response
     }
-
-    data class Exam(
-        var id: String,
-        val name: String,
-        val coursedetailsUrl: String,
-        val examType: String,
-        val date: String
-    )
 }

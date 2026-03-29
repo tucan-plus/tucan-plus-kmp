@@ -1,14 +1,16 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.room3.Entity
 import androidx.room3.TypeConverter
 import kotlin.text.get
 
-sealed class TucanUrl {
+sealed interface TucanUrl {
     /**
      * without javascript /scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=RESULTDETAILS&ARGUMENTS=-N$sessionId,-N$menuId,-N$id,-N$semester
      * with javascript /scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=RESULTDETAILS&ARGUMENTS=-N$sessionId,-N$menuId,-N$id
      */
-    data class RESULTDETAILS(val id: Long) : TucanUrl() {
+    @Entity
+    data class RESULTDETAILS(val id: Long) : TucanUrl {
         companion object {
             fun fromString(input: String): RESULTDETAILS {
                 val regex =
@@ -17,15 +19,44 @@ sealed class TucanUrl {
                 val id = matchResult.groups["id"]!!.value
                 return RESULTDETAILS(id.toLong())
             }
+        }
+    }
 
-            @TypeConverter
-            fun databaseFromLong(input: Long): RESULTDETAILS {
-                return RESULTDETAILS(input)
+    interface CourseOrModuleDetails : TucanUrl {
+        companion object {
+            fun fromString(input: String): CourseOrModuleDetails {
+                if (input.contains("&PRGNAME=COURSEDETAILS&")) {
+                    return COURSEDETAILS.fromString(input)
+                } else {
+                    return MODULEDETAILS.fromString(input)
+                }
             }
+        }
+    }
 
-            @TypeConverter
-            fun databaseToLong(input: RESULTDETAILS): Long {
-                return input.id
+    @Entity
+    data class COURSEDETAILS(val courseId: Long, val courseGroupId: Long) : CourseOrModuleDetails {
+        companion object {
+            fun fromString(input: String): COURSEDETAILS {
+                val regex =
+                    Regex("""^/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=COURSEDETAILS&ARGUMENTS=-N(?<sessionId>\d+),-N(?<menuId>\d+),-N(?<courseOfStudy>\d+),-N(?<courseId>\d+),-N(?<courseGroupId>\d+),-N0,-N0(,-N3,-A.+)?$""")
+                val matchResult = regex.find(input) ?: throw IllegalArgumentException(input)
+                val courseId = matchResult.groups["courseId"]!!.value
+                val courseGroupId = matchResult.groups["courseGroupId"]!!.value
+                return COURSEDETAILS(courseId.toLong(), courseGroupId.toLong())
+            }
+        }
+    }
+
+    @Entity
+    data class MODULEDETAILS(val id: Long) : CourseOrModuleDetails {
+        companion object {
+            fun fromString(input: String): MODULEDETAILS {
+                val regex =
+                    Regex("""^/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=MODULEDETAILS&ARGUMENTS=-N(?<sessionId>\d+),-N(?<menuId>\d+),-N(?<id>\d+),-A.+$""")
+                val matchResult = regex.find(input) ?: throw IllegalArgumentException(input)
+                val id = matchResult.groups["id"]!!.value
+                return MODULEDETAILS(id.toLong())
             }
         }
     }
@@ -34,7 +65,8 @@ sealed class TucanUrl {
      * without javascript /scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=GRADEOVERVIEW&ARGUMENTS=-N556273381060863,-N000324,-AMOFF,-N394844703228539,-N0,-N,-N000000015186000,-A,-N,-A,-N,-N,-N1
      * with javascript /scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=GRADEOVERVIEW&ARGUMENTS=-N556273381060863,-N000324,-AMOFF,-N394844703228539,-N0
      */
-    data class GRADEOVERVIEWModule(val id: Long) : TucanUrl() {
+    @Entity
+    data class GRADEOVERVIEWModule(val id: Long) : TucanUrl {
         companion object {
             fun fromString(input: String): GRADEOVERVIEWModule {
                 val regex =
@@ -42,16 +74,6 @@ sealed class TucanUrl {
                 val matchResult = regex.find(input) ?: throw IllegalArgumentException(input)
                 val id = matchResult.groups["id"]!!.value
                 return GRADEOVERVIEWModule(id.toLong())
-            }
-
-            @TypeConverter
-            fun databaseFromLong(input: Long): GRADEOVERVIEWModule {
-                return GRADEOVERVIEWModule(input)
-            }
-
-            @TypeConverter
-            fun databaseToLong(input: GRADEOVERVIEWModule): Long {
-                return input.id
             }
         }
     }
