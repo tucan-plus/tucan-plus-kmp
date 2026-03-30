@@ -7,6 +7,12 @@ plugins {
     alias(libs.plugins.koin.compiler)
 }
 
+koinCompiler {
+    userLogs = true
+    debugLogs = true
+    compileSafety = false // TODO FIXME
+}
+
 android {
     namespace = "de.selfmade4u.tucanpluskmp"
     compileSdk {

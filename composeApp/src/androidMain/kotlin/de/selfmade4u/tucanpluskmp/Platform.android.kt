@@ -51,6 +51,7 @@ import org.koin.core.Koin
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.GlobalContext.get
 import org.koin.core.context.KoinContext
+import org.koin.core.module.Module
 import org.koin.mp.KoinPlatform
 
 class AndroidPlatform : Platform {
@@ -225,3 +226,4 @@ actual fun createDataStore(): DataStore<Settings?> {
         },
     )
 }
+
