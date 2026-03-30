@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
@@ -53,5 +54,7 @@ kotlin {
         implementation(libs.androidx.datastore.core.okio)
         implementation(libs.androidx.work.runtime.ktx)
         implementation(libs.compose.components.resources)
+        implementation(libs.koin.core)
+        implementation(libs.koin.android)
     }
 }

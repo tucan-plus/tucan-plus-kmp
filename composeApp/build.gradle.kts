@@ -1,4 +1,5 @@
 import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
+import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -12,6 +13,7 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.koin.compiler)
     jacoco
     id("de.selfmade4u.jacoco_report_multiple_plugin")
 }
@@ -100,7 +102,12 @@ kotlin {
     js {
         browser {
             commonWebpackConfig {
-                devtool = "inline-source-map"
+                devtool = "source-map"
+            }
+            testTask {
+                useKarma {
+                    useChromium()
+                }
             }
         }
         binaries.executable()
@@ -110,7 +117,7 @@ kotlin {
     wasmJs {
         browser {
             commonWebpackConfig {
-                devtool = "inline-source-map"
+                devtool = "source-map"
             }
         }
         binaries.executable()
@@ -139,6 +146,8 @@ kotlin {
             implementation(libs.okio)
             implementation(libs.ksoup)
             implementation(libs.androidx.room.runtime)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -160,6 +169,7 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.androidx.browser)
             implementation(libs.accompanist.permissions)
+            implementation(libs.koin.android)
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)

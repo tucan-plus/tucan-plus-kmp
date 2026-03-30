@@ -49,7 +49,6 @@ actual fun RequestNotificationPermission() {
 
 }
 
-@Composable
 actual fun retrieveNotifier(): Notifier {
     return object : Notifier {
         override fun sendNotification() {
@@ -131,7 +130,7 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
     }
 }
 
-fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
+actual fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
     storage =
         OkioStorage(
             FileSystem.SYSTEM, SettingsSerializer,

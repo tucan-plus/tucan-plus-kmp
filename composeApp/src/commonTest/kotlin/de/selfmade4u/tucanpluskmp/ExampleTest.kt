@@ -1,5 +1,6 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertTextEquals
@@ -32,7 +33,7 @@ class ExampleTest {
     @Test
     fun myTest() = runComposeUiTest {
         setContent {
-            App(null, InMemoryDataStore, getTestDatabase())
+            App(null, getTestDatabase())
         }
         // https://developer.android.com/develop/ui/compose/testing/apis
         // https://developer.android.com/develop/ui/compose/accessibility/semantics

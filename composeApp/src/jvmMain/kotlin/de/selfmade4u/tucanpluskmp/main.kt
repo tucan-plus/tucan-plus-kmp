@@ -9,6 +9,6 @@ fun main() = application {
         onCloseRequest = ::exitApplication,
         title = "tucanpluskmp",
     ) {
-        App(null, dataStore = createDataStore(), database = getRoomDatabase(getDatabaseBuilder()))
+        App(null, database = getRoomDatabase(getDatabaseBuilder()))
     }
 }

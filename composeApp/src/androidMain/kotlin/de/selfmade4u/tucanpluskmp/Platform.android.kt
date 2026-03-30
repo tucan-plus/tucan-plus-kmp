@@ -42,9 +42,16 @@ import io.ktor.http.Url
 import io.ktor.http.parameters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.Koin
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.GlobalContext.get
+import org.koin.core.context.KoinContext
+import org.koin.mp.KoinPlatform
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -147,9 +154,8 @@ fun getNotifier(context: Context) = object : Notifier {
         }
 }
 
-@Composable
 actual fun retrieveNotifier(): Notifier {
-    val context = LocalContext.current
+    val context: Context = KoinPlatform.getKoin().get()
     return getNotifier(context)
 }
 
@@ -190,35 +196,32 @@ actual suspend fun handleLogin(
     backStack[backStack.size - 1] = StartNavKey
 }
 
-fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
+actual fun createDatabase(): AppDatabase {
+    val context: Context = KoinPlatform.getKoin().get()
     return Room.databaseBuilder<AppDatabase>(
-        name = "test",
-        context = context,
-    )
-}
-
-fun getRoomDatabase(
-    builder: RoomDatabase.Builder<AppDatabase>
-): AppDatabase {
-    return builder
+            name = "test",
+            context = context,
+        )
         .fallbackToDestructiveMigration(true)
         .setDriver(AndroidSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()
 }
 
-fun createDataStore(context: Context, scope: CoroutineScope): DataStore<Settings?> = DataStoreFactory.create(
-    storage =
-        OkioStorage(
-            FileSystem.SYSTEM, SettingsSerializer,
-            producePath = {
-                val file = context.filesDir.resolve("tucanplus-config.json")
-                file.toOkioPath()
-            }
-        ),
-    migrations = listOf(),
-    corruptionHandler = ReplaceFileCorruptionHandler { ex ->
-        null
-    },
-    scope = scope
-)
+actual fun createDataStore(): DataStore<Settings?> {
+    val context: Context = KoinPlatform.getKoin().get()
+    return DataStoreFactory.create(
+        storage =
+            OkioStorage(
+                FileSystem.SYSTEM, SettingsSerializer,
+                producePath = {
+                    val file = context.filesDir.resolve("tucanplus-config.json")
+                    file.toOkioPath()
+                }
+            ),
+        migrations = listOf(),
+        corruptionHandler = ReplaceFileCorruptionHandler { ex ->
+            null
+        },
+    )
+}

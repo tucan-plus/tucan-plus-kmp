@@ -50,7 +50,6 @@ import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
 import de.selfmade4u.tucanpluskmp.data.MyExams
 import de.selfmade4u.tucanpluskmp.database.getCached
 import de.selfmade4u.tucanpluskmp.database.refreshModuleResults
-import de.selfmade4u.tucanpluskmp.retrieveNotifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 

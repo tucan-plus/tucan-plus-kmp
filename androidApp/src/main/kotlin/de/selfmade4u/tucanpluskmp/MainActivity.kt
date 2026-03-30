@@ -36,6 +36,7 @@ import org.jetbrains.compose.resources.decodeToImageVector
 import org.jetbrains.compose.resources.getDrawableResourceBytes
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.getSystemResourceEnvironment
+import org.koin.mp.KoinPlatform
 import tucanpluskmp.composeapp.generated.resources.Res
 import tucanpluskmp.composeapp.generated.resources.menu_24px
 import java.util.concurrent.TimeUnit
@@ -48,10 +49,8 @@ class CoroutineDownloadWorker(
     override suspend fun doWork(): Result {
         println("DOING SOME WORK")
         try {
-            val dataStore = SettingsDataStore.getDataStore {
-                context.filesDir.resolve("tucanplus-config.json").toOkioPath()
-            }
-            val database = SettingsDataStore.getDatabase(context)
+            val dataStore: DataStore<Settings?> = KoinPlatform.getKoin().get()
+            val database: AppDatabase = KoinPlatform.getKoin().get()
             when (val response = refreshModuleResults(getNotifier(context), dataStore, database)) {
                 is AuthenticatedResponse.NetworkLikelyTooSlow<*> -> {
                     println("NETWORK TOO SLOW, RETRYING")
@@ -74,49 +73,6 @@ class CoroutineDownloadWorker(
     }
 }
 
-object SettingsDataStore {
-
-    // Use a shared dedicated scope for the DataStore
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    // backing property
-    @Volatile
-    private var dataStoreInstance: DataStore<Settings?>? = null
-
-    // backing property
-    @Volatile
-    private var databaseInstance: AppDatabase? = null
-
-    /**
-     * Returns the single DataStore instance for all platforms.
-     */
-    fun getDataStore(filePathProvider: () -> Path): DataStore<Settings?> {
-        return dataStoreInstance ?: synchronized(this) {
-            dataStoreInstance ?: createDataStore(filePathProvider).also { dataStoreInstance = it }
-        }
-    }
-
-    // context is per application so we can initialize there?
-    fun getDatabase(context: Context): AppDatabase {
-        return databaseInstance ?: synchronized(this) {
-            databaseInstance ?: getRoomDatabase(getDatabaseBuilder(context)).also { databaseInstance = it }
-        }
-    }
-
-    private fun createDataStore(filePathProvider: () -> Path): DataStore<Settings?> {
-        return DataStoreFactory.create(
-            storage = OkioStorage(
-                fileSystem = FileSystem.SYSTEM,
-                serializer = SettingsSerializer,
-                producePath = filePathProvider
-            ),
-            corruptionHandler = ReplaceFileCorruptionHandler { null },
-            migrations = emptyList(),
-            scope = scope
-        )
-    }
-}
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -135,25 +91,7 @@ class MainActivity : ComponentActivity() {
                 TimeUnit.MINUTES).setConstraints(constraints).build())
 
         setContent {
-            MainApp(intent.data.toString())
+            App(intent.data.toString())
         }
     }
-}
-
-@Composable
-fun MainApp(url: String) {
-    val context = LocalContext.current
-    val dataStore = SettingsDataStore.getDataStore {
-        context.filesDir.resolve("tucanplus-config.json").toOkioPath()
-    }
-    val database = SettingsDataStore.getDatabase(context)
-    App(url, dataStore, database)
-}
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-    App(null, createDataStore(context, lifecycleOwner.lifecycleScope), null!!)
 }

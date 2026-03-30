@@ -35,8 +35,11 @@ interface Notifier {
     fun sendNotification()
 }
 
-@Composable
 expect fun retrieveNotifier(): Notifier
+
+expect fun createDataStore(): DataStore<Settings?>
+
+expect fun createDatabase(): AppDatabase
 
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>
