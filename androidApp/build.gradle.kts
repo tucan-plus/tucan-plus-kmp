@@ -10,6 +10,7 @@ plugins {
 koinCompiler {
     userLogs = true
     debugLogs = true
+    compileSafety = false // broken for separate module?
 }
 
 android {
