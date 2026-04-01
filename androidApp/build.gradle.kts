@@ -10,7 +10,6 @@ plugins {
 koinCompiler {
     userLogs = true
     debugLogs = true
-    compileSafety = false // TODO FIXME
 }
 
 android {
