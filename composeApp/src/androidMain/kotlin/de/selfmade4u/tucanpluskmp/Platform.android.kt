@@ -52,6 +52,7 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.GlobalContext.get
 import org.koin.core.context.KoinContext
 import org.koin.core.module.Module
+import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
 
 class AndroidPlatform : Platform {
@@ -155,8 +156,7 @@ fun getNotifier(context: Context) = object : Notifier {
         }
 }
 
-actual fun retrieveNotifier(): Notifier {
-    val context: Context = KoinPlatform.getKoin().get()
+fun retrieveNotifier(context: Context): Notifier {
     return getNotifier(context)
 }
 
@@ -197,8 +197,19 @@ actual suspend fun handleLogin(
     backStack[backStack.size - 1] = StartNavKey
 }
 
-actual fun createDatabase(): AppDatabase {
-    val context: Context = KoinPlatform.getKoin().get()
+actual val platformModule: Module = module {
+    single<AppDatabase> {
+        createDatabase(get())
+    }
+    single<DataStore<Settings?>> {
+        createDataStore(get())
+    }
+    single<Notifier> {
+        retrieveNotifier(get())
+    }
+}
+
+fun createDatabase(context: Context): AppDatabase {
     return Room.databaseBuilder<AppDatabase>(
             name = "test",
             context = context,
@@ -209,8 +220,7 @@ actual fun createDatabase(): AppDatabase {
         .build()
 }
 
-actual fun createDataStore(): DataStore<Settings?> {
-    val context: Context = KoinPlatform.getKoin().get()
+fun createDataStore(context: Context): DataStore<Settings?> {
     return DataStoreFactory.create(
         storage =
             OkioStorage(

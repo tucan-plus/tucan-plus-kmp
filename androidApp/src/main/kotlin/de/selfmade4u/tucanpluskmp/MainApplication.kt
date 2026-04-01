@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.work.Configuration
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
@@ -18,6 +19,7 @@ class MainApplication : Application(), Configuration.Provider {
         super.onCreate()
         initKoin {
             androidContext(this@MainApplication)
+            workManagerFactory()
         }
     }
 }

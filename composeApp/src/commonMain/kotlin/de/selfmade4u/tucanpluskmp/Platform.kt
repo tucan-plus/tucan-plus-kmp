@@ -11,6 +11,11 @@ import io.ktor.client.HttpClient
 import io.ktor.http.Url
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.koin.core.KoinApplication
+import org.koin.core.context.startKoin
+import org.koin.core.module.Module
+import org.koin.dsl.KoinAppDeclaration
+import org.koin.dsl.includes
 
 interface Platform {
     val name: String
@@ -35,11 +40,16 @@ interface Notifier {
     fun sendNotification()
 }
 
-expect fun retrieveNotifier(): Notifier
+expect val platformModule: Module;
 
-expect fun createDataStore(): DataStore<Settings?>
-
-expect fun createDatabase(): AppDatabase
+fun initKoin(config: KoinAppDeclaration? = null): KoinApplication {
+    return startKoin {
+        includes(config)
+        modules(
+            platformModule,
+        )
+    }
+}
 
 object FakeDataStore : DataStore<Settings?> {
     override val data: Flow<Settings?>

@@ -43,14 +43,14 @@ import java.util.concurrent.TimeUnit
 
 class CoroutineDownloadWorker(
     val context: Context,
-    params: WorkerParameters
+    params: WorkerParameters,
+    private val dataStore: DataStore<Settings?>,
+    private val database: AppDatabase,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         println("DOING SOME WORK")
         try {
-            val dataStore: DataStore<Settings?> = KoinPlatform.getKoin().get()
-            val database: AppDatabase = KoinPlatform.getKoin().get()
             when (val response = refreshModuleResults(getNotifier(context), dataStore, database)) {
                 is AuthenticatedResponse.NetworkLikelyTooSlow<*> -> {
                     println("NETWORK TOO SLOW, RETRYING")

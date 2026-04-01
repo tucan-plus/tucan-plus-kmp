@@ -75,24 +75,6 @@ private val config = SavedStateConfiguration {
     }
 }
 
-val sharedModule = module {
-    single<AppDatabase> {
-        createDatabase()
-    }
-    single<DataStore<Settings?>> {
-        createDataStore()
-    }
-}
-
-fun initKoin(config: KoinAppDeclaration? = null): KoinApplication {
-    return startKoin {
-        includes(config)
-        modules(
-            sharedModule,
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun App(uri: String?) {
