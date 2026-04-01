@@ -143,16 +143,11 @@ fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
         ),
 )
 
-fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    return Room.databaseBuilder<AppDatabase>(
-        name = "test.db",
-    )
-}
-
-fun getRoomDatabase(
-    builder: RoomDatabase.Builder<AppDatabase>
+fun getDatabase(
 ): AppDatabase {
-    return builder
+    return Room.databaseBuilder<AppDatabase>(
+            name = "test.db",
+        )
         .fallbackToDestructiveMigration(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
@@ -161,7 +156,7 @@ fun getRoomDatabase(
 
 actual val platformModule: Module = module {
     single<AppDatabase> {
-        getRoomDatabase(getDatabaseBuilder())
+        getDatabase()
     }
     single<DataStore<Settings?>> {
         createDataStore()
