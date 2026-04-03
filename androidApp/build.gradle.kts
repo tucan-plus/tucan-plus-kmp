@@ -64,6 +64,6 @@ kotlin {
         implementation(libs.koin.android)
         implementation(libs.koin.androidx.workmanager)
         androidTestImplementation(libs.compose.ui.test.junit4)
-
+        implementation(libs.androidx.espresso.core)
     }
 }
