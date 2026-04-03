@@ -75,6 +75,11 @@ kotlin {
         androidResources {
             enable = true
         }
+
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+
+        }
     }
 
     /*listOf(
@@ -176,7 +181,10 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.androidx.browser)
             implementation(libs.accompanist.permissions)
+            implementation(libs.androidx.work.runtime.ktx)
+            implementation(libs.koin.core)
             implementation(libs.koin.android)
+            implementation(libs.koin.androidx.workmanager)
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
