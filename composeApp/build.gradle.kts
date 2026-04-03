@@ -76,6 +76,7 @@ kotlin {
             enable = true
         }
 
+        // ./gradlew :composeApp:connectedAndroidTest
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
 
