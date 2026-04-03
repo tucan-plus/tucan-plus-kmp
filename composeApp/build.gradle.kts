@@ -64,7 +64,7 @@ kotlin {
     }
 
     android {
-        namespace = "de.selfmade4u.tucanpluskmp"
+        namespace = "de.selfmade4u.tucanpluskmp.library"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
