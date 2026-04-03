@@ -1,17 +1,10 @@
-package de.selfmade4u.tucanpluskmp
-
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.datastore.core.DataStore
-import androidx.room3.Room
-import kotlinx.coroutines.delay
+import de.selfmade4u.tucanpluskmp.App
+import de.selfmade4u.tucanpluskmp.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +20,7 @@ object InMemoryDataStore : DataStore<Settings?> {
     }
 }
 
-class ExampleTest {
+class ExampleTest2 {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
