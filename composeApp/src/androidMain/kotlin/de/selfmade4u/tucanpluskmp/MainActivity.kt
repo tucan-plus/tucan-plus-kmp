@@ -87,10 +87,10 @@ class MainActivity : ComponentActivity() {
         // TODO request permission for notifications
 
         // TODO don't do this blocking at startup
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork("periodic-update",
+        /*WorkManager.getInstance(this).enqueueUniquePeriodicWork("periodic-update",
             ExistingPeriodicWorkPolicy.UPDATE, PeriodicWorkRequestBuilder<CoroutineDownloadWorker>(15,
                 TimeUnit.MINUTES).setConstraints(constraints).build())
-
+*/
         setContent {
             App(intent.data.toString())
         }
