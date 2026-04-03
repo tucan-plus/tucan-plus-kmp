@@ -63,12 +63,18 @@ kotlin {
         implementation(libs.koin.core)
         implementation(libs.koin.android)
         implementation(libs.koin.androidx.workmanager)
+        // https://developer.android.com/jetpack/androidx/releases/test#kts
         androidTestImplementation(libs.compose.ui.test.junit4)
-        implementation(libs.androidx.espresso.core)
-        androidTestImplementation(projects.composeApp)
-        androidTestImplementation("androidx.compose.ui:ui-test-manifest")
         androidTestImplementation(libs.kotlin.test)
         androidTestImplementation(libs.kotlin.testJunit)
         androidTestImplementation(libs.ui.test)
+        androidTestImplementation(libs.core.ktx)
+        androidTestImplementation(libs.androidx.espresso.core)
+        androidTestImplementation(libs.androidx.testExt.junit)
+        androidTestImplementation(libs.androidx.junit.ktx)
+        androidTestImplementation(libs.androidx.runner)
+        androidTestUtil(libs.androidx.orchestrator)
+        implementation("androidx.concurrent:concurrent-futures:1.2.0")
+        implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
     }
 }

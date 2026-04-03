@@ -75,29 +75,6 @@ kotlin {
         androidResources {
             enable = true
         }
-
-        withHostTest {
-            isIncludeAndroidResources = true
-        }
-
-        // ./gradlew :composeApp:connectedAndroidTest
-        // Opt-in to enable and configure device-side (instrumented) tests
-        withDeviceTest {
-            //instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-            //execution = "android_test_orchestrator"
-            managedDevices {
-                localDevices {
-                    create("pixel2api30") {
-                        // Use device profiles you typically see in Android Studio.
-                        device = "Pixel 2"
-                        // Use only API levels 27 and higher.
-                        apiLevel = 30
-                        // To include Google services, use "google".
-                        systemImageSource = "aosp"
-                    }
-                }
-            }
-        }
     }
 
     /*listOf(
@@ -183,15 +160,6 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.ui.test)
             implementation(libs.androidx.room.testing)
-        }
-        getByName("androidDeviceTest").dependencies {
-            implementation(libs.kotlin.test)
-            implementation(libs.ui.test)
-            implementation(libs.androidx.room.testing)
-            implementation("androidx.test:runner:1.7.0")
-            implementation("androidx.test:orchestrator:1.6.1")
-            implementation("androidx.compose.ui:ui-test-manifest:1.10.3")
-            implementation(libs.androidx.espresso.core)
         }
         jvmMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)

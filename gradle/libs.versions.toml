@@ -11,8 +11,10 @@ androidx-espresso = "3.7.0"
 androidx-lifecycle = "2.10.0"
 androidx-testExt = "1.3.0"
 composeMultiplatform = "1.10.3" # https://github.com/JetBrains/compose-multiplatform/releases check versions in sync
+core = "1.7.0"
 junit = "4.13.2"
 junitJupiter = "6.0.3"
+junitKtx = "1.3.0"
 kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 kotlinxBrowser = "0.5.0"
@@ -23,6 +25,7 @@ okio = "3.17.0"
 ksoup = "0.2.6"
 ksp = "2.3.6"
 browser = "1.10.0"
+orchestrator = "1.6.1"
 workRuntimeKtx = "2.11.2"
 material3 = "1.10.0-alpha05" # compatibility with compose multiplatform (see https://github.com/JetBrains/compose-multiplatform/releases) and LoadingIndicator support
 compose-multiplatform-adaptive = "1.3.0-alpha06" # no stable version released yet, must be in sync with https://github.com/JetBrains/compose-multiplatform/releases
@@ -36,9 +39,15 @@ koin-plugin = "0.4.1"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+androidx-core = { module = "androidx.test:core", version.ref = "core" }
 androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
 androidx-datastore-core-okio = { module = "androidx.datastore:datastore-core-okio", version.ref = "datastore" }
+androidx-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "junitKtx" }
+androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "orchestrator" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "core" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeMultiplatform" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+core-ktx = { module = "androidx.test:core-ktx", version.ref = "core" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
 junit-platform-engine = { module = "org.junit.platform:junit-platform-engine" }
