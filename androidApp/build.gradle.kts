@@ -65,5 +65,10 @@ kotlin {
         implementation(libs.koin.androidx.workmanager)
         androidTestImplementation(libs.compose.ui.test.junit4)
         implementation(libs.androidx.espresso.core)
+        androidTestImplementation(projects.composeApp)
+        androidTestImplementation("androidx.compose.ui:ui-test-manifest")
+        androidTestImplementation(libs.kotlin.test)
+        androidTestImplementation(libs.kotlin.testJunit)
+        androidTestImplementation(libs.ui.test)
     }
 }
