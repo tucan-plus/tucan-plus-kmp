@@ -8,6 +8,7 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import org.koin.plugin.module.dsl.worker
 
 class MainApplication : Application(), Configuration.Provider {
     override val workManagerConfiguration =
@@ -20,6 +21,9 @@ class MainApplication : Application(), Configuration.Provider {
         initKoin {
             androidContext(this@MainApplication)
             workManagerFactory()
+            module {
+                worker<CoroutineDownloadWorker>()
+            }
         }
     }
 }

@@ -46,12 +46,13 @@ class CoroutineDownloadWorker(
     params: WorkerParameters,
     private val dataStore: DataStore<Settings?>,
     private val database: AppDatabase,
+    private val notifier: Notifier
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         println("DOING SOME WORK")
         try {
-            when (val response = refreshModuleResults(getNotifier(context), dataStore, database)) {
+            when (val response = refreshModuleResults(notifier, dataStore, database)) {
                 is AuthenticatedResponse.NetworkLikelyTooSlow<*> -> {
                     println("NETWORK TOO SLOW, RETRYING")
                     return Result.retry()
