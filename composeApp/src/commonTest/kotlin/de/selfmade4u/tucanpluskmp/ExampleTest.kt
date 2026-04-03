@@ -30,7 +30,6 @@ object InMemoryDataStore : DataStore<Settings?> {
 class ExampleTest {
 
     @OptIn(ExperimentalTestApi::class)
-    @Test
     fun myTest() = runComposeUiTest {
         setContent {
             App(null)

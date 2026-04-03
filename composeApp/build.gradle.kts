@@ -187,6 +187,20 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.workmanager)
         }
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlin.testJunit)
+            implementation(libs.ui.test)
+            implementation(libs.core.ktx)
+            implementation(libs.androidx.espresso.core)
+            implementation(libs.androidx.testExt.junit)
+            implementation(libs.androidx.junit.ktx)
+            implementation(libs.androidx.runner)
+            implementation(libs.androidx.orchestrator)
+            implementation("androidx.concurrent:concurrent-futures:1.2.0")
+            implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+        }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
             implementation(npm("@sqlite.org/sqlite-wasm", "3.50.1-build1"))
