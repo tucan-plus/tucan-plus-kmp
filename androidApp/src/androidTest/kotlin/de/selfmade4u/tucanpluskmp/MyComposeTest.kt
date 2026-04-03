@@ -2,6 +2,7 @@ package de.selfmade4u.tucanpluskmp
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.runAndroidComposeUiTest
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.datastore.core.DataStore
@@ -26,13 +27,7 @@ class ExampleTest3 {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun myTest() = runComposeUiTest {
-        initKoin {
-            androidContext(InstrumentationRegistry.getInstrumentation().targetContext.applicationContext)
-        }
-        setContent {
-            App(null)
-        }
+    fun myTest() = runAndroidComposeUiTest<MainActivity> {
         // https://developer.android.com/develop/ui/compose/testing/apis
         // https://developer.android.com/develop/ui/compose/accessibility/semantics
         waitUntilExactlyOneExists(hasText("Logged in: true"), timeoutMillis = 10_000)
