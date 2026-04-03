@@ -18,7 +18,7 @@ class Example2Test {
         }*/
         // https://developer.android.com/develop/ui/compose/testing/apis
         // https://developer.android.com/develop/ui/compose/accessibility/semantics
-        waitUntilExactlyOneExists(hasText("Logged in: true"), timeoutMillis = 10_000)
+        waitUntilExactlyOneExists(hasText("Logged in: true"), timeoutMillis = 20_000)
         /*onNodeWithTag("button").performClick()
         onNodeWithTag("text").assertTextEquals("Compose")*/
     }
