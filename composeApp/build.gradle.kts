@@ -79,11 +79,9 @@ kotlin {
         // ./gradlew :composeApp:connectedAndroidTest
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
-            testCoverage {
-
-            }
         }.configure {
             enableCoverage = true
+            execution = "ANDROIDX_TEST_ORCHESTRATOR"
         }
     }
 
@@ -196,14 +194,16 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlin.testJunit)
             implementation(libs.ui.test)
-            implementation(libs.core.ktx)
+            implementation(libs.androidx.core)
             implementation(libs.androidx.espresso.core)
             implementation(libs.androidx.testExt.junit)
             implementation(libs.androidx.junit.ktx)
             implementation(libs.androidx.runner)
-            implementation(libs.androidx.orchestrator)
             implementation("androidx.concurrent:concurrent-futures:1.2.0")
             implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+        }
+        androidInstrumentedTest.dependencies {
+
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
@@ -219,6 +219,8 @@ room3 {
 }
 
 dependencies {
+    androidTestUtil("androidx.test:orchestrator:1.6.1") // Or latest version
+    androidTestUtil("androidx.test.services:test-services:1.6.0")
     androidRuntimeClasspath(libs.compose.uiTooling)
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspWasmJs", libs.androidx.room.compiler)
