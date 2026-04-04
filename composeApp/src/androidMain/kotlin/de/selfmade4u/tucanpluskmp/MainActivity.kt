@@ -1,7 +1,10 @@
 package de.selfmade4u.tucanpluskmp
 
+import android.app.ComponentCaller
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -91,8 +94,25 @@ class MainActivity : ComponentActivity() {
             ExistingPeriodicWorkPolicy.UPDATE, PeriodicWorkRequestBuilder<CoroutineDownloadWorker>(15,
                 TimeUnit.MINUTES).setConstraints(constraints).build())
 */
+        Log.e("TUCANPLUS", "onCreate $intent")
+
         setContent {
             App(intent.data.toString())
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.e("TUCANPLUS", "onResume $intent")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.e("TUCANPLUS", "onDestroy $intent")
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        Log.e("TUCANPLUS", "ONNEWINTENT $intent")
     }
 }

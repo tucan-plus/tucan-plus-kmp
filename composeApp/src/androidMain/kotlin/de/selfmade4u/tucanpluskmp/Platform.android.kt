@@ -43,6 +43,7 @@ import io.ktor.http.parameters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
@@ -168,6 +169,7 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
             "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
         val intent = CustomTabsIntent.Builder()
             .build()
+        intent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.launchUrl(context, url.toUri())
     }
 }
