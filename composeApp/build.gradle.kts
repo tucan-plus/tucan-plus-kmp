@@ -32,7 +32,7 @@ jacoco {
     toolVersion = "0.8.14"
 }
 
-// ./gradlew --stacktrace clean :composeApp:jvmTest :composeApp:jacocoReportAll
+// ./gradlew --stacktrace :composeApp:jvmTest :composeApp:jacocoReportAll
 // rm /tmp/testwise-coverage.json && ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
 // export TEAMSCALE_ACCESS_KEY=
 // ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Integration Tests" -f TESTWISE_COVERAGE /tmp/testwise-coverage.json
@@ -267,7 +267,7 @@ fun getXmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
     val xmlFilesProvider = execFiles.elements.map { locations ->
         locations.map { location ->
             val file = location.asFile
-            file.parentFile.resolve(file.name.replace(".ec", ".xml"))
+            file.parentFile.resolve(file.name.replace(".ec", "")).resolve("JACOCO").resolve(file.name.replace(".ec", ".xml"))
         }
     }
 
@@ -278,7 +278,7 @@ fun getHtmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
     return project.files(execFiles.elements.map { locations ->
         locations.map { location ->
             val file = location.asFile
-            file.parentFile.resolve(file.name.replace(".ec", ".html"))
+            file.parentFile.resolve(file.name.replace(".ec", "")).resolve("html")
         }
     })
 }
