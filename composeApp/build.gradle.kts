@@ -202,9 +202,6 @@ kotlin {
             implementation("androidx.concurrent:concurrent-futures:1.2.0")
             implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
         }
-        androidInstrumentedTest.dependencies {
-
-        }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
             implementation(npm("@sqlite.org/sqlite-wasm", "3.50.1-build1"))

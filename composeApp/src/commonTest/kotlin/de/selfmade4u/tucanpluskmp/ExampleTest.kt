@@ -30,10 +30,11 @@ object InMemoryDataStore : DataStore<Settings?> {
 class ExampleTest {
 
     @OptIn(ExperimentalTestApi::class)
-    fun myTest() = runComposeUiTest {
-        setContent {
+    @Test
+    fun myTest() = runMyComposeUiTest {
+        /*setContent {
             App(null)
-        }
+        }*/
         // https://developer.android.com/develop/ui/compose/testing/apis
         // https://developer.android.com/develop/ui/compose/accessibility/semantics
         waitUntilExactlyOneExists(hasText("Logged in: true"), timeoutMillis = 10_000)
