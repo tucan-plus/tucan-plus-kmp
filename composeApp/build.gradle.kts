@@ -50,6 +50,7 @@ jacoco {
 // https://github.com/android/gradle-recipes/tree/agp-9.0
 // https://developer.android.com/build/extend-agp#variant-api-artifacts-tasks
 // https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/api/component/impl/DeviceTestImpl.kt#L202
+// https://issuetracker.google.com/issues/461382862
 // ./gradlew :composeApp:connectedAndroidTest
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
@@ -96,39 +97,6 @@ kotlin {
         }.configure {
             enableCoverage = true
             execution = "ANDROIDX_TEST_ORCHESTRATOR"
-        }
-    }
-
-    androidComponents {
-        onVariants { variant ->
-            val deviceTestContainer = variant as? HasDeviceTests
-
-            deviceTestContainer?.deviceTests?.forEach { (testType, deviceTest) ->
-                // 1. Construct the Task Name reliably using the Variant API
-                // This handles the "connected" prefix and variant suffix (e.g., connectedDebugAndroidTest)
-                val testTaskName = variant.computeTaskName("connected", testType.replaceFirstChar { it.uppercase() })
-
-                // 2. Locate the output directory
-                // AGP 9.0 places coverage here by default when Orchestrator is enabled
-                val coverageOutputDir = layout.buildDirectory.dir("outputs/code_coverage/${variant.name}/connected")
-
-                // 3. Register your post-test task
-                val postTestTask = tasks.register("${variant.name}${testType.capitalize()}PostProcess") {
-                    doLast {
-                        val path = coverageOutputDir.get().asFile
-                        if (path.exists()) {
-                            println("Coverage files located at: ${path.absolutePath}")
-                        } else {
-                            println("Coverage directory not found at $path. Is 'enableCoverage' true?")
-                        }
-                    }
-                }
-
-                // 4. Hook it up using the task name
-                tasks.matching { it.name == testTaskName }.configureEach {
-                    finalizedBy(postTestTask)
-                }
-            }
         }
     }
 
@@ -301,8 +269,25 @@ fun getHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
     })
 }
 
+
+fun getXmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
+    val xmlFilesProvider = execFiles.elements.map { locations ->
+        locations.map { location ->
+            val file = location.asFile
+            file.parentFile.resolve("JACOCO").resolve(file.name.replace(".es", ".xml"))
+        }
+    }
+
+    return project.files(xmlFilesProvider)
+}
+
+fun getHtmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
+    return project.files(execFiles.elements.map { fileSystemLocations ->
+        fileSystemLocations.map { it.asFile.parentFile.resolve("html") }
+    })
+}
+
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
-    println("configuring")
     dependsOn(tasks.named("jvmTest"))
     val execData = fileTree(layout.buildDirectory.dir("jacoco")) {
         include("**/*.exec")
@@ -323,4 +308,34 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
 
     reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
     reports.htmlOutputLocation.setFrom(getHtmlFilesCollection(execData))
+}
+
+val androidJacoco = tasks.register("androidJacocoReportAll", JacocoReportMultiple::class) {
+    //dependsOn(tasks.named("connectedAndroidDeviceTest"))
+    val execData = fileTree(layout.buildDirectory.dir("outputs/code_coverage/androidDeviceTest/connected/Medium_Phone(AVD) - 16")) {
+        include("**/*.ec")
+    }
+    executionData.setFrom(execData)
+
+    sourceDirectories.setFrom(files(
+        "src/commonMain/kotlin",
+        "src/commonTest/kotlin",
+        "src/jvmMain/kotlin",
+        "src/jvmTest/kotlin",
+    ))
+    classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/android/main")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    }, fileTree(layout.buildDirectory.dir("classes/kotlin/android/deviceTest")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    })
+
+    reports.xmlOutputLocation.setFrom(getXmlFilesCollection2(execData))
+    reports.htmlOutputLocation.setFrom(getHtmlFilesCollection2(execData))
+}
+
+tasks.withType<com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask>().configureEach {
+    finalizedBy(androidJacoco)
+}
+tasks.withType<com.android.build.gradle.internal.coverage.JacocoReportTask>().configureEach {
+    enabled = false
 }
