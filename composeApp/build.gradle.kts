@@ -79,7 +79,11 @@ kotlin {
         // ./gradlew :composeApp:connectedAndroidTest
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
+            testCoverage {
 
+            }
+        }.configure {
+            enableCoverage = true
         }
     }
 
@@ -93,7 +97,7 @@ kotlin {
         }
     }*/
 
-    jvm{
+    jvm {
         tasks.named<Test>("jvmTest") {
             useJUnitPlatform()
             configure<JacocoTaskExtension> {
