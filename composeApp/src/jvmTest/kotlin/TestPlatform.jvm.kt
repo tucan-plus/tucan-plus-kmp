@@ -6,6 +6,10 @@ import androidx.compose.ui.test.runComposeUiTest
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.test.TestResult
+import org.koin.compose.KoinApplication
+import org.koin.core.context.stopKoin
+import org.koin.dsl.includes
+import org.koin.dsl.koinConfiguration
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
@@ -21,11 +25,16 @@ actual fun runMyComposeUiTest(
     testTimeout: Duration,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult = runComposeUiTest (effectContext, runTestContext, testTimeout) {
-    initKoin {
-
-    }
     setContent {
-        App(null)
+        KoinApplication(
+            configuration = koinConfiguration {
+                modules(
+                    platformModule,
+                )
+            }
+        ) {
+            App(null)
+        }
     }
     block()
 }
