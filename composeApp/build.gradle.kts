@@ -264,9 +264,13 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
 
     sourceDirectories.setFrom(files(
         "src/commonMain/kotlin",
-        "src/jvmMain/kotlin"
+        "src/commonTest/kotlin",
+        "src/jvmMain/kotlin",
+        "src/jvmTest/kotlin",
     ))
     classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    }, fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/test")) {
         exclude("**/R.class", "**/BuildConfig.*")
     })
 
