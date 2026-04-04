@@ -33,10 +33,10 @@ jacoco {
     toolVersion = "0.8.14"
 }
 
-// TODO FIXME if you actually delete the build directory, this fails
-// rm -R composeApp/build/jacoco/
 // ./gradlew --stacktrace clean :composeApp:jvmTest :composeApp:jacocoReportAll
 // ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
+// export TEAMSCALE_ACCESS_KEY=
+// ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Integration Tests" -f TESTWISE_COVERAGE /tmp/testwise-coverage.json
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://www.eclemma.org/jacoco/trunk/doc/ant.html
