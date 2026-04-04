@@ -34,7 +34,7 @@ jacoco {
 }
 
 // ./gradlew --stacktrace clean :composeApp:jvmTest :composeApp:jacocoReportAll
-// ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
+// rm /tmp/testwise-coverage.json && ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
 // export TEAMSCALE_ACCESS_KEY=
 // ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Integration Tests" -f TESTWISE_COVERAGE /tmp/testwise-coverage.json
 
