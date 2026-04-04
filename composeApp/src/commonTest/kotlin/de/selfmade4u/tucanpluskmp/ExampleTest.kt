@@ -35,7 +35,7 @@ class ExampleTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun myTest() = runMyComposeUiTest {
+    fun login() = runMyComposeUiTest {
         // https://developer.android.com/develop/ui/compose/testing/apis
         // https://developer.android.com/develop/ui/compose/accessibility/semantics
         waitUntilExactlyOneExists(hasTextExactly("Logged in: true"), timeoutMillis = 10_000)
@@ -45,7 +45,7 @@ class ExampleTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun myTest2() = runMyComposeUiTest {
+    fun modulergebnisse() = runMyComposeUiTest {
         // https://developer.android.com/develop/ui/compose/testing/apis
         // https://developer.android.com/develop/ui/compose/accessibility/semantics
         waitUntilExactlyOneExists(hasTextExactly("Logged in: true"), timeoutMillis = 10_000)
@@ -53,5 +53,18 @@ class ExampleTest {
         onNode(hasTextExactly("Modulergebnisse")).performClick()
         waitUntilDoesNotExist(hasContentDescriptionExactly("Loading"), timeoutMillis = 30_000)
         waitUntilAtLeastOneExists(hasTextExactly("5 CP"))
+    }
+
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun meinePruefungen() = runMyComposeUiTest {
+        // https://developer.android.com/develop/ui/compose/testing/apis
+        // https://developer.android.com/develop/ui/compose/accessibility/semantics
+        waitUntilExactlyOneExists(hasTextExactly("Logged in: true"), timeoutMillis = 10_000)
+        onNode(hasContentDescriptionExactly("Menu")).performClick()
+        onNode(hasTextExactly("Meine Prüfungen")).performClick()
+        waitUntilDoesNotExist(hasContentDescriptionExactly("Loading"), timeoutMillis = 30_000)
+        waitUntilAtLeastOneExists(hasTextExactly("k.Terminbuchung"))
     }
 }
