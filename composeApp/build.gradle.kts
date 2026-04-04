@@ -1,3 +1,8 @@
+import com.android.build.api.artifact.MultipleArtifact
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.DeviceTestBuilder
+import com.android.build.api.variant.HasDeviceTests
+import com.android.build.gradle.internal.scope.InternalArtifactType
 import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
 import org.gradle.kotlin.dsl.androidTestUtil
 import org.gradle.kotlin.dsl.invoke
@@ -38,6 +43,13 @@ jacoco {
 // export TEAMSCALE_ACCESS_KEY=
 // ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Integration Tests" -f TESTWISE_COVERAGE /tmp/testwise-coverage.json
 
+// https://android.googlesource.com/platform/tools/base/+/studio-master-dev/build-system/README.md
+// https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/multiplatform/KotlinMultiplatformAndroidHandlerImpl.kt#L180
+// https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/coverage/JacocoReportTask.kt#L215
+// https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/AndroidTestTaskManager.kt#L271
+// https://github.com/android/gradle-recipes/tree/agp-9.0
+// https://developer.android.com/build/extend-agp#variant-api-artifacts-tasks
+// https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/api/component/impl/DeviceTestImpl.kt#L202
 // ./gradlew :composeApp:connectedAndroidTest
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
@@ -84,6 +96,39 @@ kotlin {
         }.configure {
             enableCoverage = true
             execution = "ANDROIDX_TEST_ORCHESTRATOR"
+        }
+    }
+
+    androidComponents {
+        onVariants { variant ->
+            val deviceTestContainer = variant as? HasDeviceTests
+
+            deviceTestContainer?.deviceTests?.forEach { (testType, deviceTest) ->
+                // 1. Construct the Task Name reliably using the Variant API
+                // This handles the "connected" prefix and variant suffix (e.g., connectedDebugAndroidTest)
+                val testTaskName = variant.computeTaskName("connected", testType.replaceFirstChar { it.uppercase() })
+
+                // 2. Locate the output directory
+                // AGP 9.0 places coverage here by default when Orchestrator is enabled
+                val coverageOutputDir = layout.buildDirectory.dir("outputs/code_coverage/${variant.name}/connected")
+
+                // 3. Register your post-test task
+                val postTestTask = tasks.register("${variant.name}${testType.capitalize()}PostProcess") {
+                    doLast {
+                        val path = coverageOutputDir.get().asFile
+                        if (path.exists()) {
+                            println("Coverage files located at: ${path.absolutePath}")
+                        } else {
+                            println("Coverage directory not found at $path. Is 'enableCoverage' true?")
+                        }
+                    }
+                }
+
+                // 4. Hook it up using the task name
+                tasks.matching { it.name == testTaskName }.configureEach {
+                    finalizedBy(postTestTask)
+                }
+            }
         }
     }
 
