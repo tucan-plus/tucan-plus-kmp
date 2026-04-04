@@ -38,6 +38,8 @@ jacoco {
 // export TEAMSCALE_ACCESS_KEY=
 // ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Integration Tests" -f TESTWISE_COVERAGE /tmp/testwise-coverage.json
 
+// ./gradlew :composeApp:connectedAndroidTest
+
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://www.eclemma.org/jacoco/trunk/doc/ant.html
 // https://docs.gradle.org/current/userguide/custom_tasks.html#sec:implementing_an_incremental_task
