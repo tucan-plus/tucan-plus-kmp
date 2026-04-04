@@ -1,11 +1,5 @@
-import com.android.build.api.artifact.MultipleArtifact
-import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.variant.DeviceTestBuilder
-import com.android.build.api.variant.HasDeviceTests
-import com.android.build.gradle.internal.scope.InternalArtifactType
 import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
 import org.gradle.kotlin.dsl.androidTestUtil
-import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -264,17 +258,16 @@ fun getXmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
 }
 
 fun getHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
-    return project.files(execFiles.elements.map { fileSystemLocations ->
-        fileSystemLocations.map { it.asFile.parentFile.resolve("html") }
+    return project.files(execFiles.elements.map { locations ->
+        locations.map { it.asFile.parentFile.resolve("html") }
     })
 }
-
 
 fun getXmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
     val xmlFilesProvider = execFiles.elements.map { locations ->
         locations.map { location ->
             val file = location.asFile
-            file.parentFile.resolve("JACOCO").resolve(file.name.replace(".es", ".xml"))
+            file.parentFile.resolve(file.name.replace(".ec", ".xml"))
         }
     }
 
@@ -282,8 +275,11 @@ fun getXmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
 }
 
 fun getHtmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
-    return project.files(execFiles.elements.map { fileSystemLocations ->
-        fileSystemLocations.map { it.asFile.parentFile.resolve("html") }
+    return project.files(execFiles.elements.map { locations ->
+        locations.map { location ->
+            val file = location.asFile
+            file.parentFile.resolve(file.name.replace(".ec", ".html"))
+        }
     })
 }
 
