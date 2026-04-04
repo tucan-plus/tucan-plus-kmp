@@ -27,6 +27,8 @@ import okio.BufferedSink
 import okio.BufferedSource
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
+import org.koin.core.module.Module
+import org.koin.dsl.module
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -49,8 +51,7 @@ actual fun RequestNotificationPermission() {
 
 }
 
-@Composable
-actual fun retrieveNotifier(): Notifier {
+fun retrieveNotifier(): Notifier {
     return object : Notifier {
         override fun sendNotification() {
             println("sending notification")
@@ -142,18 +143,25 @@ fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
         ),
 )
 
-fun getDatabaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    return Room.databaseBuilder<AppDatabase>(
-        name = "test.db",
-    )
-}
-
-fun getRoomDatabase(
-    builder: RoomDatabase.Builder<AppDatabase>
+fun getDatabase(
 ): AppDatabase {
-    return builder
+    return Room.databaseBuilder<AppDatabase>(
+            name = "test.db",
+        )
         .fallbackToDestructiveMigration(true)
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()
+}
+
+actual val platformModule: Module = module {
+    single<AppDatabase> {
+        getDatabase()
+    }
+    single<DataStore<Settings?>> {
+        createDataStore()
+    }
+    single<Notifier> {
+        retrieveNotifier()
+    }
 }

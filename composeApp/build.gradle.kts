@@ -1,4 +1,6 @@
 import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
+import org.gradle.kotlin.dsl.androidTestUtil
+import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -12,8 +14,15 @@ plugins {
     alias(libs.plugins.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.koin.compiler)
     jacoco
     id("de.selfmade4u.jacoco_report_multiple_plugin")
+}
+
+koinCompiler {
+    userLogs = true
+    debugLogs = true
+    compileSafety = false // broken for separate module?
 }
 
 tasks.withType<Test>().configureEach {
@@ -66,6 +75,14 @@ kotlin {
         androidResources {
             enable = true
         }
+
+        // ./gradlew :composeApp:connectedAndroidTest
+        withDeviceTestBuilder {
+            sourceSetTreeName = "test"
+        }.configure {
+            enableCoverage = true
+            execution = "ANDROIDX_TEST_ORCHESTRATOR"
+        }
     }
 
     /*listOf(
@@ -78,7 +95,7 @@ kotlin {
         }
     }*/
 
-    jvm{
+    jvm {
         tasks.named<Test>("jvmTest") {
             useJUnitPlatform()
             configure<JacocoTaskExtension> {
@@ -100,7 +117,12 @@ kotlin {
     js {
         browser {
             commonWebpackConfig {
-                devtool = "inline-source-map"
+                devtool = "source-map"
+            }
+            testTask {
+                useKarma {
+                    useChromium()
+                }
             }
         }
         binaries.executable()
@@ -110,7 +132,7 @@ kotlin {
     wasmJs {
         browser {
             commonWebpackConfig {
-                devtool = "inline-source-map"
+                devtool = "source-map"
             }
         }
         binaries.executable()
@@ -139,6 +161,8 @@ kotlin {
             implementation(libs.okio)
             implementation(libs.ksoup)
             implementation(libs.androidx.room.runtime)
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -160,6 +184,23 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(libs.androidx.browser)
             implementation(libs.accompanist.permissions)
+            implementation(libs.androidx.work.runtime.ktx)
+            implementation(libs.koin.core)
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.workmanager)
+        }
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlin.testJunit)
+            implementation(libs.ui.test)
+            implementation(libs.androidx.core)
+            implementation(libs.androidx.espresso.core)
+            implementation(libs.androidx.testExt.junit)
+            implementation(libs.androidx.junit.ktx)
+            implementation(libs.androidx.runner)
+            implementation("androidx.concurrent:concurrent-futures:1.2.0")
+            implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
         }
         webMain.dependencies {
             implementation(libs.androidx.sqlite.web)
@@ -175,6 +216,8 @@ room3 {
 }
 
 dependencies {
+    androidTestUtil("androidx.test:orchestrator:1.6.1") // Or latest version
+    androidTestUtil("androidx.test.services:test-services:1.6.0")
     androidRuntimeClasspath(libs.compose.uiTooling)
     add("kspAndroid", libs.androidx.room.compiler)
     add("kspWasmJs", libs.androidx.room.compiler)

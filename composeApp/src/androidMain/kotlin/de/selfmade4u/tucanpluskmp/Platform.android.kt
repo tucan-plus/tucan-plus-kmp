@@ -42,9 +42,19 @@ import io.ktor.http.Url
 import io.ktor.http.parameters
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.Koin
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.GlobalContext.get
+import org.koin.core.context.KoinContext
+import org.koin.core.module.Module
+import org.koin.dsl.module
+import org.koin.mp.KoinPlatform
 
 class AndroidPlatform : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
@@ -147,9 +157,7 @@ fun getNotifier(context: Context) = object : Notifier {
         }
 }
 
-@Composable
-actual fun retrieveNotifier(): Notifier {
-    val context = LocalContext.current
+fun retrieveNotifier(context: Context): Notifier {
     return getNotifier(context)
 }
 
@@ -161,6 +169,7 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
             "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
         val intent = CustomTabsIntent.Builder()
             .build()
+        intent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.launchUrl(context, url.toUri())
     }
 }
@@ -190,35 +199,43 @@ actual suspend fun handleLogin(
     backStack[backStack.size - 1] = StartNavKey
 }
 
-fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<AppDatabase> {
-    return Room.databaseBuilder<AppDatabase>(
-        name = "test",
-        context = context,
-    )
+actual val platformModule: Module = module {
+    single<AppDatabase> {
+        createDatabase(get())
+    }
+    single<DataStore<Settings?>> {
+        createDataStore(get())
+    }
+    single<Notifier> {
+        retrieveNotifier(get())
+    }
 }
 
-fun getRoomDatabase(
-    builder: RoomDatabase.Builder<AppDatabase>
-): AppDatabase {
-    return builder
+fun createDatabase(context: Context): AppDatabase {
+    return Room.databaseBuilder<AppDatabase>(
+            name = "test",
+            context = context,
+        )
         .fallbackToDestructiveMigration(true)
         .setDriver(AndroidSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Main)
         .build()
 }
 
-fun createDataStore(context: Context, scope: CoroutineScope): DataStore<Settings?> = DataStoreFactory.create(
-    storage =
-        OkioStorage(
-            FileSystem.SYSTEM, SettingsSerializer,
-            producePath = {
-                val file = context.filesDir.resolve("tucanplus-config.json")
-                file.toOkioPath()
-            }
-        ),
-    migrations = listOf(),
-    corruptionHandler = ReplaceFileCorruptionHandler { ex ->
-        null
-    },
-    scope = scope
-)
+fun createDataStore(context: Context): DataStore<Settings?> {
+    return DataStoreFactory.create(
+        storage =
+            OkioStorage(
+                FileSystem.SYSTEM, SettingsSerializer,
+                producePath = {
+                    val file = context.filesDir.resolve("tucanplus-config.json")
+                    file.toOkioPath()
+                }
+            ),
+        migrations = listOf(),
+        corruptionHandler = ReplaceFileCorruptionHandler { ex ->
+            null
+        },
+    )
+}
+

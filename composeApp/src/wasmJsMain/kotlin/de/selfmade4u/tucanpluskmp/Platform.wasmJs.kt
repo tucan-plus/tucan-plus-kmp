@@ -31,15 +31,10 @@ class WasmPlatform : Platform {
 actual fun getPlatform(): Platform = WasmPlatform()
 
 actual fun fromWorker(worker: Worker): WebWorkerSQLiteDriver {
-   return WebWorkerSQLiteDriver(worker)
+    return WebWorkerSQLiteDriver(worker)
 }
 
 @OptIn(ExperimentalWasmJsInterop::class)
 actual suspend fun getSessionCookie(): String {
-    try {
-        return getSessionCookieInternal().await<JsString>().toString()
-    } catch (e: JsException) {
-        println("js exception $e")
-        throw e
-    }
+    return getSessionCookieInternal().await()
 }

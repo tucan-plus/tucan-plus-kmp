@@ -98,13 +98,12 @@ fun main() {
         null
     }
     val database = createDatabase();
-    val dataStore = createDataStore();
     ComposeViewport {
-        App(uri, dataStore, database)
+        App(uri, database)
     }
 }
 
-fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
+actual fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
     storage =
         WebStorage(
             serializer = SettingsSerializer,

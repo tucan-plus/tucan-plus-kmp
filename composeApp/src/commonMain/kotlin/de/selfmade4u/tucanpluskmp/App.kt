@@ -37,6 +37,14 @@ import org.jetbrains.compose.resources.painterResource
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
+import org.koin.compose.koinInject
+import org.koin.core.KoinApplication
+import org.koin.core.context.startKoin
+import org.koin.core.module.Module
+import org.koin.dsl.KoinAppDeclaration
+import org.koin.dsl.includes
+import org.koin.dsl.module
+import org.koin.plugin.module.dsl.*
 
 import tucanpluskmp.composeapp.generated.resources.Res
 
@@ -69,7 +77,9 @@ private val config = SavedStateConfiguration {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun App(uri: String?, dataStore: DataStore<Settings?> = FakeDataStore, database: AppDatabase) {
+fun App(uri: String?) {
+    val dataStore = koinInject<DataStore<Settings?>>()
+    val database = koinInject<AppDatabase>()
     println("uri $uri")
     val initialNav = if (uri != null && uri.startsWith("de.datenlotsen.campusnet.tuda:/oauth2redirect?")) {
         AfterLoginNavKey(uri)

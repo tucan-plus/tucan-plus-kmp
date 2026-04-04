@@ -1,5 +1,6 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertTextEquals
@@ -30,10 +31,10 @@ class ExampleTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun myTest() = runComposeUiTest {
-        setContent {
-            App(null, InMemoryDataStore, getTestDatabase())
-        }
+    fun myTest() = runMyComposeUiTest {
+        /*setContent {
+            App(null)
+        }*/
         // https://developer.android.com/develop/ui/compose/testing/apis
         // https://developer.android.com/develop/ui/compose/accessibility/semantics
         waitUntilExactlyOneExists(hasText("Logged in: true"), timeoutMillis = 10_000)
