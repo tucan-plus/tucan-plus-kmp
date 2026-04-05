@@ -33,9 +33,13 @@ jacoco {
 }
 
 // ./gradlew --stacktrace :composeApp:jvmTest :composeApp:jacocoReportAll
-// rm /tmp/testwise-coverage.json && ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
+// rm -f /tmp/testwise-coverage.json && ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
 // export TEAMSCALE_ACCESS_KEY=
 // ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Integration Tests" -f TESTWISE_COVERAGE /tmp/testwise-coverage.json
+
+// ./gradlew :composeApp:connectedAndroidTest
+// rm -f /tmp/android-testwise-coverage.json && ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i "composeApp/build/outputs/connected_android_test_additional_output/androidDeviceTest/connected/Medium_Phone(AVD) - 16/" -o /tmp/android-testwise-coverage.json
+// ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Android Integration Tests" -f TESTWISE_COVERAGE /tmp/android-testwise-coverage.json
 
 // https://android.googlesource.com/platform/tools/base/+/studio-master-dev/build-system/README.md
 // https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/multiplatform/KotlinMultiplatformAndroidHandlerImpl.kt#L180
@@ -46,7 +50,7 @@ jacoco {
 // https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/api/component/impl/DeviceTestImpl.kt#L202
 // https://issuetracker.google.com/issues/461382862
 // https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/tasks/AndroidReportTask.java#L130
-// ./gradlew :composeApp:connectedAndroidTest
+
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://www.eclemma.org/jacoco/trunk/doc/ant.html
@@ -305,10 +309,10 @@ val androidJacoco = tasks.register("androidJacocoReportAll", JacocoReportMultipl
     executionData.setFrom(execData)
 
     sourceDirectories.setFrom(files(
+        "src/androidDeviceTest/kotlin",
+        "src/androidMain/kotlin",
         "src/commonMain/kotlin",
         "src/commonTest/kotlin",
-        "src/jvmMain/kotlin",
-        "src/jvmTest/kotlin",
     ))
     classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/android/main")) {
         exclude("**/R.class", "**/BuildConfig.*")
