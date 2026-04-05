@@ -45,6 +45,7 @@ jacoco {
 // https://developer.android.com/build/extend-agp#variant-api-artifacts-tasks
 // https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/api/component/impl/DeviceTestImpl.kt#L202
 // https://issuetracker.google.com/issues/461382862
+// https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/tasks/AndroidReportTask.java#L130
 // ./gradlew :composeApp:connectedAndroidTest
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
@@ -85,12 +86,22 @@ kotlin {
             enable = true
         }
 
+        withJava()
+
         // ./gradlew :composeApp:connectedAndroidTest
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
         }.configure {
+            testCoverage {
+                jacocoVersion = "0.8.14"
+            }
             enableCoverage = true
             execution = "ANDROIDX_TEST_ORCHESTRATOR"
+            // https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/testing/CustomTestRunListener.java
+            // https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/tasks/DeviceProviderInstrumentTestTask.java#L728
+            // https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/testing/utp/UtpTestRunner.kt#L20
+            instrumentationRunnerArguments["listener"] = "de.selfmade4u.tucanpluskmp.MyRunListener"
+            instrumentationRunnerArguments["coverage"] = "false"
         }
     }
 
@@ -263,26 +274,6 @@ fun getHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
     })
 }
 
-fun getXmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
-    val xmlFilesProvider = execFiles.elements.map { locations ->
-        locations.map { location ->
-            val file = location.asFile
-            file.parentFile.resolve(file.name.replace(".ec", "")).resolve("JACOCO").resolve(file.name.replace(".ec", ".xml"))
-        }
-    }
-
-    return project.files(xmlFilesProvider)
-}
-
-fun getHtmlFilesCollection2(execFiles: ConfigurableFileTree): FileCollection {
-    return project.files(execFiles.elements.map { locations ->
-        locations.map { location ->
-            val file = location.asFile
-            file.parentFile.resolve(file.name.replace(".ec", "")).resolve("html")
-        }
-    })
-}
-
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     dependsOn(tasks.named("jvmTest"))
     val execData = fileTree(layout.buildDirectory.dir("jacoco")) {
@@ -308,8 +299,8 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
 
 val androidJacoco = tasks.register("androidJacocoReportAll", JacocoReportMultiple::class) {
     //dependsOn(tasks.named("connectedAndroidDeviceTest"))
-    val execData = fileTree(layout.buildDirectory.dir("outputs/code_coverage/androidDeviceTest/connected/Medium_Phone(AVD) - 16")) {
-        include("**/*.ec")
+    val execData = fileTree(layout.buildDirectory.dir("outputs/connected_android_test_additional_output/androidDeviceTest/connected")) {
+        include("**/*.exec")
     }
     executionData.setFrom(execData)
 
@@ -325,8 +316,8 @@ val androidJacoco = tasks.register("androidJacocoReportAll", JacocoReportMultipl
         exclude("**/R.class", "**/BuildConfig.*")
     })
 
-    reports.xmlOutputLocation.setFrom(getXmlFilesCollection2(execData))
-    reports.htmlOutputLocation.setFrom(getHtmlFilesCollection2(execData))
+    reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
+    reports.htmlOutputLocation.setFrom(getHtmlFilesCollection(execData))
 }
 
 tasks.withType<com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask>().configureEach {
