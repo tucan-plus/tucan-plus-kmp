@@ -24,7 +24,7 @@ interface Platform {
 expect fun getPlatform(): Platform
 
 @Composable
-expect fun LoginHandler(backStack: NavBackStack<NavKey>)
+expect fun LoginHandler(backStack: NavBackStack<NavKey>, url: String)
 
 expect suspend fun handleLogin(
     uri: Url,

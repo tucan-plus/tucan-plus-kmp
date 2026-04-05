@@ -162,11 +162,9 @@ fun retrieveNotifier(context: Context): Notifier {
 }
 
 @Composable
-actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+actual fun LoginHandler(backStack: NavBackStack<NavKey>, url: String) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        val url =
-            "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
         val intent = CustomTabsIntent.Builder()
             .build()
         intent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

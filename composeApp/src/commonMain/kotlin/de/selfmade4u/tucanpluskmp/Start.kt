@@ -24,28 +24,39 @@ import kotlinx.coroutines.launch
 @Composable
 fun Start(backStack: NavBackStack<NavKey>, dataStore: DataStore<Settings?>) {
     val value by dataStore.data.collectAsStateWithLifecycle(null)
-    LaunchedEffect(Unit) {
-        if (dataStore.data.first() == null) {
-            backStack[backStack.size - 1] = LoginNavKey
-        } else {
-        }
-    }
-    // val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    // TODO https://developer.android.com/reference/kotlin/androidx/compose/material3/package-summary all material expressive?
     DetailedDrawerExample(backStack, "TUCaN Plus") { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-            RequestNotificationPermission()
-            Text("Logged in: ${value != null}")
-            Button(
-                shapes = ButtonDefaults.shapes(),
+            if (value != null) {
+                Button(
+                    shapes = ButtonDefaults.shapes(),
 
-                onClick = {
-                    coroutineScope.launch {
-                        dataStore.updateData { null }
-                        backStack[backStack.size - 1] = LoginNavKey
-                    }
-                }) { Text("Logout") }
+                    onClick = {
+                        coroutineScope.launch {
+                            dataStore.updateData { null }
+                        }
+                    }) { Text("Logout") }
+            } else {
+                Button(
+                    shapes = ButtonDefaults.shapes(),
+
+                    onClick = {
+                        coroutineScope.launch {
+                            backStack[backStack.size - 1] = LoginNavKey(
+                            "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
+                            )
+                        }
+                    }) { Text("Login") }
+                Button(
+                    shapes = ButtonDefaults.shapes(),
+
+                    onClick = {
+                        coroutineScope.launch {
+                            backStack[backStack.size - 1] = LoginNavKey("https://dsf.tucan.tu-darmstadt.localhost/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect")
+                        }
+                    }) { Text("Login as Tester") }
+            }
+            RequestNotificationPermission()
         }
     }
 }

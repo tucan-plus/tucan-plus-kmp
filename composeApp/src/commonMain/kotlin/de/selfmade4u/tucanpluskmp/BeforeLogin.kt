@@ -26,24 +26,3 @@ import androidx.navigation3.runtime.NavKey
 class NavBackStackPreviewParameterProvider : PreviewParameterProvider<NavBackStack<NavKey>> {
     override val values: Sequence<NavBackStack<NavKey>> = sequenceOf(NavBackStack())
 }
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-@Preview
-fun BeforeLogin(@PreviewParameter(NavBackStackPreviewParameterProvider::class) backStack: NavBackStack<NavKey>) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    LoginHandler(backStack)
-    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
-        SnackbarHost(hostState = snackbarHostState)
-    }) { innerPadding ->
-        Column(
-            Modifier
-                .padding(innerPadding).fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            LoadingIndicator()
-            Text("Wartet auf Anmeldung im Browser")
-        }
-    }
-}
