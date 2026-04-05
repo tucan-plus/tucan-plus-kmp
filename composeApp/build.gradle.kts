@@ -1,6 +1,5 @@
 import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
 import org.gradle.kotlin.dsl.androidTestUtil
-import org.gradle.kotlin.dsl.invoke
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -33,10 +32,25 @@ jacoco {
     toolVersion = "0.8.14"
 }
 
-// TODO FIXME if you actually delete the build directory, this fails
-// rm -R composeApp/build/jacoco/
-// ./gradlew --stacktrace clean :composeApp:jvmTest :composeApp:jacocoReportAll
-// ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
+// ./gradlew --stacktrace :composeApp:jvmTest :composeApp:jacocoReportAll
+// rm -f /tmp/testwise-coverage.json && ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i composeApp/build/jacoco/ -o /tmp/testwise-coverage.json
+// export TEAMSCALE_ACCESS_KEY=
+// ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Integration Tests" -f TESTWISE_COVERAGE /tmp/testwise-coverage.json
+
+// ./gradlew :composeApp:connectedAndroidTest
+// rm -f /tmp/android-testwise-coverage.json && ~/Downloads/teamscale-build-linux-amd64/bin/teamscale-build coverage testwise -i "composeApp/build/outputs/connected_android_test_additional_output/androidDeviceTest/connected/Medium_Phone(AVD) - 16/" -o /tmp/android-testwise-coverage.json
+// ~/Downloads/teamscale-upload/bin/teamscale-upload -s https://teamscale.selfmade4u.de/ -p tucan-plus-kmp -u admin -t "Android Integration Tests" -f TESTWISE_COVERAGE /tmp/android-testwise-coverage.json
+
+// https://android.googlesource.com/platform/tools/base/+/studio-master-dev/build-system/README.md
+// https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/multiplatform/KotlinMultiplatformAndroidHandlerImpl.kt#L180
+// https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/coverage/JacocoReportTask.kt#L215
+// https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/AndroidTestTaskManager.kt#L271
+// https://github.com/android/gradle-recipes/tree/agp-9.0
+// https://developer.android.com/build/extend-agp#variant-api-artifacts-tasks
+// https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/api/component/impl/DeviceTestImpl.kt#L202
+// https://issuetracker.google.com/issues/461382862
+// https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/tasks/AndroidReportTask.java#L130
+
 
 // https://github.com/gradle/gradle/blob/master/platforms/jvm/jacoco/src/main/java/org/gradle/testing/jacoco/tasks/JacocoReport.java
 // https://www.eclemma.org/jacoco/trunk/doc/ant.html
@@ -76,12 +90,22 @@ kotlin {
             enable = true
         }
 
+        withJava()
+
         // ./gradlew :composeApp:connectedAndroidTest
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
         }.configure {
+            testCoverage {
+                jacocoVersion = "0.8.14"
+            }
             enableCoverage = true
             execution = "ANDROIDX_TEST_ORCHESTRATOR"
+            // https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/testing/CustomTestRunListener.java
+            // https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/tasks/DeviceProviderInstrumentTestTask.java#L728
+            // https://github.com/jrodbx/agp-sources/blob/1fa1ad1b0753d0a079b9f24fad0187cd95c38772/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/testing/utp/UtpTestRunner.kt#L20
+            instrumentationRunnerArguments["listener"] = "de.selfmade4u.tucanpluskmp.MyRunListener"
+            instrumentationRunnerArguments["coverage"] = "false"
         }
     }
 
@@ -249,13 +273,12 @@ fun getXmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
 }
 
 fun getHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
-    return project.files(execFiles.elements.map { fileSystemLocations ->
-        fileSystemLocations.map { it.asFile.parentFile.resolve("html") }
+    return project.files(execFiles.elements.map { locations ->
+        locations.map { it.asFile.parentFile.resolve("html") }
     })
 }
 
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
-    println("configuring")
     dependsOn(tasks.named("jvmTest"))
     val execData = fileTree(layout.buildDirectory.dir("jacoco")) {
         include("**/*.exec")
@@ -264,12 +287,46 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
 
     sourceDirectories.setFrom(files(
         "src/commonMain/kotlin",
-        "src/jvmMain/kotlin"
+        "src/commonTest/kotlin",
+        "src/jvmMain/kotlin",
+        "src/jvmTest/kotlin",
     ))
     classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    }, fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/test")) {
         exclude("**/R.class", "**/BuildConfig.*")
     })
 
     reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
     reports.htmlOutputLocation.setFrom(getHtmlFilesCollection(execData))
+}
+
+val androidJacoco = tasks.register("androidJacocoReportAll", JacocoReportMultiple::class) {
+    //dependsOn(tasks.named("connectedAndroidDeviceTest"))
+    val execData = fileTree(layout.buildDirectory.dir("outputs/connected_android_test_additional_output/androidDeviceTest/connected")) {
+        include("**/*.exec")
+    }
+    executionData.setFrom(execData)
+
+    sourceDirectories.setFrom(files(
+        "src/androidDeviceTest/kotlin",
+        "src/androidMain/kotlin",
+        "src/commonMain/kotlin",
+        "src/commonTest/kotlin",
+    ))
+    classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/android/main")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    }, fileTree(layout.buildDirectory.dir("classes/kotlin/android/deviceTest")) {
+        exclude("**/R.class", "**/BuildConfig.*")
+    })
+
+    reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
+    reports.htmlOutputLocation.setFrom(getHtmlFilesCollection(execData))
+}
+
+tasks.withType<com.android.build.gradle.internal.tasks.DeviceProviderInstrumentTestTask>().configureEach {
+    finalizedBy(androidJacoco)
+}
+tasks.withType<com.android.build.gradle.internal.coverage.JacocoReportTask>().configureEach {
+    enabled = false
 }
