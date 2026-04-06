@@ -13,9 +13,14 @@ import java.security.KeyStore
 // https://localhost:8443/
 // adb reverse tcp:8443 tcp:8443
 fun main() {
-    embeddedServer(Jetty, applicationEnvironment { log = LoggerFactory.getLogger("ktor.application") }, {
+    val appProperties = serverConfig {
+        watchPaths = listOf("classes")
+        developmentMode = true
+        module { module() }
+    }
+    embeddedServer(Jetty, appProperties) {
         envConfig()
-    }, module = Application::module).start(wait = true)
+    }.start(true)
 }
 
 private fun ApplicationEngine.Configuration.envConfig() {
@@ -24,7 +29,7 @@ private fun ApplicationEngine.Configuration.envConfig() {
     val keyStore = buildKeyStore {
         certificate("sampleAlias") {
             password = "foobar"
-            domains = listOf("127.0.0.1", "0.0.0.0", "localhost")
+            domains = listOf("dsf.tucan.tu-darmstadt.localhost")
         }
     }
     keyStore.saveToFile(keyStoreFile, "123456")
@@ -46,6 +51,9 @@ fun Application.module() {
     routing {
         get("/") {
             call.respondText("Hello, world!")
+        }
+        get("/IdentityServer/connect/authorize") {
+            call.respondText("TODO d")
         }
     }
 }

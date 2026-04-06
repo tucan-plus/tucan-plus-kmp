@@ -8,9 +8,6 @@ group = "de.selfmade4u.tucanpluskmp.server"
 version = "1.0.0"
 application {
     mainClass.set("de.selfmade4u.tucanpluskmp.server.ApplicationKt")
-
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
 dependencies {
@@ -18,4 +15,5 @@ dependencies {
     implementation(libs.ktor.serverJetty)
     testImplementation(libs.kotlin.testJunit)
     implementation(libs.ktor.network.tls.certificates)
+    implementation("org.slf4j:slf4j-simple:2.0.17")
 }
