@@ -15,6 +15,7 @@ application {
 
 dependencies {
     implementation(libs.ktor.serverCore)
-    implementation(libs.ktor.serverCio)
+    implementation(libs.ktor.serverJetty)
     testImplementation(libs.kotlin.testJunit)
+    implementation(libs.ktor.network.tls.certificates)
 }
