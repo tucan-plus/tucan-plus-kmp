@@ -14,7 +14,6 @@ import java.security.KeyStore
 // adb reverse tcp:8443 tcp:8443
 fun main() {
     val appProperties = serverConfig {
-        watchPaths = listOf("classes")
         developmentMode = true
         module { module() }
     }
@@ -53,7 +52,7 @@ fun Application.module() {
             call.respondText("Hello, world!")
         }
         get("/IdentityServer/connect/authorize") {
-            call.respondText("")
+            call.respondText("wefewwefewfewffew")
         }
     }
 }
