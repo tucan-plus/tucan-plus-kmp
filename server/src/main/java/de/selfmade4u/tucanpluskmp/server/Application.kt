@@ -26,22 +26,6 @@ fun main() {
         watchPaths = listOf("resources")
         developmentMode = true
         module {
-            install(Authentication) {
-                form("auth-form") {
-                    userParamName = "username"
-                    passwordParamName = "password"
-                    validate { credentials ->
-                        if (credentials.name == "jetbrains" && credentials.password == "foobar") {
-                            UserIdPrincipal(credentials.name)
-                        } else {
-                            null
-                        }
-                    }
-                    challenge {
-                        call.respondRedirect("/login")
-                    }
-                }
-            }
             module()
         }
     }
@@ -77,11 +61,10 @@ private fun ApplicationEngine.Configuration.envConfig() {
 
 fun Application.module() {
     routing {
-        authenticate("auth-form", strategy = AuthenticationStrategy.Required) {
-            get("/IdentityServer/connect/authorize") {
-                call.respondText("Hello, ${call.principal<UserIdPrincipal>()?.name}!")
-            }
+        post("/IdentityServer/connect/authorize") {
+            // TODO validate password and then redirect
+            call.respondRedirect("de.datenlotsen.campusnet.tuda:/oauth2redirect?code=test")
         }
-        staticResources("/login", "login")
+        staticResources("/IdentityServer/connect/authorize", "login")
     }
 }
