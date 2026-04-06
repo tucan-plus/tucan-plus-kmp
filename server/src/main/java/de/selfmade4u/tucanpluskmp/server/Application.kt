@@ -1,8 +1,10 @@
 package de.selfmade4u.tucanpluskmp.server
 
+import io.ktor.http.ContentType
 import io.ktor.network.tls.certificates.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
+import io.ktor.server.http.content.staticResources
 import io.ktor.server.jetty.jakarta.Jetty
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -14,6 +16,7 @@ import java.security.KeyStore
 // adb reverse tcp:8443 tcp:8443
 fun main() {
     val appProperties = serverConfig {
+        watchPaths = listOf("resources")
         developmentMode = true
         module { module() }
     }
@@ -48,11 +51,9 @@ private fun ApplicationEngine.Configuration.envConfig() {
 
 fun Application.module() {
     routing {
+        staticResources("/IdentityServer/connect/authorize", "authorize")
         get("/") {
             call.respondText("Hello, world!")
-        }
-        get("/IdentityServer/connect/authorize") {
-            call.respondText("wefewwefewfewffew")
         }
     }
 }
