@@ -52,7 +52,7 @@ fun Start(backStack: NavBackStack<NavKey>, dataStore: DataStore<Settings?>) {
 
                     onClick = {
                         coroutineScope.launch {
-                            backStack[backStack.size - 1] = LoginNavKey("https://dsf.tucan.tu-darmstadt.localhost/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect")
+                            backStack[backStack.size - 1] = LoginNavKey("https://dsf.tucan.tu-darmstadt.localhost:8443/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect")
                         }
                     }) { Text("Login as Tester") }
             }

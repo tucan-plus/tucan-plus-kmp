@@ -11,6 +11,7 @@ import java.io.*
 import java.security.KeyStore
 
 // https://localhost:8443/
+// adb reverse tcp:8443 tcp:8443
 fun main() {
     embeddedServer(Jetty, applicationEnvironment { log = LoggerFactory.getLogger("ktor.application") }, {
         envConfig()
