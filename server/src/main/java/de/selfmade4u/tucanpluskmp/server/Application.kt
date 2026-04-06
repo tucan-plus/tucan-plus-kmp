@@ -53,7 +53,7 @@ fun Application.module() {
             call.respondText("Hello, world!")
         }
         get("/IdentityServer/connect/authorize") {
-            call.respondText("TODO d")
+            call.respondText("")
         }
     }
 }
