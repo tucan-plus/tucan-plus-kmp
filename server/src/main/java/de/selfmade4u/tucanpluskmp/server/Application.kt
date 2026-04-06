@@ -1,8 +1,15 @@
 package de.selfmade4u.tucanpluskmp.server
 
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.network.tls.certificates.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.AuthenticationStrategy
+import io.ktor.server.auth.UserIdPrincipal
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.form
+import io.ktor.server.auth.principal
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.jetty.jakarta.Jetty
@@ -18,10 +25,29 @@ fun main() {
     val appProperties = serverConfig {
         watchPaths = listOf("resources")
         developmentMode = true
-        module { module() }
+        module {
+            install(Authentication) {
+                form("auth-form") {
+                    userParamName = "username"
+                    passwordParamName = "password"
+                    validate { credentials ->
+                        if (credentials.name == "jetbrains" && credentials.password == "foobar") {
+                            UserIdPrincipal(credentials.name)
+                        } else {
+                            null
+                        }
+                    }
+                    challenge {
+                        call.respondRedirect("/login")
+                    }
+                }
+            }
+            module()
+        }
     }
     embeddedServer(Jetty, appProperties) {
         envConfig()
+
     }.start(true)
 }
 
@@ -51,9 +77,11 @@ private fun ApplicationEngine.Configuration.envConfig() {
 
 fun Application.module() {
     routing {
-        staticResources("/IdentityServer/connect/authorize", "authorize")
-        get("/") {
-            call.respondText("Hello, world!")
+        authenticate("auth-form", strategy = AuthenticationStrategy.Required) {
+            get("/IdentityServer/connect/authorize") {
+                call.respondText("Hello, ${call.principal<UserIdPrincipal>()?.name}!")
+            }
         }
+        staticResources("/login", "login")
     }
 }
