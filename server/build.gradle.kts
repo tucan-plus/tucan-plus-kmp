@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.jetbrains.kotlin.jvm)
+    alias(libs.plugins.serialization)
     alias(libs.plugins.ktor)
     application
 }
@@ -20,4 +21,5 @@ dependencies {
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.server.sessions)
 }

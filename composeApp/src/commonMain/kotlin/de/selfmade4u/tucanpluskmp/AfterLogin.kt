@@ -56,7 +56,9 @@ data class TokenResponse(
                         @SerialName("expires_in") val expiresIn: Int,
                         @SerialName("token_type") val tokenType: String,
                         @SerialName("refresh_token") val refreshToken: String,
-                        val scope: String)
+                        val scope: String,
+                        val url: String = "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll"
+)
 
 object SettingsSerializer : OkioSerializer<Settings?> {
 
@@ -119,7 +121,7 @@ suspend fun loginTucan(
 ) {
     // TODO this endpoint
     val response =
-        client.submitForm("https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll", parameters {
+        client.submitForm(tokenResponse.url, parameters {
             append("access_token", tokenResponse.accessToken)
             append("ARGUMENTS", "-N000000000000001,ids_mode")
             append("APPNAME", "CampusNet")
@@ -129,7 +131,7 @@ suspend fun loginTucan(
     println(response)
     val body = response.bodyAsText()
     println(body)
-    val cookie = response.headers["Set-cookie"]!!.removePrefix("cnsc =").removeSuffix("; HttpOnly; secure")
+    val cookie = response.headers["Set-cookie"]!!.removePrefix("cnsc").trimStart().removePrefix("=").removeSuffix("; HttpOnly; secure")
     val refreshHeader = response.headers["REFRESH"]!!
     val sessionIdMatch =
         Regex("""0; URL=/scripts/mgrqispi\.dll\?APPNAME=CampusNet&PRGNAME=STARTPAGE_DISPATCH&ARGUMENTS=-N(\d+),-N000(019|350),-N000000000000000""").matchEntire(

@@ -10,8 +10,19 @@ import io.ktor.server.jetty.jakarta.Jetty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.SessionTransportTransformerEncrypt
+import io.ktor.server.sessions.Sessions
+import io.ktor.server.sessions.cookie
+import io.ktor.server.sessions.directorySessionStorage
+import io.ktor.server.sessions.sessions
+import io.ktor.server.sessions.set
+import io.ktor.util.hex
+import kotlinx.serialization.Serializable
 import org.slf4j.*
 import java.io.*
+
+@Serializable
+data class UserSession(val id: String, val count: Int)
 
 // http://localhost:8080/
 // adb reverse tcp:8080 tcp:8080
@@ -22,6 +33,11 @@ fun main() {
         module {
             install(ContentNegotiation) {
                 json()
+            }
+            install(Sessions) {
+                cookie<UserSession>("cnsc", directorySessionStorage(File("build/.sessions"))) {
+                    transform(SessionTransportTransformerEncrypt(hex("00112233445566778899aabbccddeeff"), hex("00112233445566778899aabbccddeeff")))
+                }
             }
             module()
         }
@@ -64,7 +80,14 @@ fun Application.module() {
         }
         post("/IdentityServer/connect/token") {
             // TODO return token
-            call.respond(TokenResponse("", "", 0, "", "", ""))
+            call.respond(TokenResponse("", "", 0, "", "", "", "http://localhost:8080/scripts/mgrqispi.dll"))
+        }
+        post("/scripts/mgrqispi.dll") {
+            // read entry
+            println("todo")
+            call.sessions.set(UserSession(id = "123abc", count = 0))
+            call.response.header("REFRESH", "0; URL=/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=STARTPAGE_DISPATCH&ARGUMENTS=-N1337,-N000019,-N000000000000000")
+            call.respond("success")
         }
         staticResources("/IdentityServer/connect/authorize", "login")
     }
