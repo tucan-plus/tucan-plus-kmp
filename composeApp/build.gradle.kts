@@ -157,6 +157,11 @@ kotlin {
             commonWebpackConfig {
                 devtool = "source-map"
             }
+            testTask {
+                useKarma {
+                    useChromium()
+                }
+            }
         }
         binaries.executable()
     }
