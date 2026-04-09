@@ -71,6 +71,7 @@ private fun ApplicationEngine.Configuration.envConfig() {
     }
 }
 
+// we could add a fetcher module to the app and then let this here consume that data
 fun Application.module() {
     routing {
         post("/IdentityServer/connect/authorize") {
