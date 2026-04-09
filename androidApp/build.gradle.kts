@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.koin.compiler)
+    id("dev.reformator.stacktracedecoroutinator") version "2.6.2"
 }
 
 koinCompiler {

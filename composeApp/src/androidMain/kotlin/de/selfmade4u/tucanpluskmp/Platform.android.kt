@@ -36,8 +36,10 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import de.selfmade4u.tucanpluskmp.library.R
 import io.ktor.client.HttpClient
+import io.ktor.client.request.accept
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.Url
 import io.ktor.http.parameters
 import kotlinx.coroutines.CoroutineScope
@@ -162,11 +164,9 @@ fun retrieveNotifier(context: Context): Notifier {
 }
 
 @Composable
-actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+actual fun LoginHandler(backStack: NavBackStack<NavKey>, url: String) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        val url =
-            "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
         val intent = CustomTabsIntent.Builder()
             .build()
         intent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -180,17 +180,23 @@ actual suspend fun handleLogin(
     dataStore: DataStore<Settings?>,
     backStack: NavBackStack<NavKey>
 ) {
+    val targetUri = if (uri.parameters.contains("uri")) {
+        uri.parameters["uri"]!!
+    } else {
+        "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token"
+    }
     val code = uri.parameters["code"]!!
     println(code)
     var response = client.submitForm(
-        url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
+        url = targetUri,
         formParameters = parameters {
             append("client_id", "MobileApp")
             append("code", code)
             append("grant_type", "authorization_code")
             append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
-        }
-    )
+        }) {
+        accept(ContentType.Application.Json)
+    }
     println(response)
     val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
     println(tokenResponse)
@@ -238,4 +244,3 @@ fun createDataStore(context: Context): DataStore<Settings?> {
         },
     )
 }
-

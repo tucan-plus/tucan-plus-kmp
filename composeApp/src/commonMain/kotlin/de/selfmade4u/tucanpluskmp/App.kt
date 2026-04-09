@@ -52,7 +52,7 @@ import tucanpluskmp.composeapp.generated.resources.Res
 data object StartNavKey : NavKey
 
 @Serializable
-data object LoginNavKey : NavKey
+data class LoginNavKey(val loginUri: String) : NavKey
 
 @Serializable
 data class AfterLoginNavKey(val uri: String) : NavKey
@@ -93,8 +93,8 @@ fun App(uri: String?) {
         entry<StartNavKey> {
             Start(backStack, dataStore)
         }
-        entry<LoginNavKey> {
-            BeforeLogin(backStack)
+        entry<LoginNavKey> { key ->
+            LoginHandler(backStack, key.loginUri)
         }
         entry<AfterLoginNavKey> { key ->
             AfterLogin(backStack, dataStore, key.uri)

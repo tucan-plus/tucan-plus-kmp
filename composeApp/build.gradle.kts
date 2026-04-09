@@ -96,9 +96,7 @@ kotlin {
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
         }.configure {
-            testCoverage {
-                jacocoVersion = "0.8.14"
-            }
+
             enableCoverage = true
             execution = "ANDROIDX_TEST_ORCHESTRATOR"
             // https://github.com/jrodbx/agp-sources/blob/master/9.1.0/com.android.tools.build/gradle/com/android/build/gradle/internal/testing/CustomTestRunListener.java
