@@ -2,6 +2,7 @@ package de.selfmade4u.tucanpluskmp.server
 
 import de.selfmade4u.tucanpluskmp.TokenResponse
 import io.ktor.network.tls.certificates.*
+import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.http.content.staticResources
@@ -19,7 +20,9 @@ fun main() {
         watchPaths = listOf("resources")
         developmentMode = true
         module {
-            install(ContentNegotiation)
+            install(ContentNegotiation) {
+                json()
+            }
             module()
         }
     }

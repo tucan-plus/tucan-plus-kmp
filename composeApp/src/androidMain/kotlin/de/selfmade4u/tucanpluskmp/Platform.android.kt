@@ -36,8 +36,10 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import de.selfmade4u.tucanpluskmp.library.R
 import io.ktor.client.HttpClient
+import io.ktor.client.request.accept
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.Url
 import io.ktor.http.parameters
 import kotlinx.coroutines.CoroutineScope
@@ -192,8 +194,9 @@ actual suspend fun handleLogin(
             append("code", code)
             append("grant_type", "authorization_code")
             append("redirect_uri", "de.datenlotsen.campusnet.tuda:/oauth2redirect")
-        }
-    )
+        }) {
+        accept(ContentType.Application.Json)
+    }
     println(response)
     val tokenResponse: TokenResponse = Json.decodeFromString(response.bodyAsText())
     println(tokenResponse)
@@ -241,4 +244,3 @@ fun createDataStore(context: Context): DataStore<Settings?> {
         },
     )
 }
-
