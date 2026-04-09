@@ -6,6 +6,7 @@ import androidx.compose.ui.test.runComposeUiTest
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.test.TestResult
+import okio.FileSystem
 import org.koin.compose.KoinApplication
 import org.koin.core.context.stopKoin
 import org.koin.dsl.includes
@@ -38,3 +39,5 @@ actual fun runMyComposeUiTest(
     }
     block()
 }
+
+actual val platformFileSystem = FileSystem.SYSTEM

@@ -15,6 +15,7 @@ core = "1.7.0"
 junit = "4.13.2"
 junitJupiter = "6.0.3"
 junitKtx = "1.3.0"
+kotest = "6.1.11"
 kotlin = "2.3.20"
 kotlinx-coroutines = "1.10.2"
 kotlinxBrowser = "0.5.0"
@@ -53,6 +54,8 @@ junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "jun
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
 junit-platform-engine = { module = "org.junit.platform:junit-platform-engine" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }

@@ -3,6 +3,7 @@ package de.selfmade4u.tucanpluskmp
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import kotlinx.coroutines.test.TestResult
+import okio.FileSystem
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -18,3 +19,5 @@ expect fun runMyComposeUiTest(
     testTimeout: Duration = 60.seconds,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult
+
+expect val platformFileSystem: FileSystem
