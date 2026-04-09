@@ -62,8 +62,9 @@ private fun ApplicationEngine.Configuration.envConfig() {
 fun Application.module() {
     routing {
         post("/IdentityServer/connect/authorize") {
+            println("TODO validate password")
             // TODO validate password and then redirect
-            call.respondRedirect("de.datenlotsen.campusnet.tuda:/oauth2redirect?code=test")
+            call.respondRedirect("de.datenlotsen.campusnet.tuda:/oauth2redirect?code=test&uri=https%3A%2F%2Fdsf.tucan.tu-darmstadt.localhost%3A8443%2FIdentityServer%2Fconnect%2Ftoken")
         }
         staticResources("/IdentityServer/connect/authorize", "login")
     }

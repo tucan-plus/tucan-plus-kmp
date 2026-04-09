@@ -178,10 +178,15 @@ actual suspend fun handleLogin(
     dataStore: DataStore<Settings?>,
     backStack: NavBackStack<NavKey>
 ) {
+    val targetUri = if (uri.parameters.contains("uri")) {
+        uri.parameters["uri"]!!
+    } else {
+        "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token"
+    }
     val code = uri.parameters["code"]!!
     println(code)
     var response = client.submitForm(
-        url = "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/token",
+        url = targetUri,
         formParameters = parameters {
             append("client_id", "MobileApp")
             append("code", code)
