@@ -117,6 +117,7 @@ suspend fun loginTucan(
     tokenResponse: TokenResponse,
     dataStore: DataStore<Settings?>
 ) {
+    // TODO this endpoint
     val response =
         client.submitForm("https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll", parameters {
             append("access_token", tokenResponse.accessToken)

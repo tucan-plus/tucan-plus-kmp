@@ -86,7 +86,7 @@ actual suspend fun handleLogin(
 }
 
 @Composable
-actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+actual fun LoginHandler(backStack: NavBackStack<NavKey>, url: String) {
     val uriHandler = LocalUriHandler.current
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
@@ -116,8 +116,6 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
             val serverChannel = ServerSocketChannel.open(StandardProtocolFamily.UNIX)
             serverChannel.bind(address)
             println("before open")
-            val url =
-                "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=MobileApp&scope=openid+DSF+profile+offline_access&response_mode=query&response_type=code&ui_locales=de&redirect_uri=de.datenlotsen.campusnet.tuda:/oauth2redirect"
             uriHandler.openUri(url)
             println("waiting")
             val channel = serverChannel.accept()
