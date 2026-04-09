@@ -84,10 +84,12 @@ fun Application.module() {
         }
         post("/scripts/mgrqispi.dll") {
             // read entry
-            println("todo")
             call.sessions.set(UserSession(id = "123abc", count = 0))
             call.response.header("REFRESH", "0; URL=/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=STARTPAGE_DISPATCH&ARGUMENTS=-N1337,-N000019,-N000000000000000")
             call.respond("success")
+        }
+        get("/scripts/mgrqispi.dll") {
+            println("get data")
         }
         staticResources("/IdentityServer/connect/authorize", "login")
     }
