@@ -43,7 +43,7 @@ expect fun fromWorker(worker: Worker): WebWorkerSQLiteDriver
 expect suspend fun getSessionCookie(): String
 
 @Composable
-actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+actual fun LoginHandler(backStack: NavBackStack<NavKey>, url: String) {
     println("wasm login handler")
     LaunchedEffect(Unit) {
         val url =
@@ -77,11 +77,11 @@ fun createDatabase(): AppDatabase {
         .build()
 }
 
-@OptIn(ExperimentalWasmJsInterop::class)
-fun createWorker() =
-    Worker(js("""new URL("sqlite-web-worker/worker.js", import.meta.url)"""))
+@ExperimentalWasmJsInterop
+fun createWorker(): Worker =
+    js("""new Worker(new URL("sqlite-web-worker/worker.js", import.meta.url))""")
 
-@OptIn(ExperimentalWasmJsInterop::class)
+@ExperimentalWasmJsInterop
 fun getSessionCookieInternal(): Promise<JsString> = js(
     """chrome.cookies.get({
   url: "https://www.tucan.tu-darmstadt.de/scripts",
@@ -97,13 +97,12 @@ fun main() {
     } else {
         null
     }
-    val database = createDatabase();
     ComposeViewport {
-        App(uri, database)
+        App(uri)
     }
 }
 
-actual fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
+ fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
     storage =
         WebStorage(
             serializer = SettingsSerializer,

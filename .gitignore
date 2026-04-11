@@ -22,3 +22,5 @@ androidApp/release
 *.db.lck
 *.db-shm
 *.db-wal
+/composeApp/src/commonTest/resources/module-results/
+/composeApp/src/commonTest/resources/exam-results/

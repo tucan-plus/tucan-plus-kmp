@@ -19,7 +19,6 @@ import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedResponse
 import de.selfmade4u.tucanpluskmp.connector.ModuleGrade
 import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector
-import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector.getModuleResultsUncached
 import de.selfmade4u.tucanpluskmp.connector.Semesterauswahl
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -37,12 +36,12 @@ suspend fun refreshModuleResults(
     credentialSettingsDataStore: DataStore<Settings?>,
     database: AppDatabase
 ): AuthenticatedResponse<ModuleResults> {
-    when (val response = getModuleResultsUncached(credentialSettingsDataStore, null)) {
+    when (val response = ModuleResultsConnector.getUncached(credentialSettingsDataStore, null)) {
         is AuthenticatedResponse.Success<ModuleResultsConnector.ModuleResultsResponse> -> {
             val result = coroutineScope {
                 response.response.semesters.map { semester ->
                     async {
-                        when (val response = getModuleResultsUncached(
+                        when (val response = ModuleResultsConnector.getUncached(
                             credentialSettingsDataStore,
                             semester.id.toString().padStart(15, '0')
                         )) {

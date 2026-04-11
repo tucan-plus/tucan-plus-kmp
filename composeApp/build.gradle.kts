@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.koin.compiler)
+    id("io.kotest") version "6.1.11"
     jacoco
     id("de.selfmade4u.jacoco_report_multiple_plugin")
 }
@@ -156,6 +157,11 @@ kotlin {
             commonWebpackConfig {
                 devtool = "source-map"
             }
+            testTask {
+                useKarma {
+                    useChromium()
+                }
+            }
         }
         binaries.executable()
     }
@@ -188,6 +194,8 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotest.framework.engine)
+            implementation(libs.kotest.assertions.core)
             implementation(libs.ui.test)
             implementation(libs.androidx.room.testing)
         }

@@ -1,6 +1,7 @@
 package de.selfmade4u.tucanpluskmp.connector
 
 import androidx.datastore.core.DataStore
+import com.fleeksoft.ksoup.Ksoup
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
 import de.selfmade4u.tucanpluskmp.Settings
@@ -31,6 +32,12 @@ import de.selfmade4u.tucanpluskmp.th
 import de.selfmade4u.tucanpluskmp.thead
 import de.selfmade4u.tucanpluskmp.tr
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 
 // https://github.com/tucan-plus/tucan-plus/blob/640bb9cbb9e3f8d22e8b9d6ddaabb5256b2eb0e6/crates/tucan-types/src/lib.rs#L366
 enum class ModuleGrade(val representation: (localizer: Localizer) -> String, val stringified: String) {
@@ -62,7 +69,7 @@ data class Semesterauswahl(
 )
 
 
-object ModuleResultsConnector {
+object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.ModuleResultsResponse> {
 
     data class Module(
         var id: String,
@@ -75,27 +82,27 @@ object ModuleResultsConnector {
 
     data class ModuleResultsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var modules: List<Module>)
 
-    suspend fun getModuleResultsUncached(
+    override suspend fun getUncached(
         credentialSettingsDataStore: DataStore<Settings?>,
-        semester: String?
+        input: String?
     ): AuthenticatedResponse<ModuleResultsResponse> {
         return fetchAuthenticatedWithReauthentication(
             credentialSettingsDataStore,
-            { sessionId -> "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=-N$sessionId,-N000324,${if (semester != null) { "-N$semester" } else { "" }}" },
-            parser = { sessionId, menuLocalizer, response -> parseModuleResponse("000324", sessionId, menuLocalizer, response) }
+            { sessionId -> "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=-N$sessionId,-N000324,${if (input != null) { "-N$input" } else { "" }}" },
+            parser = { sessionId, menuLocalizer, response -> parseHttpResponse("000324", sessionId, menuLocalizer, response) }
         )
     }
 
-    suspend fun parseModuleResponse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<ModuleResultsResponse> {
+    override suspend fun parseHttpResponse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<ModuleResultsResponse> {
         return response(response) {
             parseCommonHeaders()
             root {
-                parseModuleResults(menuId, sessionId, menuLocalizer)
+                parse(menuId, sessionId, menuLocalizer)
             }
         }
     }
 
-    fun Root.parseModuleResults(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<ModuleResultsResponse> {
+    override fun Root.parse(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<ModuleResultsResponse> {
         val modules = mutableListOf<Module>()
         val semesters = mutableListOf<Semesterauswahl>()
         var selectedSemester: Semesterauswahl? = null
@@ -395,6 +402,16 @@ object ModuleResultsConnector {
             return@parseBase ParserResponse.Success(ModuleResultsResponse(selectedSemester!!, semesters, modules))
         }
         return response
+    }
+
+    override fun extractRelevantPages(credentialSettingsDataStore: DataStore<Settings?>,): Flow<String?> = flow {
+        val credentials = credentialSettingsDataStore.data.first()!!
+        val response = fetchAuthenticated(
+            credentials.sessionCookie, "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=-N${credentials.sessionId},-N000324,"
+        ) as AuthenticatedHttpResponse.Success
+        val document = Ksoup.parse(response.response.bodyAsText())
+        val options = document.getElementsByTag("option")
+        options.forEach { e -> emit(e.value()) }
     }
 }
 

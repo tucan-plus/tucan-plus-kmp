@@ -1,5 +1,6 @@
 package de.selfmade4u.tucanpluskmp.connector
 
+import androidx.datastore.core.DataStore
 import de.selfmade4u.tucanpluskmp.Body
 import de.selfmade4u.tucanpluskmp.EnglishLocalizer
 import de.selfmade4u.tucanpluskmp.GermanLocalizer
@@ -7,10 +8,13 @@ import de.selfmade4u.tucanpluskmp.Head
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Response
 import de.selfmade4u.tucanpluskmp.Root
+import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TextAndId
 import de.selfmade4u.tucanpluskmp.a
 import de.selfmade4u.tucanpluskmp.b
 import de.selfmade4u.tucanpluskmp.body
+import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector.ModuleResultsResponse
+import de.selfmade4u.tucanpluskmp.connector.MyExamsConnector.MyExamsResponse
 import de.selfmade4u.tucanpluskmp.div
 import de.selfmade4u.tucanpluskmp.doctype
 import de.selfmade4u.tucanpluskmp.fieldset
@@ -29,12 +33,29 @@ import de.selfmade4u.tucanpluskmp.script
 import de.selfmade4u.tucanpluskmp.span
 import de.selfmade4u.tucanpluskmp.title
 import de.selfmade4u.tucanpluskmp.ul
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
+
+interface Connector<I, O> {
+
+    suspend fun getUncached(
+        credentialSettingsDataStore: DataStore<Settings?>,
+        input: I
+    ): AuthenticatedResponse<O>
+
+    suspend fun parseHttpResponse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<O>
+
+    fun Root.parse(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<O>
+
+    /** Return pages that can be parsed by this connector while trying to make as little assumptions as possible. This is used to implement the datenspende and create the parser using AI. */
+    fun extractRelevantPages(credentialSettingsDataStore: DataStore<Settings?>,): Flow<I>
+}
 
 object Common {
     fun <T> Root.parseBase(
