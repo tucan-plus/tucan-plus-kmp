@@ -7,7 +7,7 @@ import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.datastore.core.DataStore
 import com.fleeksoft.ksoup.Ksoup
 import de.selfmade4u.tucanpluskmp.connector.AuthenticatedHttpResponse
-import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector
+import de.selfmade4u.tucanpluskmp.connector.ExamResultsConnector
 import de.selfmade4u.tucanpluskmp.connector.fetchAuthenticated
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.CoroutineStart
@@ -22,7 +22,7 @@ import okio.Path.Companion.toPath
 import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 
-object ModuleResultsTest {
+object ExamResultsTest {
 
     @OptIn(ExperimentalTestApi::class, DelicateCoroutinesApi::class)
     private val computed: Deferred<DataStore<Settings?>> = GlobalScope.async(start = CoroutineStart.LAZY) {
@@ -42,11 +42,11 @@ object ModuleResultsTest {
     fun test(value: String) = runTest {
         val credentials = computed.await().data.first()!!
         val response = fetchAuthenticated(
-            credentials.sessionCookie, "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=-N${credentials.sessionId},-N000324,-N$value"
+            credentials.sessionCookie, "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXAMRESULTS&ARGUMENTS=-N${credentials.sessionId},-N000325,-N$value"
         ) as AuthenticatedHttpResponse.Success
         val content = response.response.bodyAsText()
         val document = Ksoup.parse(content)
-        val path = "src/commonTest/resources/module-results/$value.html".toPath()
+        val path = "src/commonTest/resources/exam-results/$value.html".toPath()
         platformFileSystem.write(path) {
             writeUtf8(content)
         }
@@ -62,11 +62,11 @@ object ModuleResultsTest {
         /*onNodeWithTag("button").performClick()
         onNodeWithTag("text").assertTextEquals("Compose")*/
         val datastore: DataStore<Settings?> = KoinPlatform.getKoin().get()
-        val result = ModuleResultsConnector.extractRelevantPages(datastore).toList()
+        val result = ExamResultsConnector.extractRelevantPages(datastore).toList()
         println(result)
-        val path = "src/commonTest/kotlin/de/selfmade4u/tucanpluskmp/GeneratedModuleResultsTest.kt".toPath()
+        val path = "src/commonTest/kotlin/de/selfmade4u/tucanpluskmp/GeneratedExamResultsTest.kt".toPath()
         platformFileSystem.write(path) {
-            writeUtf8("package de.selfmade4u.tucanpluskmp\nimport kotlin.test.Test\nimport de.selfmade4u.tucanpluskmp.ModuleResultsTest.test\nclass GeneratedModuleResultsTest {")
+            writeUtf8("package de.selfmade4u.tucanpluskmp\nimport kotlin.test.Test\nimport de.selfmade4u.tucanpluskmp.ExamResultsTest.test\nclass GeneratedExamResultsTest {")
             for (elem in result) {
                 writeUtf8("\n   @Test fun test$elem() = test(\"$elem\")")
             }
