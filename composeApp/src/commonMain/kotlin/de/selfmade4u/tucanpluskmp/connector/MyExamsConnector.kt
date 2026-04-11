@@ -33,6 +33,7 @@ import de.selfmade4u.tucanpluskmp.th
 import de.selfmade4u.tucanpluskmp.thead
 import de.selfmade4u.tucanpluskmp.tr
 import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.flow.Flow
 
 // loop semester by semester because otherwise we can't really associate entries with their semester. maybe just not support the "all"?
 object MyExamsConnector : Connector<String?, MyExamsConnector.MyExamsResponse> {
@@ -347,5 +348,9 @@ object MyExamsConnector : Connector<String?, MyExamsConnector.MyExamsResponse> {
             return@parseBase ParserResponse.Success(MyExamsResponse(selectedSemester!!, semesters, exams))
         }
         return response
+    }
+
+    override fun extractRelevantPages(credentialSettingsDataStore: DataStore<Settings?>): Flow<String?> {
+        TODO("Not yet implemented")
     }
 }
