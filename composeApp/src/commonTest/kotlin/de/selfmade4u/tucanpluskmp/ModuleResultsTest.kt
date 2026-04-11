@@ -6,9 +6,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.datastore.core.DataStore
 import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector
-import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.flow.toList
-import org.koin.core.Koin
+import okio.Path.Companion.toPath
 import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 
@@ -26,5 +25,13 @@ class ModuleResultsTest {
         val datastore: DataStore<Settings?> = KoinPlatform.getKoin().get()
         val result = ModuleResultsConnector.extractRelevantPages(datastore).toList()
         println(result)
+        val path = "src/commonTest/kotlin/de/selfmade4u/tucanpluskmp/Test.kt".toPath()
+        platformFileSystem.write(path) {
+            writeUtf8("package de.selfmade4u.tucanpluskmp\nimport kotlin.test.Test\nclass Test {\n   fun test(value: String) {}")
+            for (elem in result) {
+                writeUtf8("\n   @Test fun test$elem() = test(\"$elem\")")
+            }
+            writeUtf8("\n}")
+        }
     }
 }
