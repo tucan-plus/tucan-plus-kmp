@@ -44,7 +44,12 @@ object ModuleResultsTest {
         val response = fetchAuthenticated(
             credentials.sessionCookie, "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=-N${credentials.sessionId},-N000324,-N$value"
         ) as AuthenticatedHttpResponse.Success
-        val document = Ksoup.parse(response.response.bodyAsText())
+        val content = response.response.bodyAsText()
+        val document = Ksoup.parse(content)
+        val path = "src/commonTest/resources/module-results/$value.html".toPath()
+        platformFileSystem.write(path) {
+            writeUtf8(content)
+        }
     }
 
     @OptIn(ExperimentalTestApi::class)
