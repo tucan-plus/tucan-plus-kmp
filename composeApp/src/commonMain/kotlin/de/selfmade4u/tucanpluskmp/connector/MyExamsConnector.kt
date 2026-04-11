@@ -35,32 +35,31 @@ import de.selfmade4u.tucanpluskmp.tr
 import io.ktor.client.statement.HttpResponse
 
 // loop semester by semester because otherwise we can't really associate entries with their semester. maybe just not support the "all"?
-object MyExamsConnector {
+object MyExamsConnector : Connector<String?, MyExamsConnector.MyExamsResponse> {
 
     data class MyExamsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var exams: List<MyExams.MyExam>)
 
-
-    suspend fun getUncached(
+    override suspend fun getUncached(
         credentialSettingsDataStore: DataStore<Settings?>,
-        semester: String?
+        input: String?
     ): AuthenticatedResponse<MyExamsResponse> {
         return fetchAuthenticatedWithReauthentication(
             credentialSettingsDataStore,
-            { sessionId -> "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=MYEXAMS&ARGUMENTS=-N$sessionId,-N000318,${if (semester != null) { "-N$semester" } else { "" }}" },
-            parser = { sessionId, menuLocalizer, response -> parse("000318", sessionId, menuLocalizer, response) }
+            { sessionId -> "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=MYEXAMS&ARGUMENTS=-N$sessionId,-N000318,${if (input != null) { "-N$input" } else { "" }}" },
+            parser = { sessionId, menuLocalizer, response -> parseHttpResponse("000318", sessionId, menuLocalizer, response) }
         )
     }
 
-    suspend fun parse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<MyExamsResponse> {
+    override suspend fun parseHttpResponse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<MyExamsResponse> {
         return response(response) {
             parseCommonHeaders()
             root {
-                parseResults(menuId, sessionId, menuLocalizer)
+                parse(menuId, sessionId, menuLocalizer)
             }
         }
     }
 
-    fun Root.parseResults(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<MyExamsResponse> {
+    override fun Root.parse(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<MyExamsResponse> {
         val exams = mutableListOf<MyExams.MyExam>()
         val semesters = mutableListOf<Semesterauswahl>()
         var selectedSemester: Semesterauswahl? = null
