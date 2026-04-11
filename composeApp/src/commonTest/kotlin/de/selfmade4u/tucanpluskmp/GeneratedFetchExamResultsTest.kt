@@ -1,7 +1,7 @@
 package de.selfmade4u.tucanpluskmp
 import kotlin.test.Test
 import de.selfmade4u.tucanpluskmp.ExamResultsTest.Companion.fetch
-class GeneratedExamResultsTest {
+class GeneratedFetchExamResultsTest {
    @Test fun test999() = fetch("999")
    @Test fun test000000015186000() = fetch("000000015186000")
    @Test fun test000000015176000() = fetch("000000015176000")

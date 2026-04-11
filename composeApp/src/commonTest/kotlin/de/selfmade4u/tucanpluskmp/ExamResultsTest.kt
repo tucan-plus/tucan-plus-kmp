@@ -39,7 +39,7 @@ class ExamResultsTest {
         println(result)
         val fetchPath = "src/commonTest/kotlin/de/selfmade4u/tucanpluskmp/GeneratedFetchExamResultsTest.kt".toPath()
         platformFileSystem.write(fetchPath) {
-            writeUtf8("package de.selfmade4u.tucanpluskmp\nimport kotlin.test.Test\nimport de.selfmade4u.tucanpluskmp.ExamResultsTest.Companion.fetch\nclass GeneratedExamResultsTest {")
+            writeUtf8("package de.selfmade4u.tucanpluskmp\nimport kotlin.test.Test\nimport de.selfmade4u.tucanpluskmp.ExamResultsTest.Companion.fetch\nclass GeneratedFetchExamResultsTest {")
             for (elem in result) {
                 writeUtf8("\n   @Test fun test$elem() = fetch(\"$elem\")")
             }
