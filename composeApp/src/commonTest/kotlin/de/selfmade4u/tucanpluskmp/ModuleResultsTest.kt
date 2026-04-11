@@ -11,7 +11,9 @@ import okio.Path.Companion.toPath
 import org.koin.mp.KoinPlatform
 import kotlin.test.Test
 
-class ModuleResultsTest {
+object ModuleResultsTest {
+
+    fun test(value: String) {}
 
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -27,7 +29,7 @@ class ModuleResultsTest {
         println(result)
         val path = "src/commonTest/kotlin/de/selfmade4u/tucanpluskmp/Test.kt".toPath()
         platformFileSystem.write(path) {
-            writeUtf8("package de.selfmade4u.tucanpluskmp\nimport kotlin.test.Test\nclass Test {\n   fun test(value: String) {}")
+            writeUtf8("package de.selfmade4u.tucanpluskmp\nimport kotlin.test.Test\nimport de.selfmade4u.tucanpluskmp.ModuleResultsTest.test\nclass Test {")
             for (elem in result) {
                 writeUtf8("\n   @Test fun test$elem() = test(\"$elem\")")
             }

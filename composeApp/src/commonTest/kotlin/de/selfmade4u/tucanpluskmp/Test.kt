@@ -1,7 +1,7 @@
 package de.selfmade4u.tucanpluskmp
 import kotlin.test.Test
+import de.selfmade4u.tucanpluskmp.ModuleResultsTest.test
 class Test {
-   fun test(value: String) {}
    @Test fun test000000015186000() = test("000000015186000")
    @Test fun test000000015176000() = test("000000015176000")
    @Test fun test000000015166000() = test("000000015166000")
