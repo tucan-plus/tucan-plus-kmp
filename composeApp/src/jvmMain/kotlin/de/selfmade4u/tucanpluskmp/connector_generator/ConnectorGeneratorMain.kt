@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
+import org.jetbrains.kotlin.psi.psiUtil.children
 import sun.reflect.ReflectionFactory
 import kotlin.getValue
 
@@ -79,7 +80,7 @@ fun main() {
     for (declaration in test.declarations) {
         println(declaration::class)
         if (declaration is KtNamedFunction) {
-            declaration.bodyBlockExpression!!.addChild(psiFactory.createExpression("println(\"hello world\")").node)
+            declaration.bodyBlockExpression!!.node.addChild(psiFactory.createExpression("println(\"hello world\")").node, declaration.bodyBlockExpression!!.node.lastChildNode)
         }
     }
     println(test.text)
