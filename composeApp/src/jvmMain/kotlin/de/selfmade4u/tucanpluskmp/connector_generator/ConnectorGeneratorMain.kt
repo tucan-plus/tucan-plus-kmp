@@ -10,18 +10,22 @@ import com.intellij.pom.PomTransaction
 import com.intellij.pom.impl.PomTransactionBase
 import com.intellij.pom.tree.TreeAspect
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import com.intellij.psi.impl.source.tree.TreeCopyHandler
 import org.jetbrains.kotlin.cli.jvm.compiler.IdeaStandaloneExecutionSetup
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreApplicationEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreApplicationEnvironmentMode
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreProjectEnvironment
 import org.jetbrains.kotlin.idea.KotlinFileType
+import org.jetbrains.kotlin.lexer.KtTokens.WHITE_SPACE
 import org.jetbrains.kotlin.parsing.KotlinParserDefinition
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.children
+import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.util.prefixIfNot
 import sun.reflect.ReflectionFactory
 import kotlin.getValue
 
@@ -41,7 +45,6 @@ val project by lazy {
 
 fun createKtFile(codeString: String, fileName: String) =
     KtPsiFactory(project, markGenerated = false).createFile(fileName, codeString)
-
 
 private class FormatPomModel : UserDataHolderBase(), PomModel {
     override fun runTransaction(transaction: PomTransaction) {
@@ -67,9 +70,41 @@ private class FormatPomModel : UserDataHolderBase(), PomModel {
     }
 }
 
+/**
+ * `true` when [ASTNode] is a whitespace element
+ */
+public val ASTNode?.isWhiteSpace: Boolean
+    get() = this != null && elementType == WHITE_SPACE
+
+/**
+ * `true` when [ASTNode] is a whitespace element that contains a newline
+ */
+public val ASTNode?.isWhiteSpaceWithNewline: Boolean
+    get(): Boolean = this != null && isWhiteSpace && textContains('\n')
+
+/**
+ * The indentation of [ASTNode] including the newline prefix
+ */
+public val ASTNode.indent: String
+    get(): String = indentInternal().prefixIfNot("\n")
+
+/**
+ * The indentation of [ASTNode] excluding the newline prefix
+ */
+public val ASTNode.indentWithoutNewlinePrefix: String
+    get(): String = indentInternal().removePrefix("\n")
+
+/**
+ * Get the current indentation of the line containing the [ASTNode]
+ */
+private fun ASTNode.indentInternal(): String =
+    leaves(forward = false)
+        .firstOrNull { it.isWhiteSpaceWithNewline }
+        ?.text
+        ?.substringAfterLast('\n')
+        .orEmpty() // Fallback if node is not preceded by any newline character
+
 fun main() {
-    val extension = "org.jetbrains.kotlin.com.intellij.treeCopyHandler"
-    val extensionClass = TreeCopyHandler::class.java.name
     project.registerService(PomModel::class.java, FormatPomModel())
     val psiFactory = KtPsiFactory(project, markGenerated = false)
     val test = createKtFile("""
@@ -80,6 +115,7 @@ fun main() {
     for (declaration in test.declarations) {
         println(declaration::class)
         if (declaration is KtNamedFunction) {
+            declaration.bodyBlockExpression!!.node.addChild(PsiWhiteSpaceImpl(declaration.bodyBlockExpression!!.node.indent+"  "), declaration.bodyBlockExpression!!.node.lastChildNode)
             declaration.bodyBlockExpression!!.node.addChild(psiFactory.createExpression("println(\"hello world\")").node, declaration.bodyBlockExpression!!.node.lastChildNode)
         }
     }
