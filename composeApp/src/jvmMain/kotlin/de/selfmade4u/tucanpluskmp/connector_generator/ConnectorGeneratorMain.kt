@@ -29,6 +29,8 @@ import org.jetbrains.kotlin.util.prefixIfNot
 import sun.reflect.ReflectionFactory
 import kotlin.getValue
 
+// creating an intellij plugin for this that would work inline would be crazy
+
 val project by lazy {
     val disposable = Disposer.newDisposable()
     IdeaStandaloneExecutionSetup.doSetup()
@@ -115,9 +117,10 @@ fun main() {
     for (declaration in test.declarations) {
         println(declaration::class)
         if (declaration is KtNamedFunction) {
-            declaration.bodyBlockExpression!!.node.addChild(PsiWhiteSpaceImpl(declaration.bodyBlockExpression!!.node.indent+"  "), declaration.bodyBlockExpression!!.node.lastChildNode)
+            // we don't care about formatting as it's way too complicated
             declaration.bodyBlockExpression!!.node.addChild(psiFactory.createExpression("println(\"hello world\")").node, declaration.bodyBlockExpression!!.node.lastChildNode)
         }
     }
     println(test.text)
+
 }
