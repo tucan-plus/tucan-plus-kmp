@@ -1,5 +1,3 @@
-import java.net.URI
-
 rootProject.name = "tucanpluskmp"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
@@ -37,4 +35,5 @@ plugins {
 include(":composeApp")
 include(":server")
 include(":androidApp")
+include(":html-extractor")
 includeBuild("jacoco-report-multiple-plugin")
