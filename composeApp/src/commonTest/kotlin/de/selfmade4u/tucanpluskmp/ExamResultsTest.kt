@@ -78,6 +78,7 @@ class ExamResultsTest {
             ) as AuthenticatedHttpResponse.Success
             val content = response.response.bodyAsText()
             val document = Ksoup.parse(content)
+            platformFileSystem.createDirectories("src/commonTest/resources/exam-results".toPath())
             val path = "src/commonTest/resources/exam-results/$value.html".toPath()
             platformFileSystem.write(path) {
                 writeUtf8(content)

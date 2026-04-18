@@ -1,7 +1,6 @@
 package de.selfmade4u
 
 import com.intellij.DynamicBundle
-import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.PropertyKey
 import java.util.function.Supplier
 
