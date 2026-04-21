@@ -11,6 +11,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="org.jetbrains.plugins.template.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="org.jetbrains.plugins.template.startup.MyProjectActivity" />
+        <notificationGroup id="Bagel" displayType="BALLOON" />
     </extensions>
     <actions>
         <action id="Test"
