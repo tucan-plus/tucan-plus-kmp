@@ -35,5 +35,4 @@ plugins {
 include(":composeApp")
 include(":server")
 include(":androidApp")
-include(":html-extractor")
 includeBuild("jacoco-report-multiple-plugin")
