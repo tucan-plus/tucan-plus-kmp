@@ -1,8 +1,8 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>org.jetbrains.plugins.template</id>
-    <name>IntelliJ Platform Plugin Template</name>
-    <vendor>JetBrains</vendor>
+    <id>de.selfmade4u.html-extraction-code-generator</id>
+    <name>HTML Extraction Code Generator</name>
+    <vendor>Moritz Hedtke</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
@@ -12,4 +12,12 @@
         <toolWindow factoryClass="org.jetbrains.plugins.template.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="org.jetbrains.plugins.template.startup.MyProjectActivity" />
     </extensions>
+    <actions>
+        <action id="Test"
+            class="de.selfmade4u.FolderAction"
+            text="HTML Magic"
+        >
+            <add-to-group group-id="ProjectViewPopupMenu" />
+        </action>
+    </actions>
 </idea-plugin>
