@@ -5,9 +5,8 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.project.DumbAwareAction
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.findPsiFile
 
 internal class FolderAction : DumbAwareAction() {
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
@@ -16,8 +15,14 @@ internal class FolderAction : DumbAwareAction() {
     }
 
     override fun actionPerformed(e: AnActionEvent) {
-        val file = e.getData(CommonDataKeys.VIRTUAL_FILE);
-        Notification("Bagel", "Bagel was eaten $file", NotificationType.INFORMATION)
+        val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
+        val files = directory.children
+        Notification("Bagel", "Bagel was eaten ${files.contentToString()}", NotificationType.INFORMATION)
             .notify(e.project)
+        for (file in files) {
+            val psi = file.findPsiFile(e.project!!)
+            Notification("Bagel", "psi $psi", NotificationType.INFORMATION)
+                .notify(e.project)
+        }
     }
 }
