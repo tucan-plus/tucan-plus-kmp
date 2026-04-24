@@ -31,7 +31,13 @@ fun magicFunction(
     Notification("Bagel", "Bagel was eaten ${files.contentToString()}", NotificationType.INFORMATION)
         .notify(project)
     for (file in files) {
-        val psi = file.findPsiFile(e.project!!) as XmlFile
+        val psi = file.findPsiFile(project) as XmlFile
+        val tag = psi.rootTag!!
+        println("tag $tag")
+        val subtags = tag.subTags
+        for (subtag in subtags) {
+            println("subtag $subtag")
+        }
 
         Notification("Bagel", "psi $psi", NotificationType.INFORMATION)
             .notify(project)
