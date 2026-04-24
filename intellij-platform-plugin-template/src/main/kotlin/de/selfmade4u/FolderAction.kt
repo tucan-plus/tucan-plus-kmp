@@ -39,6 +39,10 @@ fun magicFunction(
     ProblemsCollector.getInstance(project).problemAppeared(object : FileProblem {
         override val file: VirtualFile
             get() = files.first()
+        override val line: Int
+            get() = 45
+        override val column: Int
+            get() = 1
         override val provider: ProblemsProvider
             get() = object : ProblemsProvider {
                 override val project: Project
