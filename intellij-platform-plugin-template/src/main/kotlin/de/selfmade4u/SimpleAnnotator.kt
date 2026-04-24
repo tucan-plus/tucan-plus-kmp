@@ -7,6 +7,6 @@ import com.intellij.psi.PsiElement
 
 class SimpleAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        holder.newAnnotation(HighlightSeverity.ERROR, "Simple").create()
+        //holder.newAnnotation(HighlightSeverity.ERROR, "Simple").create()
     }
 }
