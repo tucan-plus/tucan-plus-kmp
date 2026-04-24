@@ -12,6 +12,9 @@ import com.intellij.util.PsiErrorElementUtil
 import de.selfmade4u.magicFunction
 import org.jetbrains.plugins.template.services.MyProjectService
 
+// https://plugins.jetbrains.com/docs/intellij/intellij-platform-extension-point-list.html
+// https://github.com/JetBrains/intellij-community/blob/master/platform/analysis-api/src/com/intellij/codeInspection/GlobalInspectionTool.java
+
 @TestDataPath("\$CONTENT_ROOT/src/test/testData")
 class MyPluginTest : BasePlatformTestCase() {
 
