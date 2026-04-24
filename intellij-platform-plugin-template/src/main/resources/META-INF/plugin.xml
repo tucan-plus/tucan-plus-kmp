@@ -12,6 +12,9 @@
         <toolWindow factoryClass="org.jetbrains.plugins.template.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
         <postStartupActivity implementation="org.jetbrains.plugins.template.startup.MyProjectActivity" />
         <notificationGroup id="Bagel" displayType="BALLOON" />
+        <annotator
+            language="XML"
+            implementationClass="de.selfmade4u.SimpleAnnotator"/>
     </extensions>
     <actions>
         <action id="Test"

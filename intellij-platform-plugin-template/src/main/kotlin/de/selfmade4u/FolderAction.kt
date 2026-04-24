@@ -30,16 +30,12 @@ fun magicFunction(
     val files = directory.children
     Notification("Bagel", "Bagel was eaten ${files.contentToString()}", NotificationType.INFORMATION)
         .notify(project)
-    for (file in files) {
-        val psi = file.findPsiFile(project) as XmlFile
-        val tag = psi.rootTag!!
-        println("tag $tag")
-        val subtags = tag.subTags
-        for (subtag in subtags) {
-            println("subtag $subtag")
-        }
+    var tags = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
+    while (true) {
+        if (tags.all { it.name == tags[0].name }) {
+            tags = tags.map { it.subTags.first() }
+        } else {
 
-        Notification("Bagel", "psi $psi", NotificationType.INFORMATION)
-            .notify(project)
+        }
     }
 }
