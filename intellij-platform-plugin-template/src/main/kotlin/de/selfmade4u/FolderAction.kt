@@ -32,7 +32,7 @@ fun magicFunction(
     directory: VirtualFile,
     project: Project
 ) {
-    val config = ProjectConfiguration().loadProjectConfiguration(project)
+    val config = ProjectConfiguration().loadProjectConfiguration(project, null, null)
     val files = directory.children
     Notification("Bagel", "Bagel was eaten ${files.contentToString()}", NotificationType.INFORMATION)
         .notify(project)

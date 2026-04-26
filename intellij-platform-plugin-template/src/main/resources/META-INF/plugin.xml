@@ -17,7 +17,7 @@
         <postStartupActivity implementation="de.selfmade4u.startup.MyProjectActivity" />
         <notificationGroup id="Bagel" displayType="BALLOON" />
         <annotator
-            language="XML"
+            language="kotlin"
             implementationClass="de.selfmade4u.SimpleAnnotator"/>
 
     </extensions>
