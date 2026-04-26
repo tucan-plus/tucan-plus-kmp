@@ -12,8 +12,8 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findPsiFile
-import com.intellij.problems.Problem
 import com.intellij.psi.xml.XmlFile
+import de.selfmade4u.magicFunction
 
 internal class FolderAction : DumbAwareAction() {
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
@@ -32,6 +32,7 @@ fun magicFunction(
     directory: VirtualFile,
     project: Project
 ) {
+    val config = ProjectConfiguration().loadProjectConfiguration(project)
     val files = directory.children
     Notification("Bagel", "Bagel was eaten ${files.contentToString()}", NotificationType.INFORMATION)
         .notify(project)
