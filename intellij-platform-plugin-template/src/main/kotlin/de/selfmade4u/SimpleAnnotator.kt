@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 
 class SimpleAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        //println("annotate")
+        println("annotate $element")
         ProjectConfiguration().loadProjectConfiguration(element.project, element, holder)
     }
 }

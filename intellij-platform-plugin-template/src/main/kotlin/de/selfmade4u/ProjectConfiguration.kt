@@ -33,7 +33,7 @@ class ProjectConfiguration {
             for (statement in block.statements) {
                 //println("statement ${statement.text}")
                 // unknown statement
-                if (statement.parents.contains(annotationContext)) {
+                if (statement == annotationContext) {
                     holder?.newAnnotation(HighlightSeverity.ERROR, "Unknown HTML parser statement")?.range(statement)
                         ?.create()
                 }
