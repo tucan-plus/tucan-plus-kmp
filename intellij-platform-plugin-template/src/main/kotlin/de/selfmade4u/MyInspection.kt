@@ -15,7 +15,7 @@ class MyInspection : LocalInspectionTool() {
         manager: InspectionManager,
         isOnTheFly: Boolean
     ): Array<out ProblemDescriptor?> {
-       return arrayOf(manager.createProblemDescriptor(file.firstChild, "Test inspection problem", null as LocalQuickFix?, ProblemHighlightType.ERROR,
+       return arrayOf(manager.createProblemDescriptor(file.firstChild, "Test inspection problem", LocalQuickFix.from(MyQuickFix(file)), ProblemHighlightType.ERROR,
            isOnTheFly))
     }
 }
