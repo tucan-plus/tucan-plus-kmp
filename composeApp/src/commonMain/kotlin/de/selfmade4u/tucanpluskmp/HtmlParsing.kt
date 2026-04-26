@@ -32,6 +32,7 @@ import kotlin.uuid.ExperimentalUuidApi
 fun String.hashedWithSha256(): String =
     encodeUtf8().sha256().hex()
 
+annotation class HtmlFromResources(val path: String)
 @DslMarker
 annotation class HtmlTagMarker
 

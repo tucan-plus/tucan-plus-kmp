@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.template
+package de.selfmade4u
 
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.notification.Notification
