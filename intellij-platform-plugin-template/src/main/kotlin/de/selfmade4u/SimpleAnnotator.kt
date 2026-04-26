@@ -6,8 +6,8 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 
 class SimpleAnnotator : Annotator {
+    // called for every single element so idk why it works with this holder stuff
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        println("annotate $element")
         ProjectConfiguration().loadProjectConfiguration(element.project, element, holder)
     }
 }

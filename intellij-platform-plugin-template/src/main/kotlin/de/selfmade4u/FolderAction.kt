@@ -23,41 +23,6 @@ internal class FolderAction : DumbAwareAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
         val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
-        magicFunction(directory, e.project!!)
-    }
-}
-
-// https://platform.jetbrains.com/t/displaying-custom-problems-in-the-problems-tool-window/954/5
-fun magicFunction(
-    directory: VirtualFile,
-    project: Project
-) {
-    val config = ProjectConfiguration().loadProjectConfiguration(project, null, null)
-    val files = directory.children
-    Notification("Bagel", "Bagel was eaten ${files.contentToString()}", NotificationType.INFORMATION)
-        .notify(project)
-    var tags = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
-    ProblemsCollector.getInstance(project).problemAppeared(object : FileProblem {
-        override val file: VirtualFile
-            get() = files.first()
-        override val line: Int
-            get() = 45
-        override val column: Int
-            get() = 1
-        override val provider: ProblemsProvider
-            get() = object : ProblemsProvider {
-                override val project: Project
-                    get() = project
-            }
-        override val text: String
-            get() = "This is a test"
-
-    })
-    for (i in 0 .. 5) {
-        if (tags.all { it.name == tags[0].name }) {
-            tags = tags.mapNotNull { it.subTags.firstOrNull() }
-        } else {
-
-        }
+        magicFunction(directory, e.project!!, null, null)
     }
 }

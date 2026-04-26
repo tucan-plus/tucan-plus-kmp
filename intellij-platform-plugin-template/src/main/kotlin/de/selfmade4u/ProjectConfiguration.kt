@@ -1,9 +1,16 @@
 package de.selfmade4u
 
+import com.intellij.analysis.problemsView.FileProblem
+import com.intellij.analysis.problemsView.ProblemsCollector
+import com.intellij.analysis.problemsView.ProblemsProvider
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiElement
+import com.intellij.psi.xml.XmlFile
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -37,6 +44,30 @@ class ProjectConfiguration {
                     holder?.newAnnotation(HighlightSeverity.ERROR, "Unknown HTML parser statement")?.range(statement)
                         ?.create()
                 }
+            }
+        }
+        val htmls = project.guessProjectDir()!!.findFileByRelativePath("composeApp/src/commonTest/resources/exam-results/")!!
+        // TODO connect with annotation and html extraction code
+        magicFunction(htmls, project, annotationContext, holder)
+    }
+}
+
+// https://platform.jetbrains.com/t/displaying-custom-problems-in-the-problems-tool-window/954/5
+fun magicFunction(
+    directory: VirtualFile,
+    project: Project,
+    annotationContext: PsiElement?, holder: AnnotationHolder?
+) {
+    val files = directory.children
+    var tags = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
+    if (tags.all { it.name == tags[0].name }) {
+        tags = tags.mapNotNull { it.subTags.firstOrNull() }
+        // TODO quickfix to kotlin file
+    } else {
+        tags.forEach { tag ->
+            if (tag == annotationContext) {
+                holder?.newAnnotation(HighlightSeverity.ERROR, "Different tags at same position")?.range(tag)
+                    ?.create()
             }
         }
     }

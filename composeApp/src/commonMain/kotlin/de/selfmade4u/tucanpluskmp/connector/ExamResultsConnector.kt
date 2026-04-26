@@ -58,7 +58,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
         TODO("Not yet implemented")
     }
 
-    @HtmlFromResources("/exam-results/")
+    @HtmlFromResources("composeApp/src/commonTest/resources/exam-results/")
     override fun Root.parse(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<MyExamsConnector.MyExamsResponse> {
         val exams = mutableListOf<MyExams.MyExam>()
         val semesters = mutableListOf<Semesterauswahl>()
