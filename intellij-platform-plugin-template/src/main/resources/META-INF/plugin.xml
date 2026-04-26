@@ -22,6 +22,7 @@
         <annotator
             language="XML"
             implementationClass="de.selfmade4u.SimpleAnnotator"/>
+        <localInspection displayName="MyInspection" groupName="MyGroup" language="kotlin" implementationClass="de.selfmade4u.MyInspection" />
     </extensions>
     <actions>
         <action id="Test"
