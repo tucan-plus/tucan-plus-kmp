@@ -19,7 +19,9 @@
         <annotator
             language="kotlin"
             implementationClass="de.selfmade4u.SimpleAnnotator"/>
-
+        <annotator
+            language="XML"
+            implementationClass="de.selfmade4u.SimpleAnnotator"/>
     </extensions>
     <actions>
         <action id="Test"
