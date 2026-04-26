@@ -5,13 +5,20 @@ import com.intellij.analysis.problemsView.ProblemsCollector
 import com.intellij.analysis.problemsView.ProblemsProvider
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.modcommand.ActionContext
+import com.intellij.modcommand.ModCommand
+import com.intellij.modcommand.ModPsiUpdater
+import com.intellij.modcommand.Presentation
+import com.intellij.modcommand.PsiUpdateModCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.xml.XmlFile
 import org.jetbrains.kotlin.idea.base.util.projectScope
+import org.jetbrains.kotlin.idea.codeinsight.api.applicable.intentions.KotlinPsiUpdateModCommandAction
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
@@ -24,6 +31,22 @@ import org.jetbrains.kotlin.psi.psiUtil.parents
 // my first task should be to extract the information from the kotlin html parsing code.
 // then we can try to generate autofixes in all directions
 
+class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(element) {
+
+    override fun getFamilyName(): String = "My Plugin Fixes"
+
+    override fun getPresentation(context: ActionContext, element: PsiElement): Presentation? {
+        return Presentation.of("Rename to 'UpdatedName'")
+    }
+
+    override fun invoke(context: ActionContext, element: PsiElement, updater: ModPsiUpdater) {
+        // You don't need to wrap this in a WriteAction.
+        // Use 'updater' to manage the PSI change.
+        if (element is PsiNamedElement) {
+            element.setName("UpdatedName")
+        }
+    }
+}
 class ProjectConfiguration {
 
     fun loadProjectConfiguration(project: Project, annotationContext: PsiElement?, holder: AnnotationHolder?) {
@@ -42,7 +65,7 @@ class ProjectConfiguration {
                 // unknown statement
                 if (statement == annotationContext) {
                     holder?.newAnnotation(HighlightSeverity.ERROR, "Unknown HTML parser statement")?.range(statement)
-                        ?.create()
+                        ?.withFix( MyQuickFix(statement))?.create()
                 }
             }
         }
