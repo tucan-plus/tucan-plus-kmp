@@ -23,8 +23,12 @@ class ProjectConfiguration {
             val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
             val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
             println("path ${text.entries.first().text}")
-            val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)
-            println("abc ${ktNamedFunction!!.text}")
+            val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
+            println("abc ${ktNamedFunction.text}")
+            val block = ktNamedFunction.bodyBlockExpression!!
+            for (statement in block.statements) {
+                println("statement ${statement.text}")
+            }
         }
     }
 }
