@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
@@ -48,7 +49,7 @@ class Extractor {
     fun process(project: Project, annotationContext: PsiElement?, holder: AnnotationHolder?) {
         val keys = KotlinAnnotationsIndex.getAllKeys(project)
         val annotations = KotlinAnnotationsIndex["HtmlFromResources", project, project.projectScope()];
-        println("annotations $annotations")
+        //println("annotations $annotations")
         for (annotationEntry in annotations) {
             val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
             val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
@@ -57,28 +58,32 @@ class Extractor {
             //println("abc ${ktNamedFunction.text}")
             val block = ktNamedFunction.bodyBlockExpression!!
             for (statement in block.statements) {
-                println("statement ${statement.text}")
+                //println("statement ${statement.text}")
                 // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
                 when (statement) {
-                    is KtCallExpression -> {
+                    /*is KtCallExpression -> {
                         val args = statement.valueArgumentList
                         println("args $args")
                     }
 
                     is KtIfExpression -> {
                         println("some if")
+                    }*/
+                    is KtProperty -> {
+                        println("got a property, need to check what it gets assigned")
+                        val initializer = statement.initializer
+                        println("initializer $initializer")
                     }
-
                     else -> {
                         if (statement == annotationContext) {
-                            holder?.newAnnotation(HighlightSeverity.ERROR, "Unknown HTML parser statement")?.range(statement)
+                            holder?.newAnnotation(HighlightSeverity.ERROR, "Unknown HTML parser statement ${statement::class}")?.range(statement)
                                 ?.withFix(MyQuickFix(statement))?.create()
                         }
                     }
                 }
             }
 
-            println("path ${path}")
+            //println("path ${path}")
             val htmls = project.guessProjectDir()!!.findFileByRelativePath(path)!!
             magicFunction(htmls, project, annotationContext, holder)
         }
@@ -92,7 +97,7 @@ fun magicFunction(
     annotationContext: PsiElement?, holder: AnnotationHolder?
 ) {
     val files = directory.children
-    println("files $files")
+    //println("files $files")
     var tags = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
     if (tags.all { it.name == tags[0].name }) {
         tags = tags.mapNotNull { it.subTags.firstOrNull() }
