@@ -9,6 +9,17 @@ import com.fleeksoft.ksoup.nodes.TextNode
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.jvm.JvmInline
+
+@JvmInline
+value class KsoupNode(private val node: com.fleeksoft.ksoup.nodes.Node) : de.selfmade4u.tucanpluskmp.Node {
+
+}
+
+@JvmInline
+value class KsoupAttribute(private val node: com.fleeksoft.ksoup.nodes.Attribute) : de.selfmade4u.tucanpluskmp.Attribute {
+
+}
 
 @HtmlTagMarker
 abstract class HtmlTagImpl(val node: Node, val children: MutableList<Node>, val attributes: MutableList<Attribute>) : HtmlTag {
@@ -92,7 +103,7 @@ abstract class HtmlTagImpl(val node: Node, val children: MutableList<Node>, val 
     }
 
     @OptIn(ExperimentalContracts::class)
-    override fun <C, R> initTag(
+    fun <C, R> initTag(
         tag: String,
         createTag: (node: Node, iterator: MutableList<Node>, attributes: MutableList<Attribute>) -> C,
         init:  C.() -> R
@@ -113,11 +124,11 @@ abstract class HtmlTagImpl(val node: Node, val children: MutableList<Node>, val 
         check(childIterator.isEmpty()) { "unparsed children in $tag ${childIterator}" }
         return ret
     }
-    override fun peek(): Node? {
-        return this.children.firstOrNull()
+    override fun peek(): de.selfmade4u.tucanpluskmp.Node? {
+        return this.children.firstOrNull()?.let { KsoupNode(it) }
     }
-    override fun peekAttribute(): Attribute? {
-        return this.attributes.firstOrNull()
+    override fun peekAttribute(): de.selfmade4u.tucanpluskmp.Attribute? {
+        return this.attributes.firstOrNull()?.let { KsoupAttribute(it) }
     }
 }
 class RootImpl(node: Node, nodeList: MutableList<Node>) :

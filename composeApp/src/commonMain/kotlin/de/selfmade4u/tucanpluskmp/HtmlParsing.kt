@@ -3,8 +3,6 @@
 
 package de.selfmade4u.tucanpluskmp
 
-import com.fleeksoft.ksoup.nodes.Attribute
-import com.fleeksoft.ksoup.nodes.Node
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -20,6 +18,14 @@ annotation class HtmlFromResources(val path: String)
 @DslMarker
 annotation class HtmlTagMarker
 
+interface Node {
+
+}
+
+interface Attribute {
+
+}
+
 interface HtmlTag {
     fun attribute(key: String, value: String?)
     fun attributeValue(key: String): String
@@ -27,12 +33,6 @@ interface HtmlTag {
     fun text(text: String)
     fun dataHash(hash: String)
     fun extractData(): String
-    // this misses it's contract function now
-    fun <C, R> initTag(
-        tag: String,
-        createTag: (node: Node, iterator: MutableList<Node>, attributes: MutableList<Attribute>) -> C,
-        init:  C.() -> R
-    ): R
     // shit here we expose ksoup again
     fun peek(): Node?
     fun peekAttribute(): Attribute?
