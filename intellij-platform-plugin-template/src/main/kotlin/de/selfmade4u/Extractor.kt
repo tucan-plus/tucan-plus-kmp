@@ -51,7 +51,8 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 }
 class Extractor {
 
-    fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<Int> {
+    // https://github.com/JetBrains/intellij-community/blob/b926099be855e2e1c34d21df1e496f29ecbe7f52/platform/core-impl/src/com/intellij/util/CachedValueStabilityChecker.java#L62
+    fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<MutableList<PsiElement>> {
         val annotations = mutableListOf<PsiElement>()
         val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
         val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
@@ -89,7 +90,7 @@ class Extractor {
         //println("path ${path}")
         magicFunction(htmls, project, annotations)
 
-        return CachedValueProvider.Result(42, annotationEntry, htmls)
+        return CachedValueProvider.Result(annotations, annotationEntry, htmls)
     }
 
     fun process(project: Project, annotationContext: PsiElement?, holder: AnnotationHolder?) {
@@ -104,19 +105,22 @@ class Extractor {
                     annotationEntry
                 )
             }
-            /*
-            if (tag == annotationContext) {
-                holder?.newAnnotation(HighlightSeverity.ERROR, "Different tags at same position")?.range(tag)
-                    ?.create()
+            if (annotationContext == null) {
+                continue;
             }
-            */
-            /*if (statement == annotationContext) {
-                holder?.newAnnotation(
-                    HighlightSeverity.ERROR,
-                    "Unknown HTML parser statement ${statement::class}"
-                )?.range(statement)
-                    ?.withFix(MyQuickFix(statement))?.create()
-            }*/
+            for (annotation in annotations) {
+                if (annotation == annotationContext) {
+                    holder?.newAnnotation(HighlightSeverity.ERROR, "Different tags at same position")?.range(annotation)
+                        ?.create()
+                }
+                if (annotation == annotationContext) {
+                    holder?.newAnnotation(
+                        HighlightSeverity.ERROR,
+                        "Unknown HTML parser statement ${annotation::class}"
+                    )?.range(annotation)
+                        ?.withFix(MyQuickFix(annotation))?.create()
+                }
+            }
         }
     }
 }
