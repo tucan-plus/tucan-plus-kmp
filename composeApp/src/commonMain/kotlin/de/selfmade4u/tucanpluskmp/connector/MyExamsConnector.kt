@@ -31,6 +31,7 @@ import de.selfmade4u.tucanpluskmp.thead
 import de.selfmade4u.tucanpluskmp.tr
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
+import de.selfmade4u.tucanpluskmp.*
 
 // loop semester by semester because otherwise we can't really associate entries with their semester. maybe just not support the "all"?
 object MyExamsConnector : Connector<String?, MyExamsConnector.MyExamsResponse> {

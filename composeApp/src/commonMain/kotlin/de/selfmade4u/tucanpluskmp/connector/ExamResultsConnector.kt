@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlin.collections.first
+import de.selfmade4u.tucanpluskmp.*
 
 // TODO FIXME return type an everything
 object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsResponse> {

@@ -12,6 +12,7 @@ import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TextAndId
 import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector.ModuleResultsResponse
 import de.selfmade4u.tucanpluskmp.connector.MyExamsConnector.MyExamsResponse
+import de.selfmade4u.tucanpluskmp.*
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow

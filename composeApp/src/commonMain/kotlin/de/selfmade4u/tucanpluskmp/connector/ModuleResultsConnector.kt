@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.first
 import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
+import de.selfmade4u.tucanpluskmp.*
 
 // https://github.com/tucan-plus/tucan-plus/blob/640bb9cbb9e3f8d22e8b9d6ddaabb5256b2eb0e6/crates/tucan-types/src/lib.rs#L366
 enum class ModuleGrade(val representation: (localizer: Localizer) -> String, val stringified: String) {
