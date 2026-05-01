@@ -56,7 +56,7 @@ interface Head : HtmlTag {
     fun <R> script(init: Script.() -> R): R
 }
 
-interface Body : HtmlTag {
+sealed interface Body : HtmlTag {
     fun <R> script(init: Script.() -> R): R
     fun <R> style(init: Body.() -> R): R
     fun <R> a(init: Body.() -> R): R
@@ -74,7 +74,7 @@ interface Body : HtmlTag {
     fun <R> span(init: Body.() -> R): R
     fun <R> b(init: Body.() -> R): R
     fun <R> br(init: Body.() -> R): R
-    fun <R> option(init: Body.() -> R): R
+    fun <R> optionImpl(init: Body.() -> R): R
     fun <R> input(init: Body.() -> R): R
     fun <R> select(init: Body.() -> R): R
     fun <R> table(init: Body.() -> R): R
@@ -89,3 +89,12 @@ interface Title : HtmlTag
 interface Meta : HtmlTag
 interface Link : HtmlTag
 interface Script : HtmlTag
+
+// https://github.com/Kotlin/kotlinx.html/blob/76b16f09180185a9e283e164fa02fb54a1627e9f/src/commonMain/kotlin/generated/gen-tags-d.kt#L24-L25
+@Suppress("WRONG_INVOCATION_KIND", "LEAKED_IN_PLACE_LAMBDA")
+fun <R> Body.option(init: Body.() -> R): R {
+    contract {
+        callsInPlace(init, InvocationKind.EXACTLY_ONCE)
+    }
+    return optionImpl(init)
+}

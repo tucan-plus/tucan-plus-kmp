@@ -200,7 +200,7 @@ class BodyImpl(
     override fun <R> span(init: Body.() -> R): R = initTag("span", ::BodyImpl, init)
     override fun <R> b(init: Body.() -> R): R = initTag("b", ::BodyImpl, init)
     override fun <R> br(init: Body.() -> R): R = initTag("br", ::BodyImpl, init)
-    override fun <R> option(init: Body.() -> R): R {
+    override fun <R> optionImpl(init: Body.() -> R): R {
         //contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) };
         return initTag(
             "option",

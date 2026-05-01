@@ -11,6 +11,7 @@ import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.Common.parseBase
 import de.selfmade4u.tucanpluskmp.connector.MyExamsConnector.MyExamsResponse
 import de.selfmade4u.tucanpluskmp.data.MyExams
+import de.selfmade4u.tucanpluskmp.option
 import de.selfmade4u.tucanpluskmp.shouldIgnore
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
