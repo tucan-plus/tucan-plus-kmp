@@ -249,8 +249,7 @@ object MyExamsConnector : Connector<String?, MyExamsConnector.MyExamsResponse> {
                     }
 
                     tbody {
-                        while (peek()?.firstChild()?.normalName() == "td"
-                        ) {
+                        while (peek()?.firstChild()?.normalName() == "td") {
                             val id: String
                             val name: String
                             val coursedetailsOrModuleDetails: TucanUrl.CourseOrModuleDetails
