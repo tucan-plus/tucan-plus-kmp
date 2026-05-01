@@ -4,6 +4,7 @@ import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.service
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.xml.XmlFile
 import com.intellij.testFramework.TestDataPath
@@ -19,6 +20,7 @@ import de.selfmade4u.services.MyProjectService
 class MyPluginTest : BasePlatformTestCase() {
 
     fun testFindSimilarities() {
+        Registry.get("platform.random.idempotence.check.rate").setValue(1, getTestRootDisposable())
         val directory = myFixture.copyDirectoryToProject("", "");
         val project = myFixture.project
         myFixture.testHighlighting("main.kt")

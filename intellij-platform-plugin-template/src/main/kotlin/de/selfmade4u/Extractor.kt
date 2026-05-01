@@ -18,6 +18,7 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.XmlFile
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
+import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtIfExpression
@@ -50,52 +51,58 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 }
 class Extractor {
 
+    fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<Int> {
+        val annotations = mutableListOf<PsiElement>()
+        val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
+        val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
+        val path = text.entries.first().text
+        val htmls = project.guessProjectDir()!!.findFileByRelativePath(path)!!
+
+        val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
+        //println("abc ${ktNamedFunction.text}")
+        val block = ktNamedFunction.bodyBlockExpression!!
+        for (statement in block.statements) {
+            //println("statement ${statement.text}")
+            // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
+            when (statement) {
+                /*is KtCallExpression -> {
+                val args = statement.valueArgumentList
+                println("args $args")
+            }
+
+            is KtIfExpression -> {
+                println("some if")
+            }*/
+                is KtProperty -> {
+                    println("got a property, need to check what it gets assigned")
+                    val initializer = statement.initializer
+                    println("initializer $initializer")
+                }
+
+                else -> {
+                    annotations.add(statement)
+
+                }
+            }
+        }
+
+        //println("path ${path}")
+        magicFunction(htmls, project, annotations)
+
+        return CachedValueProvider.Result(42, annotationEntry, htmls)
+    }
+
     fun process(project: Project, annotationContext: PsiElement?, holder: AnnotationHolder?) {
         val annotations = KotlinAnnotationsIndex["HtmlFromResources", project, project.projectScope()];
         //println("annotations $annotations")
         for (annotationEntry in annotations) {
-            // also htmls as dependency
             // https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/util/CachedValue.java
-            // getParameterizedCachedValue
+
             val annotations = CachedValuesManager.getManager(project).getCachedValue(annotationEntry) {
-                val annotations = mutableListOf<PsiElement>()
-                val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
-                val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
-                val path = text.entries.first().text
-                val htmls = project.guessProjectDir()!!.findFileByRelativePath(path)!!
-
-                val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
-                //println("abc ${ktNamedFunction.text}")
-                val block = ktNamedFunction.bodyBlockExpression!!
-                for (statement in block.statements) {
-                    //println("statement ${statement.text}")
-                    // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
-                    when (statement) {
-                        /*is KtCallExpression -> {
-                        val args = statement.valueArgumentList
-                        println("args $args")
-                    }
-
-                    is KtIfExpression -> {
-                        println("some if")
-                    }*/
-                        is KtProperty -> {
-                            println("got a property, need to check what it gets assigned")
-                            val initializer = statement.initializer
-                            println("initializer $initializer")
-                        }
-
-                        else -> {
-                            annotations.add(statement)
-
-                        }
-                    }
-                }
-
-                //println("path ${path}")
-                magicFunction(htmls, project, annotations)
-
-                CachedValueProvider.Result(42, annotationEntry, htmls)
+                myFun(
+                    project,
+                    annotationEntry
+                )
             }
             /*
             if (tag == annotationContext) {
