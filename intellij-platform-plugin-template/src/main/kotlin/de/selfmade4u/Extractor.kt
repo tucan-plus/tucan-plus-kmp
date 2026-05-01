@@ -10,12 +10,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findPsiFile
+import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.XmlFile
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
@@ -47,21 +51,27 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 class Extractor {
 
     fun process(project: Project, annotationContext: PsiElement?, holder: AnnotationHolder?) {
-        val keys = KotlinAnnotationsIndex.getAllKeys(project)
         val annotations = KotlinAnnotationsIndex["HtmlFromResources", project, project.projectScope()];
         //println("annotations $annotations")
         for (annotationEntry in annotations) {
-            val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
-            val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
-            val path = text.entries.first().text
-            val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
-            //println("abc ${ktNamedFunction.text}")
-            val block = ktNamedFunction.bodyBlockExpression!!
-            for (statement in block.statements) {
-                //println("statement ${statement.text}")
-                // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
-                when (statement) {
-                    /*is KtCallExpression -> {
+            // also htmls as dependency
+            // https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/util/CachedValue.java
+            // getParameterizedCachedValue
+            val annotations = CachedValuesManager.getManager(project).getCachedValue(annotationEntry) {
+                val annotations = mutableListOf<PsiElement>()
+                val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
+                val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
+                val path = text.entries.first().text
+                val htmls = project.guessProjectDir()!!.findFileByRelativePath(path)!!
+
+                val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
+                //println("abc ${ktNamedFunction.text}")
+                val block = ktNamedFunction.bodyBlockExpression!!
+                for (statement in block.statements) {
+                    //println("statement ${statement.text}")
+                    // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
+                    when (statement) {
+                        /*is KtCallExpression -> {
                         val args = statement.valueArgumentList
                         println("args $args")
                     }
@@ -69,23 +79,37 @@ class Extractor {
                     is KtIfExpression -> {
                         println("some if")
                     }*/
-                    is KtProperty -> {
-                        println("got a property, need to check what it gets assigned")
-                        val initializer = statement.initializer
-                        println("initializer $initializer")
-                    }
-                    else -> {
-                        if (statement == annotationContext) {
-                            holder?.newAnnotation(HighlightSeverity.ERROR, "Unknown HTML parser statement ${statement::class}")?.range(statement)
-                                ?.withFix(MyQuickFix(statement))?.create()
+                        is KtProperty -> {
+                            println("got a property, need to check what it gets assigned")
+                            val initializer = statement.initializer
+                            println("initializer $initializer")
+                        }
+
+                        else -> {
+                            annotations.add(statement)
+
                         }
                     }
                 }
-            }
 
-            //println("path ${path}")
-            val htmls = project.guessProjectDir()!!.findFileByRelativePath(path)!!
-            magicFunction(htmls, project, annotationContext, holder)
+                //println("path ${path}")
+                magicFunction(htmls, project, annotations)
+
+                CachedValueProvider.Result(42, annotationEntry, htmls)
+            }
+            /*
+            if (tag == annotationContext) {
+                holder?.newAnnotation(HighlightSeverity.ERROR, "Different tags at same position")?.range(tag)
+                    ?.create()
+            }
+            */
+            /*if (statement == annotationContext) {
+                holder?.newAnnotation(
+                    HighlightSeverity.ERROR,
+                    "Unknown HTML parser statement ${statement::class}"
+                )?.range(statement)
+                    ?.withFix(MyQuickFix(statement))?.create()
+            }*/
         }
     }
 }
@@ -94,7 +118,7 @@ class Extractor {
 fun magicFunction(
     directory: VirtualFile,
     project: Project,
-    annotationContext: PsiElement?, holder: AnnotationHolder?
+    annotations: MutableList<PsiElement>
 ) {
     val files = directory.children
     //println("files $files")
@@ -104,10 +128,7 @@ fun magicFunction(
         // TODO quickfix to kotlin file
     } else {
         tags.forEach { tag ->
-            if (tag == annotationContext) {
-                holder?.newAnnotation(HighlightSeverity.ERROR, "Different tags at same position")?.range(tag)
-                    ?.create()
-            }
+            annotations.add(tag)
         }
     }
 }
