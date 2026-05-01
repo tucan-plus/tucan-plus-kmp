@@ -63,7 +63,7 @@ class Response(
         //println(document)
         check(document.nameIs("#root")) { document.normalName() }
         check(document.attributesSize() == 0) { document.attributes() }
-        val node = Root(
+        val node = RootImpl(
             document,
             document.childNodes()
                 .filterNot(::shouldIgnore)

@@ -30,6 +30,14 @@ interface HtmlTag {
     fun text(text: String)
     fun dataHash(hash: String)
     fun extractData(): String
+    fun <C, R> initTag(
+        tag: String,
+        createTag: (node: Node, iterator: MutableList<Node>, attributes: MutableList<Attribute>) -> C,
+        init:  C.() -> R
+    ): R
+    // shit here we expose ksoup again
+    fun peek(): Node?
+    fun peekAttribute(): Attribute?
 }
 
 @HtmlTagMarker
@@ -112,37 +120,113 @@ abstract class HtmlTagImpl(val node: Node, val children: MutableList<Node>, val 
         check(next is DataNode) { next }
         return next.getWholeData()
     }
+
+    @OptIn(ExperimentalContracts::class)
+    override fun <C, R> initTag(
+        tag: String,
+        createTag: (node: Node, iterator: MutableList<Node>, attributes: MutableList<Attribute>) -> C,
+        init:  C.() -> R
+    ): R {
+        /*contract {
+            callsInPlace(init, InvocationKind.EXACTLY_ONCE)
+        }*/
+        if (this.children.isEmpty()) {
+            throw IllegalStateException("${node} actual no children, expected at least one")
+        }
+        val next = this.children.removeAt(0)
+        check(next.nameIs(tag)) { "actual   ${next.normalName()} expected $tag" }
+        val attributes = next.attributes().toMutableList()
+        val childIterator = next.childNodes().filterNot(::shouldIgnore).toMutableList()
+        val node = createTag(next, childIterator, attributes)
+        val ret = node.init()
+        check(attributes.isEmpty()) { "${next.normalName()} unparsed attributes ${attributes.removeAt(0)}" }
+        check(childIterator.isEmpty()) { "unparsed children in $tag ${childIterator}" }
+        return ret
+    }
+    override fun peek(): Node? {
+        return this.children.firstOrNull()
+    }
+    override fun peekAttribute(): Attribute? {
+        return this.attributes.firstOrNull()
+    }
 }
 
 interface Root : HtmlTag
 
-class RootImpl(node: Node, nodeList: MutableList<Node>) : Root, HtmlTagImpl(node, nodeList, mutableListOf())
+class RootImpl(node: Node, nodeList: MutableList<Node>) :
+    Root, HtmlTagImpl(node, nodeList, mutableListOf())
+
 
 interface Doctype : HtmlTag
 
-class DoctypeImpl(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTagImpl(node, nodeList, attributes)
+class DoctypeImpl(
+    node: Node,
+    nodeList: MutableList<Node>,
+    attributes: MutableList<Attribute>
+) : Doctype, HtmlTagImpl(node, nodeList, attributes)
 
-class Html(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTag(node, nodeList, attributes)
 
-class Head(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTag(node, nodeList, attributes)
+interface Html : HtmlTag
 
-class Body(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTag(node, nodeList, attributes)
+class HtmlImpl(
+    node: Node,
+    nodeList: MutableList<Node>,
+    attributes: MutableList<Attribute>
+) : Html, HtmlTagImpl(node, nodeList, attributes)
 
-class Title(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTag(node, nodeList, attributes)
 
-class Meta(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTag(node, nodeList, attributes)
+interface Head : HtmlTag
 
-class Link(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTag(node, nodeList, attributes)
+class HeadImpl(
+    node: Node,
+    nodeList: MutableList<Node>,
+    attributes: MutableList<Attribute>
+) : Head, HtmlTagImpl(node, nodeList, attributes)
 
-class Script(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTag(node, nodeList, attributes)
+
+interface Body : HtmlTag
+
+class BodyImpl(
+    node: Node,
+    nodeList: MutableList<Node>,
+    attributes: MutableList<Attribute>
+) : Body, HtmlTagImpl(node, nodeList, attributes)
+
+
+interface Title : HtmlTag
+
+class TitleImpl(
+    node: Node,
+    nodeList: MutableList<Node>,
+    attributes: MutableList<Attribute>
+) : Title, HtmlTagImpl(node, nodeList, attributes)
+
+
+interface Meta : HtmlTag
+
+class MetaImpl(
+    node: Node,
+    nodeList: MutableList<Node>,
+    attributes: MutableList<Attribute>
+) : Meta, HtmlTagImpl(node, nodeList, attributes)
+
+
+interface Link : HtmlTag
+
+class LinkImpl(
+    node: Node,
+    nodeList: MutableList<Node>,
+    attributes: MutableList<Attribute>
+) : Link, HtmlTagImpl(node, nodeList, attributes)
+
+
+interface Script : HtmlTag
+
+class ScriptImpl(
+    node: Node,
+    nodeList: MutableList<Node>,
+    attributes: MutableList<Attribute>
+) : Script, HtmlTagImpl(node, nodeList, attributes)
 
 fun shouldIgnore(node: Node): Boolean =
     node is Comment || (node is TextNode && node.text().replace("\\r\\n", "").trim().isEmpty())
@@ -150,7 +234,7 @@ fun shouldIgnore(node: Node): Boolean =
 fun <T> root(document: Document, init: Root.() -> T): T {
     check(document.nameIs("#root")) { document.normalName() }
     check(document.attributesSize() == 0) { document.attributes() }
-    val node = Root(
+    val node = RootImpl(
         document,
         document.childNodes()
             .filterNot(::shouldIgnore)
@@ -159,57 +243,57 @@ fun <T> root(document: Document, init: Root.() -> T): T {
     return node.init()
 }
 
-fun <T> Root.doctype(init: Doctype.() -> T): T = initTag("#doctype", ::Doctype, init)
-fun <R> Root.html(init: Html.() -> R): R = initTag("html", ::Html, init)
-fun <R> Html.head(init: Head.() -> R): R = initTag("head", ::Head, init)
-fun <R> Html.body(init: Body.() -> R): R = initTag("body", ::Body, init)
-fun <R> Head.title(init: Title.() -> R): R = initTag("title", ::Title, init)
-fun <R> Head.meta(init: Meta.() -> R): R = initTag("meta", ::Meta, init)
-fun <R> Head.link(init: Link.() -> R): R = initTag("link", ::Link, init)
-fun <R> Head.script(init: Script.() -> R): R = initTag("script", ::Script, init)
-fun <R> Head.style(init: Head.() -> R): R = initTag("style", ::Head, init)
+fun <T> Root.doctype(init: Doctype.() -> T): T = initTag("#doctype", ::DoctypeImpl, init)
+fun <R> Root.html(init: Html.() -> R): R = initTag("html", ::HtmlImpl, init)
+fun <R> Html.head(init: Head.() -> R): R = initTag("head", ::HeadImpl, init)
+fun <R> Html.body(init: Body.() -> R): R = initTag("body", ::BodyImpl, init)
+fun <R> Head.title(init: Title.() -> R): R = initTag("title", ::TitleImpl, init)
+fun <R> Head.meta(init: Meta.() -> R): R = initTag("meta", ::MetaImpl, init)
+fun <R> Head.link(init: Link.() -> R): R = initTag("link", ::LinkImpl, init)
+fun <R> Head.script(init: Script.() -> R): R = initTag("script", ::ScriptImpl, init)
+fun <R> Head.style(init: Head.() -> R): R = initTag("style", ::HeadImpl, init)
 
-fun <R> Body.script(init: Script.() -> R): R = initTag("script", ::Script, init)
-fun <R> Body.style(init: Body.() -> R): R = initTag("style", ::Body, init)
+fun <R> Body.script(init: Script.() -> R): R = initTag("script", ::ScriptImpl, init)
+fun <R> Body.style(init: Body.() -> R): R = initTag("style", ::BodyImpl, init)
 fun <R> Body.a(init: Body.() -> R): R {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return initTag("a", ::Body, init)
+    return initTag("a", ::BodyImpl, init)
 }
 
-fun <R> Body.div(init: Body.() -> R): R = initTag("div", ::Body, init)
-fun <R> Body.form(init: Body.() -> R): R = initTag("form", ::Body, init)
-fun <R> Body.fieldset(init: Body.() -> R): R = initTag("fieldset", ::Body, init)
-fun <R> Body.img(init: Body.() -> R): R = initTag("img", ::Body, init)
-fun <R> Body.legend(init: Body.() -> R): R = initTag("legend", ::Body, init)
-fun <R> Body.label(init: Body.() -> R): R = initTag("label", ::Body, init)
-fun <R> Body.h1(init: Body.() -> R): R = initTag("h1", ::Body, init)
-fun <R> Body.p(init: Body.() -> R): R = initTag("p", ::Body, init)
-fun <R> Body.ul(init: Body.() -> R): R = initTag("ul", ::Body, init)
-fun <R> Body.li(init: Body.() -> R): R = initTag("li", ::Body, init)
-fun <R> Body.header(init: Body.() -> R): R = initTag("header", ::Body, init)
-fun <R> Body.span(init: Body.() -> R): R = initTag("span", ::Body, init)
-fun <R> Body.b(init: Body.() -> R): R = initTag("b", ::Body, init)
-fun <R> Body.br(init: Body.() -> R): R = initTag("br", ::Body, init)
+fun <R> Body.div(init: Body.() -> R): R = initTag("div", ::BodyImpl, init)
+fun <R> Body.form(init: Body.() -> R): R = initTag("form", ::BodyImpl, init)
+fun <R> Body.fieldset(init: Body.() -> R): R = initTag("fieldset", ::BodyImpl, init)
+fun <R> Body.img(init: Body.() -> R): R = initTag("img", ::BodyImpl, init)
+fun <R> Body.legend(init: Body.() -> R): R = initTag("legend", ::BodyImpl, init)
+fun <R> Body.label(init: Body.() -> R): R = initTag("label", ::BodyImpl, init)
+fun <R> Body.h1(init: Body.() -> R): R = initTag("h1", ::BodyImpl, init)
+fun <R> Body.p(init: Body.() -> R): R = initTag("p", ::BodyImpl, init)
+fun <R> Body.ul(init: Body.() -> R): R = initTag("ul", ::BodyImpl, init)
+fun <R> Body.li(init: Body.() -> R): R = initTag("li", ::BodyImpl, init)
+fun <R> Body.header(init: Body.() -> R): R = initTag("header", ::BodyImpl, init)
+fun <R> Body.span(init: Body.() -> R): R = initTag("span", ::BodyImpl, init)
+fun <R> Body.b(init: Body.() -> R): R = initTag("b", ::BodyImpl, init)
+fun <R> Body.br(init: Body.() -> R): R = initTag("br", ::BodyImpl, init)
 fun <R> Body.option(init: Body.() -> R): R {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }; return initTag(
         "option",
-        ::Body,
+        ::BodyImpl,
         init
     )
 }
 
-fun <R> Body.input(init: Body.() -> R): R = initTag("input", ::Body, init)
-fun <R> Body.select(init: Body.() -> R): R = initTag("select", ::Body, init)
-fun <R> Body.table(init: Body.() -> R): R = initTag("table", ::Body, init)
-fun <R> Body.thead(init: Body.() -> R): R = initTag("thead", ::Body, init)
-fun <R> Body.tbody(init: Body.() -> R): R = initTag("tbody", ::Body, init)
+fun <R> Body.input(init: Body.() -> R): R = initTag("input", ::BodyImpl, init)
+fun <R> Body.select(init: Body.() -> R): R = initTag("select", ::BodyImpl, init)
+fun <R> Body.table(init: Body.() -> R): R = initTag("table", ::BodyImpl, init)
+fun <R> Body.thead(init: Body.() -> R): R = initTag("thead", ::BodyImpl, init)
+fun <R> Body.tbody(init: Body.() -> R): R = initTag("tbody", ::BodyImpl, init)
 
 @OptIn(ExperimentalContracts::class)
 fun <R> Body.tr(init: Body.() -> R): R {
     contract {
         callsInPlace(init, InvocationKind.EXACTLY_ONCE)
     }
-    return initTag("tr", ::Body, init)
+    return initTag("tr", ::BodyImpl, init)
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -217,38 +301,7 @@ fun <R> Body.td(init: Body.() -> R): R {
     contract {
         callsInPlace(init, InvocationKind.EXACTLY_ONCE)
     }
-    return initTag("td", ::Body, init)
+    return initTag("td", ::BodyImpl, init)
 }
 
-fun <R> Body.th(init: Body.() -> R): R = initTag("th", ::Body, init)
-
-fun HtmlTag.peek(): Node? {
-    return this.children.firstOrNull()
-}
-
-fun HtmlTag.peekAttribute(): Attribute? {
-    return this.attributes.firstOrNull()
-}
-
-@OptIn(ExperimentalContracts::class)
-fun <P : HtmlTag, C, R> P.initTag(
-    tag: String,
-    createTag: (node: Node, iterator: MutableList<Node>, attributes: MutableList<Attribute>) -> C,
-    init:  C.() -> R
-): R {
-    contract {
-        callsInPlace(init, InvocationKind.EXACTLY_ONCE)
-    }
-    if (this.children.isEmpty()) {
-        throw IllegalStateException("${node} actual no children, expected at least one")
-    }
-    val next = this.children.removeAt(0)
-    check(next.nameIs(tag)) { "actual   ${next.normalName()} expected $tag" }
-    val attributes = next.attributes().toMutableList()
-    val childIterator = next.childNodes().filterNot(::shouldIgnore).toMutableList()
-    val node = createTag(next, childIterator, attributes)
-    val ret = node.init()
-    check(attributes.isEmpty()) { "${next.normalName()} unparsed attributes ${attributes.removeAt(0)}" }
-    check(childIterator.isEmpty()) { "unparsed children in $tag ${childIterator}" }
-    return ret
-}
+fun <R> Body.th(init: Body.() -> R): R = initTag("th", ::BodyImpl, init)

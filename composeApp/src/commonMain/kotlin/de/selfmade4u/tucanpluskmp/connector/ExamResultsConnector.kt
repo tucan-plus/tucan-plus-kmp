@@ -21,8 +21,6 @@ import de.selfmade4u.tucanpluskmp.input
 import de.selfmade4u.tucanpluskmp.label
 import de.selfmade4u.tucanpluskmp.option
 import de.selfmade4u.tucanpluskmp.p
-import de.selfmade4u.tucanpluskmp.peek
-import de.selfmade4u.tucanpluskmp.peekAttribute
 import de.selfmade4u.tucanpluskmp.script
 import de.selfmade4u.tucanpluskmp.select
 import de.selfmade4u.tucanpluskmp.shouldIgnore
