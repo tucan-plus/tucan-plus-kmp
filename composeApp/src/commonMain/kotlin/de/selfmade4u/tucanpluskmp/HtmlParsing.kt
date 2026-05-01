@@ -26,6 +26,7 @@ interface HtmlTag {
     fun text(text: String)
     fun dataHash(hash: String)
     fun extractData(): String
+    // this misses it's contract function now
     fun <C, R> initTag(
         tag: String,
         createTag: (node: Node, iterator: MutableList<Node>, attributes: MutableList<Attribute>) -> C,
