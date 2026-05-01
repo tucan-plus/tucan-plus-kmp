@@ -23,6 +23,7 @@ class MyPluginTest : BasePlatformTestCase() {
         Registry.get("platform.random.idempotence.check.rate").setValue(1, getTestRootDisposable())
         val directory = myFixture.copyDirectoryToProject("", "");
         val project = myFixture.project
+        myFixture.testHighlighting("HtmlParsing.kt")
         myFixture.testHighlighting("main.kt")
     }
 
