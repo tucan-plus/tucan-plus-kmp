@@ -40,8 +40,12 @@ interface HtmlTag {
 interface Root : HtmlTag
 interface Doctype : HtmlTag
 interface Html : HtmlTag
-interface Head : HtmlTag
-interface Body : HtmlTag
+interface Head : HtmlTag {
+    fun <R> Head.script(init: Script.() -> R): R
+}
+interface Body : HtmlTag {
+    fun <R> Body.script(init: Script.() -> R): R
+}
 interface Title : HtmlTag
 interface Meta : HtmlTag
 interface Link : HtmlTag
@@ -54,10 +58,13 @@ fun <R> Html.body(init: Body.() -> R): R = initTag("body", ::BodyImpl, init)
 fun <R> Head.title(init: Title.() -> R): R = initTag("title", ::TitleImpl, init)
 fun <R> Head.meta(init: Meta.() -> R): R = initTag("meta", ::MetaImpl, init)
 fun <R> Head.link(init: Link.() -> R): R = initTag("link", ::LinkImpl, init)
-fun <R> Head.script(init: Script.() -> R): R = initTag("script", ::ScriptImpl, init)
+
+
 fun <R> Head.style(init: Head.() -> R): R = initTag("style", ::HeadImpl, init)
 
-fun <R> Body.script(init: Script.() -> R): R = initTag("script", ::ScriptImpl, init)
+
+
+
 fun <R> Body.style(init: Body.() -> R): R = initTag("style", ::BodyImpl, init)
 fun <R> Body.a(init: Body.() -> R): R {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }

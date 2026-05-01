@@ -139,13 +139,17 @@ class HeadImpl(
     node: Node,
     nodeList: MutableList<Node>,
     attributes: MutableList<Attribute>
-) : Head, HtmlTagImpl(node, nodeList, attributes)
+) : Head, HtmlTagImpl(node, nodeList, attributes) {
+    override fun <R> Head.script(init: Script.() -> R): R = initTag("script", ::ScriptImpl, init)
+}
 
 class BodyImpl(
     node: Node,
     nodeList: MutableList<Node>,
     attributes: MutableList<Attribute>
-) : Body, HtmlTagImpl(node, nodeList, attributes)
+) : Body, HtmlTagImpl(node, nodeList, attributes) {
+    override fun <R> Body.script(init: Script.() -> R): R = initTag("script", ::ScriptImpl, init)
+}
 
 class TitleImpl(
     node: Node,
@@ -166,7 +170,7 @@ class LinkImpl(
 ) : Link, HtmlTagImpl(node, nodeList, attributes)
 
 
-class ScriptImpl(
+private class ScriptImpl(
     node: Node,
     nodeList: MutableList<Node>,
     attributes: MutableList<Attribute>
