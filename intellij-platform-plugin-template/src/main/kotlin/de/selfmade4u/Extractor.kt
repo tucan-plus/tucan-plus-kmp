@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
@@ -51,6 +52,31 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 }
 class Extractor {
 
+    fun checkExpression(annotations: MutableList<PsiElement>, expression: KtExpression) {
+        //println("statement ${statement.text}")
+        // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
+        when (expression) {
+            /*is KtCallExpression -> {
+            val args = statement.valueArgumentList
+            println("args $args")
+        }
+
+        is KtIfExpression -> {
+            println("some if")
+        }*/
+            is KtProperty -> {
+                println("got a property, need to check what it gets assigned")
+                val initializer = expression.initializer
+                println("initializer $initializer")
+                checkExpression(annotations, initializer!!)
+            }
+
+            else -> {
+                annotations.add(expression)
+            }
+        }
+    }
+
     // https://github.com/JetBrains/intellij-community/blob/b926099be855e2e1c34d21df1e496f29ecbe7f52/platform/core-impl/src/com/intellij/util/CachedValueStabilityChecker.java#L62
     fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<MutableList<PsiElement>> {
         val annotations = mutableListOf<PsiElement>()
@@ -63,28 +89,7 @@ class Extractor {
         //println("abc ${ktNamedFunction.text}")
         val block = ktNamedFunction.bodyBlockExpression!!
         for (statement in block.statements) {
-            //println("statement ${statement.text}")
-            // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
-            when (statement) {
-                /*is KtCallExpression -> {
-                val args = statement.valueArgumentList
-                println("args $args")
-            }
-
-            is KtIfExpression -> {
-                println("some if")
-            }*/
-                is KtProperty -> {
-                    println("got a property, need to check what it gets assigned")
-                    val initializer = statement.initializer
-                    println("initializer $initializer")
-                }
-
-                else -> {
-                    annotations.add(statement)
-
-                }
-            }
+            checkExpression(annotations, statement)
         }
 
         //println("path ${path}")
