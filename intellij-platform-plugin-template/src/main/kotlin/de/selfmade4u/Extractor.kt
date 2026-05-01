@@ -16,10 +16,12 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.XmlFile
+import com.intellij.psi.xml.XmlTag
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtConstantExpression
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtIfExpression
@@ -70,6 +72,9 @@ class Extractor {
                 println("initializer $initializer")
                 checkExpression(annotations, initializer!!)
             }
+            is KtConstantExpression -> {
+                // fine
+            }
 
             else -> {
                 annotations.add(expression)
@@ -110,20 +115,23 @@ class Extractor {
                     annotationEntry
                 )
             }
-            if (annotationContext == null) {
-                continue;
-            }
-            for (annotation in annotations) {
-                if (annotation == annotationContext) {
-                    holder?.newAnnotation(HighlightSeverity.ERROR, "Different tags at same position")?.range(annotation)
-                        ?.create()
+            if (annotationContext is XmlTag) {
+                for (annotation in annotations) {
+                    if (annotation == annotationContext && annotation is XmlTag) {
+                        holder?.newAnnotation(HighlightSeverity.ERROR, "Different tags at same position")?.range(annotation)
+                            ?.create()
+                    }
                 }
-                if (annotation == annotationContext) {
-                    holder?.newAnnotation(
-                        HighlightSeverity.ERROR,
-                        "Unknown HTML parser statement ${annotation::class}"
-                    )?.range(annotation)
-                        ?.withFix(MyQuickFix(annotation))?.create()
+            }
+            if (annotationContext is KtElement) {
+                for (annotation in annotations) {
+                    if (annotation == annotationContext) {
+                        holder?.newAnnotation(
+                            HighlightSeverity.ERROR,
+                            "Unknown HTML parser statement ${annotation::class}"
+                        )?.range(annotation)
+                            ?.withFix(MyQuickFix(annotation))?.create()
+                    }
                 }
             }
         }
