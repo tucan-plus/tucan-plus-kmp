@@ -16,6 +16,7 @@ import com.intellij.psi.xml.XmlFile
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
@@ -56,17 +57,24 @@ class Extractor {
             //println("abc ${ktNamedFunction.text}")
             val block = ktNamedFunction.bodyBlockExpression!!
             for (statement in block.statements) {
+                println("statement ${statement.text}")
                 // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
-                if (statement is KtCallExpression) {
-                    val args = statement.valueArgumentList
-                    print("args $args")
-                }
+                when (statement) {
+                    is KtCallExpression -> {
+                        val args = statement.valueArgumentList
+                        println("args $args")
+                    }
 
-                //println("statement ${statement.text}")
-                // unknown statement
-                if (statement == annotationContext) {
-                    holder?.newAnnotation(HighlightSeverity.ERROR, "Unknown HTML parser statement")?.range(statement)
-                        ?.withFix( MyQuickFix(statement))?.create()
+                    is KtIfExpression -> {
+                        println("some if")
+                    }
+
+                    else -> {
+                        if (statement == annotationContext) {
+                            holder?.newAnnotation(HighlightSeverity.ERROR, "Unknown HTML parser statement")?.range(statement)
+                                ?.withFix(MyQuickFix(statement))?.create()
+                        }
+                    }
                 }
             }
 
@@ -84,6 +92,7 @@ fun magicFunction(
     annotationContext: PsiElement?, holder: AnnotationHolder?
 ) {
     val files = directory.children
+    println("files $files")
     var tags = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
     if (tags.all { it.name == tags[0].name }) {
         tags = tags.mapNotNull { it.subTags.firstOrNull() }
