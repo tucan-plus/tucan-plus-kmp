@@ -23,9 +23,18 @@ annotation class HtmlFromResources(val path: String)
 @DslMarker
 annotation class HtmlTagMarker
 
+interface HtmlTag {
+    fun attribute(key: String, value: String?)
+    fun attributeValue(key: String): String
+    fun extractText(): String
+    fun text(text: String)
+    fun dataHash(hash: String)
+    fun extractData(): String
+}
+
 @HtmlTagMarker
-abstract class HtmlTag(val node: Node, val children: MutableList<Node>, val attributes: MutableList<Attribute>) {
-    fun attribute(key: String, value: String?) {
+abstract class HtmlTagImpl(val node: Node, val children: MutableList<Node>, val attributes: MutableList<Attribute>) : HtmlTag {
+    override fun attribute(key: String, value: String?) {
         val attribute = attributes.removeAt(0)
         if (attribute.key == "class") {
             attribute.setValue(attribute.value.trim())
@@ -49,7 +58,7 @@ abstract class HtmlTag(val node: Node, val children: MutableList<Node>, val attr
         }
     }
 
-    fun attributeValue(key: String): String {
+    override fun attributeValue(key: String): String {
         val attribute = attributes.removeAt(0)
         if (attribute.key == "class") {
             attribute.setValue(attribute.value.trim())
@@ -58,7 +67,7 @@ abstract class HtmlTag(val node: Node, val children: MutableList<Node>, val attr
         return attribute.value
     }
 
-    fun extractText(): String {
+    override fun extractText(): String {
         check(attributes.isEmpty()) { attributes.removeAt(0) }
         if (this.children.isEmpty()) {
             throw IllegalStateException("${node} actual no children, expected at least one")
@@ -68,7 +77,7 @@ abstract class HtmlTag(val node: Node, val children: MutableList<Node>, val attr
         return next.text().trim()
     }
 
-    fun text(text: String) {
+    override fun text(text: String) {
         check(text.trim().isNotEmpty()) { "expected text cannot be empty" }
         check(attributes.isEmpty()) { attributes.removeAt(0) }
         if (this.children.isEmpty()) {
@@ -79,7 +88,7 @@ abstract class HtmlTag(val node: Node, val children: MutableList<Node>, val attr
         check(next.text().trim() == text) { "Mismatched text expected:<${text}> but was:<${next.text().trim()}>" }
     }
 
-    fun dataHash(hash: String) {
+    override fun dataHash(hash: String) {
         check(attributes.isEmpty()) { attributes.removeAt(0) }
         if (this.children.isEmpty()) {
             throw IllegalStateException("${node} actual no children, expected at least one")
@@ -94,7 +103,7 @@ abstract class HtmlTag(val node: Node, val children: MutableList<Node>, val attr
         }*/
     }
 
-    fun extractData(): String {
+    override fun extractData(): String {
         check(attributes.isEmpty()) { attributes.removeAt(0) }
         if (this.children.isEmpty()) {
             throw IllegalStateException("${node} actual no children, expected at least one")
@@ -105,9 +114,14 @@ abstract class HtmlTag(val node: Node, val children: MutableList<Node>, val attr
     }
 }
 
-class Root(node: Node, nodeList: MutableList<Node>) : HtmlTag(node, nodeList, mutableListOf())
-class Doctype(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
-    HtmlTag(node, nodeList, attributes)
+interface Root : HtmlTag
+
+class RootImpl(node: Node, nodeList: MutableList<Node>) : Root, HtmlTagImpl(node, nodeList, mutableListOf())
+
+interface Doctype : HtmlTag
+
+class DoctypeImpl(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
+    HtmlTagImpl(node, nodeList, attributes)
 
 class Html(node: Node, nodeList: MutableList<Node>, attributes: MutableList<Attribute>) :
     HtmlTag(node, nodeList, attributes)
