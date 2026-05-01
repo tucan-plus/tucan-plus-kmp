@@ -289,8 +289,7 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                     }
 
                     tbody {
-                        while (peek()?.childNodes()?.filterNot(::shouldIgnore)?.first()
-                                ?.normalName() == "td"
+                        while (peek()?.firstChild()?.normalName() == "td"
                         ) {
                             val moduleId: String
                             val moduleName: String

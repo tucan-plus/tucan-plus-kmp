@@ -19,11 +19,13 @@ annotation class HtmlFromResources(val path: String)
 annotation class HtmlTagMarker
 
 interface Node {
-
+    fun attr(name: String): String
+    fun normalName(): String
+    fun firstChild(): Node
 }
 
 interface Attribute {
-
+    val key: String
 }
 
 interface HtmlTag {

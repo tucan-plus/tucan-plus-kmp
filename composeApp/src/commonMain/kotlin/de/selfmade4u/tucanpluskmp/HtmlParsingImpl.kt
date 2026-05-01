@@ -6,6 +6,7 @@ import com.fleeksoft.ksoup.nodes.DataNode
 import com.fleeksoft.ksoup.nodes.Document
 import com.fleeksoft.ksoup.nodes.Node
 import com.fleeksoft.ksoup.nodes.TextNode
+import kotlinx.coroutines.flow.first
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -13,12 +14,15 @@ import kotlin.jvm.JvmInline
 
 @JvmInline
 value class KsoupNode(private val node: com.fleeksoft.ksoup.nodes.Node) : de.selfmade4u.tucanpluskmp.Node {
-
+    override fun attr(name: String): String = node.attr(name)
+    override fun normalName(): String = node.normalName()
+    override fun firstChild(): de.selfmade4u.tucanpluskmp.Node = node.childNodes().filterNot(::shouldIgnore).first().let { KsoupNode(it) }
 }
 
 @JvmInline
 value class KsoupAttribute(private val node: com.fleeksoft.ksoup.nodes.Attribute) : de.selfmade4u.tucanpluskmp.Attribute {
-
+    override val key: String
+        get() = node.key
 }
 
 @HtmlTagMarker

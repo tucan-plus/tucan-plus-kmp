@@ -231,8 +231,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                     }
 
                     tbody {
-                        while (peek()?.childNodes()?.filterNot(::shouldIgnore)?.first()
-                                ?.normalName() == "td"
+                        while (peek()?.firstChild()?.normalName() == "td"
                         ) {
                             val id: String
                             val name: String
