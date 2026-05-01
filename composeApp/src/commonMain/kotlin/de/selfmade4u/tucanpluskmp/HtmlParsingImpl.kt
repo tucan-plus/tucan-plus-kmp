@@ -7,6 +7,8 @@ import com.fleeksoft.ksoup.nodes.Document
 import com.fleeksoft.ksoup.nodes.Node
 import com.fleeksoft.ksoup.nodes.TextNode
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 @HtmlTagMarker
 abstract class HtmlTagImpl(val node: Node, val children: MutableList<Node>, val attributes: MutableList<Attribute>) : HtmlTag {
@@ -119,8 +121,13 @@ abstract class HtmlTagImpl(val node: Node, val children: MutableList<Node>, val 
     }
 }
 class RootImpl(node: Node, nodeList: MutableList<Node>) :
-    Root, HtmlTagImpl(node, nodeList, mutableListOf())
+    Root, HtmlTagImpl(node, nodeList, mutableListOf()) {
+    override fun <T> doctype(init: Doctype.() -> T): T =
+        initTag("#doctype", ::DoctypeImpl, init)
 
+    override fun <R> html(init: Html.() -> R): R =
+        initTag("html", ::HtmlImpl, init)
+}
 
 class DoctypeImpl(
     node: Node,
@@ -132,7 +139,13 @@ class HtmlImpl(
     node: Node,
     nodeList: MutableList<Node>,
     attributes: MutableList<Attribute>
-) : Html, HtmlTagImpl(node, nodeList, attributes)
+) : Html, HtmlTagImpl(node, nodeList, attributes) {
+    override fun <R> head(init: Head.() -> R): R =
+        initTag("head", ::HeadImpl, init)
+
+    override fun <R> body(init: Body.() -> R): R =
+        initTag("body", ::BodyImpl, init)
+}
 
 
 class HeadImpl(
@@ -140,7 +153,20 @@ class HeadImpl(
     nodeList: MutableList<Node>,
     attributes: MutableList<Attribute>
 ) : Head, HtmlTagImpl(node, nodeList, attributes) {
-    override fun <R> script(init: Script.() -> R): R = initTag("script", ::ScriptImpl, init)
+    override fun <R> title(init: Title.() -> R): R =
+        initTag("title", ::TitleImpl, init)
+
+    override fun <R> meta(init: Meta.() -> R): R =
+        initTag("meta", ::MetaImpl, init)
+
+    override fun <R> link(init: Link.() -> R): R =
+        initTag("link", ::LinkImpl, init)
+
+    override fun <R> style(init: Head.() -> R): R =
+        initTag("style", ::HeadImpl, init)
+
+    override fun <R> script(init: Script.() -> R): R =
+        initTag("script", ::ScriptImpl, init)
 }
 
 class BodyImpl(
@@ -148,7 +174,60 @@ class BodyImpl(
     nodeList: MutableList<Node>,
     attributes: MutableList<Attribute>
 ) : Body, HtmlTagImpl(node, nodeList, attributes) {
-    override fun <R> script(init: Script.() -> R): R = initTag("script", ::ScriptImpl, init)
+    override fun <R> script(init: Script.() -> R): R =
+        initTag("script", ::ScriptImpl, init)
+
+    override fun <R> style(init: Body.() -> R): R =
+        initTag("style", ::BodyImpl, init)
+
+    override fun <R> div(init: Body.() -> R): R =
+        initTag("div", ::BodyImpl, init)
+
+    override fun <R> a(init: Body.() -> R): R {
+        //contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
+        return initTag("a", ::BodyImpl, init)
+    }
+    override fun <R> form(init: Body.() -> R): R = initTag("form", ::BodyImpl, init)
+    override fun <R> fieldset(init: Body.() -> R): R = initTag("fieldset", ::BodyImpl, init)
+    override fun <R> img(init: Body.() -> R): R = initTag("img", ::BodyImpl, init)
+    override fun <R> legend(init: Body.() -> R): R = initTag("legend", ::BodyImpl, init)
+    override fun <R> label(init: Body.() -> R): R = initTag("label", ::BodyImpl, init)
+    override fun <R> h1(init: Body.() -> R): R = initTag("h1", ::BodyImpl, init)
+    override fun <R> p(init: Body.() -> R): R = initTag("p", ::BodyImpl, init)
+    override fun <R> ul(init: Body.() -> R): R = initTag("ul", ::BodyImpl, init)
+    override fun <R> li(init: Body.() -> R): R = initTag("li", ::BodyImpl, init)
+    override fun <R> header(init: Body.() -> R): R = initTag("header", ::BodyImpl, init)
+    override fun <R> span(init: Body.() -> R): R = initTag("span", ::BodyImpl, init)
+    override fun <R> b(init: Body.() -> R): R = initTag("b", ::BodyImpl, init)
+    override fun <R> br(init: Body.() -> R): R = initTag("br", ::BodyImpl, init)
+    override fun <R> option(init: Body.() -> R): R {
+        //contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) };
+        return initTag(
+            "option",
+            ::BodyImpl,
+            init
+        )
+    }
+    override fun <R> input(init: Body.() -> R): R = initTag("input", ::BodyImpl, init)
+    override fun <R> select(init: Body.() -> R): R = initTag("select", ::BodyImpl, init)
+    override fun <R> table(init: Body.() -> R): R = initTag("table", ::BodyImpl, init)
+    override fun <R> thead(init: Body.() -> R): R = initTag("thead", ::BodyImpl, init)
+    override fun <R> tbody(init: Body.() -> R): R = initTag("tbody", ::BodyImpl, init)
+
+    @OptIn(ExperimentalContracts::class)
+    override fun <R> tr(init: Body.() -> R): R {
+        //contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
+        return initTag("tr", ::BodyImpl, init)
+    }
+
+    @OptIn(ExperimentalContracts::class)
+    override fun <R> td(init: Body.() -> R): R {
+        //contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
+        return initTag("td", ::BodyImpl, init)
+    }
+
+    override fun <R> th(init: Body.() -> R): R = initTag("th", ::BodyImpl, init)
+
 }
 
 class TitleImpl(

@@ -36,78 +36,56 @@ interface HtmlTag {
     fun peek(): Node?
     fun peekAttribute(): Attribute?
 }
+interface Root : HtmlTag {
+    fun <T> doctype(init: Doctype.() -> T): T
+    fun <R> html(init: Html.() -> R): R
+}
 
-interface Root : HtmlTag
 interface Doctype : HtmlTag
-interface Html : HtmlTag
+
+interface Html : HtmlTag {
+    fun <R> head(init: Head.() -> R): R
+    fun <R> body(init: Body.() -> R): R
+}
+
 interface Head : HtmlTag {
+    fun <R> title(init: Title.() -> R): R
+    fun <R> meta(init: Meta.() -> R): R
+    fun <R> link(init: Link.() -> R): R
+    fun <R> style(init: Head.() -> R): R
     fun <R> script(init: Script.() -> R): R
 }
+
 interface Body : HtmlTag {
     fun <R> script(init: Script.() -> R): R
+    fun <R> style(init: Body.() -> R): R
+    fun <R> a(init: Body.() -> R): R
+    fun <R> div(init: Body.() -> R): R
+    fun <R> form(init: Body.() -> R): R
+    fun <R> fieldset(init: Body.() -> R): R
+    fun <R> img(init: Body.() -> R): R
+    fun <R> legend(init: Body.() -> R): R
+    fun <R> label(init: Body.() -> R): R
+    fun <R> h1(init: Body.() -> R): R
+    fun <R> p(init: Body.() -> R): R
+    fun <R> ul(init: Body.() -> R): R
+    fun <R> li(init: Body.() -> R): R
+    fun <R> header(init: Body.() -> R): R
+    fun <R> span(init: Body.() -> R): R
+    fun <R> b(init: Body.() -> R): R
+    fun <R> br(init: Body.() -> R): R
+    fun <R> option(init: Body.() -> R): R
+    fun <R> input(init: Body.() -> R): R
+    fun <R> select(init: Body.() -> R): R
+    fun <R> table(init: Body.() -> R): R
+    fun <R> thead(init: Body.() -> R): R
+    fun <R> tbody(init: Body.() -> R): R
+    fun <R> tr(init: Body.() -> R): R
+    fun <R> td(init: Body.() -> R): R
+    fun <R> th(init: Body.() -> R): R
 }
+
 interface Title : HtmlTag
 interface Meta : HtmlTag
 interface Link : HtmlTag
 interface Script : HtmlTag
-
-fun <T> Root.doctype(init: Doctype.() -> T): T = initTag("#doctype", ::DoctypeImpl, init)
-fun <R> Root.html(init: Html.() -> R): R = initTag("html", ::HtmlImpl, init)
-
-fun <R> Html.head(init: Head.() -> R): R = initTag("head", ::HeadImpl, init)
-fun <R> Html.body(init: Body.() -> R): R = initTag("body", ::BodyImpl, init)
-
-fun <R> Head.title(init: Title.() -> R): R = initTag("title", ::TitleImpl, init)
-fun <R> Head.meta(init: Meta.() -> R): R = initTag("meta", ::MetaImpl, init)
-fun <R> Head.link(init: Link.() -> R): R = initTag("link", ::LinkImpl, init)
-fun <R> Head.style(init: Head.() -> R): R = initTag("style", ::HeadImpl, init)
-
-fun <R> Body.style(init: Body.() -> R): R = initTag("style", ::BodyImpl, init)
-fun <R> Body.a(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return initTag("a", ::BodyImpl, init)
-}
-fun <R> Body.div(init: Body.() -> R): R = initTag("div", ::BodyImpl, init)
-fun <R> Body.form(init: Body.() -> R): R = initTag("form", ::BodyImpl, init)
-fun <R> Body.fieldset(init: Body.() -> R): R = initTag("fieldset", ::BodyImpl, init)
-fun <R> Body.img(init: Body.() -> R): R = initTag("img", ::BodyImpl, init)
-fun <R> Body.legend(init: Body.() -> R): R = initTag("legend", ::BodyImpl, init)
-fun <R> Body.label(init: Body.() -> R): R = initTag("label", ::BodyImpl, init)
-fun <R> Body.h1(init: Body.() -> R): R = initTag("h1", ::BodyImpl, init)
-fun <R> Body.p(init: Body.() -> R): R = initTag("p", ::BodyImpl, init)
-fun <R> Body.ul(init: Body.() -> R): R = initTag("ul", ::BodyImpl, init)
-fun <R> Body.li(init: Body.() -> R): R = initTag("li", ::BodyImpl, init)
-fun <R> Body.header(init: Body.() -> R): R = initTag("header", ::BodyImpl, init)
-fun <R> Body.span(init: Body.() -> R): R = initTag("span", ::BodyImpl, init)
-fun <R> Body.b(init: Body.() -> R): R = initTag("b", ::BodyImpl, init)
-fun <R> Body.br(init: Body.() -> R): R = initTag("br", ::BodyImpl, init)
-fun <R> Body.option(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }; return initTag(
-        "option",
-        ::BodyImpl,
-        init
-    )
-}
-fun <R> Body.input(init: Body.() -> R): R = initTag("input", ::BodyImpl, init)
-fun <R> Body.select(init: Body.() -> R): R = initTag("select", ::BodyImpl, init)
-fun <R> Body.table(init: Body.() -> R): R = initTag("table", ::BodyImpl, init)
-fun <R> Body.thead(init: Body.() -> R): R = initTag("thead", ::BodyImpl, init)
-fun <R> Body.tbody(init: Body.() -> R): R = initTag("tbody", ::BodyImpl, init)
-
-@OptIn(ExperimentalContracts::class)
-fun <R> Body.tr(init: Body.() -> R): R {
-    contract {
-        callsInPlace(init, InvocationKind.EXACTLY_ONCE)
-    }
-    return initTag("tr", ::BodyImpl, init)
-}
-
-@OptIn(ExperimentalContracts::class)
-fun <R> Body.td(init: Body.() -> R): R {
-    contract {
-        callsInPlace(init, InvocationKind.EXACTLY_ONCE)
-    }
-    return initTag("td", ::BodyImpl, init)
-}
-
-fun <R> Body.th(init: Body.() -> R): R = initTag("th", ::BodyImpl, init)
