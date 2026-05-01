@@ -21,7 +21,7 @@ class MyPluginTest : BasePlatformTestCase() {
     fun testFindSimilarities() {
         val directory = myFixture.copyDirectoryToProject("", "");
         val project = myFixture.project
-        Extractor().process(project, null, null)
+        myFixture.testHighlighting("main.kt")
     }
 
     override fun getTestDataPath() = "src/test/testData/simple"
