@@ -15,7 +15,7 @@ import de.selfmade4u.services.MyProjectService
 // https://plugins.jetbrains.com/docs/intellij/intellij-platform-extension-point-list.html
 // https://github.com/JetBrains/intellij-community/blob/master/platform/analysis-api/src/com/intellij/codeInspection/GlobalInspectionTool.java
 
-@TestDataPath("\$CONTENT_ROOT/src/test/testData")
+@TestDataPath("\$CONTENT_ROOT/src/test/testData/simple")
 class MyPluginTest : BasePlatformTestCase() {
 
     fun testFindSimilarities() {
@@ -24,5 +24,5 @@ class MyPluginTest : BasePlatformTestCase() {
         Extractor().process(project, null, null)
     }
 
-    override fun getTestDataPath() = "src/test/testData/rename"
+    override fun getTestDataPath() = "src/test/testData/simple"
 }
