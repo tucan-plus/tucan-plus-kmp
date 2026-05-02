@@ -90,7 +90,7 @@ class Extractor {
                 analyze(expression) {
                     val callInfo = expression.resolveCall()!!
                     if (callInfo.symbol.importableFqName == null) {
-                        println("failed to compute call ${expression.text}")
+                        println("failed to compute call ${expression.text}, probably just dynamic dispatch")
                         annotations.add(expression) // TODO
                     } else {
                         println("containing file ${callInfo.symbol.importableFqName!!}")
