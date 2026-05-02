@@ -2,25 +2,32 @@ package de.selfmade4u
 
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.components.KaDiagnosticCheckerFilter
-import org.jetbrains.kotlin.analysis.api.fir.diagnostics.KaFirDiagnostic
 import java.nio.file.Paths
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtLibraryModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
-import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.utils.PathUtil
+import java.io.File
 
 fun main() {
+    println(PathUtil.KOTLIN_JAVA_STDLIB_JAR)
+    val targetPlatform = JvmPlatforms.defaultJvmPlatform
     val session = buildStandaloneAnalysisAPISession {
         buildKtModuleProvider {
-            val targetPlatform = JvmPlatforms.defaultJvmPlatform
             platform = targetPlatform
+            val lib = buildKtLibraryModule {
+                platform = targetPlatform
+                libraryName = "classpath"
+                addBinaryRoot(File(CharRange::class.java.protectionDomain.codeSource.location.path).toPath())
+            }
             addModule(
                 buildKtSourceModule {
-                    addSourceRoots(listOf(Paths.get("kotlin-analysis/src/main/resources/simple")))
                     platform = targetPlatform
                     moduleName = "source"
+                    addRegularDependency(lib)
+                    addSourceRoots(listOf(Paths.get("kotlin-analysis/src/main/resources/simple")))
                 }
             )
         }
