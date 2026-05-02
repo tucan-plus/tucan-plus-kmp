@@ -89,13 +89,18 @@ class Extractor {
                 }
                 analyze(expression) {
                     val callInfo = expression.resolveCall()!!
-                    println("containing file ${callInfo.symbol.importableFqName!!}")
-                    when (callInfo.symbol.importableFqName!!.toString()) {
-                        "de.selfmade4u.tucanpluskmp.doctype" -> {
-                            println("known call to doctype")
-                        }
-                        else -> {
-                            annotations.add(expression)
+                    if (callInfo.symbol.importableFqName == null) {
+                        println("failed to compute call ${expression.text}")
+                        annotations.add(expression) // TODO
+                    } else {
+                        println("containing file ${callInfo.symbol.importableFqName!!}")
+                        when (callInfo.symbol.importableFqName!!.toString()) {
+                            "de.selfmade4u.tucanpluskmp.doctype" -> {
+                                println("known call to doctype")
+                            }
+                            else -> {
+                                annotations.add(expression)
+                            }
                         }
                     }
                 }
