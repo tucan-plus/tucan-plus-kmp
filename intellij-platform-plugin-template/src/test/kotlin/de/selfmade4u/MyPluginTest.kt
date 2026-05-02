@@ -31,25 +31,11 @@ import java.io.File
 
 // https://github.com/JetBrains/intellij-structural-search-for-kotlin/blob/master/src/test/kotlin/com/jetbrains/kotlin/structuralsearch/KotlinLightProjectDescriptor.kt
 
-open class KotlinLightProjectDescriptor : DefaultLightProjectDescriptor() {
-
-    override fun getSdk(): Sdk? {
-        // This provides a basic JDK (equivalent to Java 11 or 17 depending on your platform version)
-        // which contains java.io.Serializable
-        return IdeaTestUtil.getMockJdk(LanguageLevel.JDK_26)
-    }
-
-    override fun configureModule(module: Module, model: ModifiableRootModel, contentEntry: ContentEntry) {
-        super.configureModule(module, model, contentEntry)
-        MavenDependencyUtil.addFromMaven(model, "org.jetbrains.kotlin:kotlin-stdlib:2.4.0-Beta2")
-    }
-}
-
 // https://plugins.jetbrains.com/docs/intellij/intellij-platform-extension-point-list.html
 // https://github.com/JetBrains/intellij-community/blob/master/platform/analysis-api/src/com/intellij/codeInspection/GlobalInspectionTool.java
 
 // https://github.com/JetBrains/intellij-community/tree/master/platform/testFramework/junit5/test/showcase
-class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(KotlinLightProjectDescriptor()) {
+class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDescriptor({ IdeaTestUtil.getMockJdk(LanguageLevel.HIGHEST) }, listOf("org.jetbrains.kotlin:kotlin-stdlib:2.4.0-Beta2"))) {
 
     @Test
     fun testFindSimilarities() {
