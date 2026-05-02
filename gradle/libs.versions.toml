@@ -38,7 +38,7 @@ sqlite = "2.7.0-alpha03" # js/wasm target
 koin = "4.2.0"
 koin-plugin = "0.6.2"
 intellijPlatform = "2.14.0"
-kotlin = "2.3.20"
+kotlin = "2.3.21"
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -107,6 +107,16 @@ koin-androidx-workmanager = { module = "io.insert-koin:koin-androidx-workmanager
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "composeMultiplatform" }
 ktor-serverCore = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-serverJetty = { module = "io.ktor:ktor-server-jetty-jakarta", version.ref = "ktor" }
+
+# Kotlin Analysis API artifacts
+kotlin-analysisApiPlatformInterface = { module = "org.jetbrains.kotlin:analysis-api-platform-interface-for-ide", version.ref = "kotlin" }
+kotlin-analysisApiK2 = { module = "org.jetbrains.kotlin:analysis-api-k2-for-ide", version.ref = "kotlin" }
+kotlin-analysisApi = { module = "org.jetbrains.kotlin:analysis-api-for-ide", version.ref = "kotlin" }
+kotlin-analysisApiStandalone = { module = "org.jetbrains.kotlin:analysis-api-standalone-for-ide", version.ref = "kotlin" }
+kotlin-lowLevelApiFir = { module = "org.jetbrains.kotlin:low-level-api-fir-for-ide", version.ref = "kotlin" }
+kotlin-symbolLightClasses = { module = "org.jetbrains.kotlin:symbol-light-classes-for-ide", version.ref = "kotlin" }
+kotlin-analysisApiImplBase = { module = "org.jetbrains.kotlin:analysis-api-impl-base-for-ide", version.ref = "kotlin" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
