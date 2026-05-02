@@ -21,6 +21,8 @@ import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.fixtures.MavenDependencyUtil
 import com.intellij.util.lang.JavaVersion
+import com.jetbrains.Keyboard
+import com.sun.jna.platform.KeyboardUtils
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -37,6 +39,7 @@ import java.io.File
 // https://github.com/JetBrains/intellij-community/tree/master/platform/testFramework/junit5/test/showcase
 class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDescriptor({ IdeaTestUtil.getMockJdk(LanguageLevel.HIGHEST) }, listOf("org.jetbrains.kotlin:kotlin-stdlib:2.4.0-Beta2"))) {
 
+    // https://github.com/JetBrains/JetBrainsRuntime/blob/2a24ff85457db452a7499acfb0f16a98f446d4d9/src/java.desktop/unix/classes/sun/awt/wl/WLKeyboard.java#L40
     @Test
     fun testFindSimilarities() {
         //Registry.get("platform.random.idempotence.check.rate").setValue(1, getTestRootDisposable())

@@ -41,6 +41,8 @@ dependencies {
         testFramework(TestFrameworkType.Starter, configurationName = "integrationTestImplementation")
         testFramework(TestFrameworkType.JUnit5)
         testFramework(TestFrameworkType.Plugin.Java)
+        //bundledLibrary("org.jetbrains.kotlin.kotlin-test-framework")
+        jetbrainsRuntime("25.0.2b432.48")
     }
 
     integrationTestImplementation("org.junit.jupiter:junit-jupiter-engine")
