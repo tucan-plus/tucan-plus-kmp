@@ -18,9 +18,13 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.XmlFile
 import com.intellij.psi.xml.XmlTag
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
+import org.jetbrains.kotlin.analysis.api.KaIdeApi
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.components.resolveToCall
+import org.jetbrains.kotlin.analysis.api.resolution.calls
+import org.jetbrains.kotlin.analysis.api.resolution.symbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaCallableSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.name
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
@@ -36,6 +40,7 @@ import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
+import org.jetbrains.kotlin.psi.psiUtil.getTextWithLocation
 
 // https://github.com/JetBrains/intellij-community/blob/37b233a6b70fb606dad5f13eb001c63fb6b12cf4/plugins/kotlin/base/analysis/src/org/jetbrains/kotlin/idea/stubindex/IdeStubIndexService.java#L306
 // https://github.com/JetBrains/kotlin/blob/a66400f13ad48df4ed889ba98d94c0ece05d9acf/compiler/psi/psi-impl/src/org/jetbrains/kotlin/psi/stubs/elements/StubIndexService.kt#L12
@@ -61,24 +66,33 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 }
 class Extractor {
 
-    @OptIn(KaExperimentalApi::class)
+    @OptIn(KaExperimentalApi::class, KaIdeApi::class)
     fun checkExpression(annotations: MutableList<PsiElement>, expression: KtExpression) {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
             is KtCallExpression -> {
+                println("call ${expression.text}")
                 println("args ${expression.valueArguments}")
-                analyze(expression) {
-                    val symbol = expression.mainReference.resolveToSymbol() as? KaCallableSymbol
-                    println(symbol)
-                    val callInfo = expression.resolveCall()
-                    println(callInfo)
+                for (arg in expression.valueArguments) {
+                    checkExpression(annotations, arg.getArgumentExpression()!!)
                 }
-                println(expression.mainReference)
-                println(expression.calleeExpression!!::class)
+                analyze(expression) {
+                    val callInfo = expression.resolveCall()!!
+                    println("containing file ${callInfo.symbol.importableFqName!!}")
+                    when (callInfo.symbol.importableFqName!!.toString()) {
+                        "de.selfmade4u.tucanpluskmp.doctype" -> {
+                            println("known call to doctype")
+                        }
+                        else -> {
+                            annotations.add(expression)
+                        }
+                    }
+                }
+                println("mainref ${expression.mainReference}")
                 when (expression.calleeExpression) {
-                    is KtReferenceExpression -> {
-                        println("calling ")
+                    is KtNameReferenceExpression -> {
+                        println("calling")
                     }
                 }
             }
