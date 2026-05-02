@@ -1,17 +1,21 @@
 package de.selfmade4u
 
-import com.intellij.openapi.util.Disposer
+import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.components.KaDiagnosticCheckerFilter
-import java.nio.file.Paths
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtLibraryModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSdkModule
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
+import org.jetbrains.kotlin.psi.KtAnnotation
+import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.utils.PathUtil
+import org.jetbrains.kotlin.psi.KtTreeVisitorVoid
+import org.jetbrains.kotlin.psi.KtVisitorVoid
 import java.io.File
+import java.nio.file.Paths
 import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
@@ -52,7 +56,12 @@ fun main() {
                 .collectDiagnostics(KaDiagnosticCheckerFilter.ONLY_COMMON_CHECKERS)
            println(diagnostics.map { it.defaultMessage }.joinToString("\n"))
         }
+        ktFile.accept(object : KtTreeVisitorVoid() {
+            override fun visitAnnotationEntry(annotationEntry: KtAnnotationEntry) {
+                super.visitAnnotationEntry(annotationEntry)
+                println("annotation entry ${annotationEntry.text}")
+            }
+        })
     }
-    println("done")
     exitProcess(0)
 }
