@@ -2,7 +2,7 @@ annotation class HtmlFromResources(val path: String)
 
 object Test {
     @HtmlFromResources("html")
-    fun someFun(sessionId: String, menuId: String) {
+    fun Root.someFun(sessionId: String, menuId: String) {
         val a = 42;
         var sessionId = sessionId
         var menuId = menuId
