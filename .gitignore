@@ -25,3 +25,4 @@ androidApp/release
 *.db-wal
 /composeApp/src/commonTest/resources/module-results/
 /composeApp/src/commonTest/resources/exam-results/
+out
