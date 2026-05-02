@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtLibraryMod
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.platform.TargetPlatform
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
+import org.jetbrains.kotlin.psi.KtFile
 
 fun main() {
     val session = buildStandaloneAnalysisAPISession {
@@ -14,11 +15,13 @@ fun main() {
             platform = targetPlatform
             addModule(
                 buildKtSourceModule {
-                    addSourceRoots(listOf())
+                    addSourceRoots(listOf(Paths.get("kotlin-analysis/src/main/resources/simple")))
                     platform = targetPlatform
                     moduleName = "source"
                 }
             )
         }
     }
+    val ktFiles = session.modulesWithFiles.values.flatten().map { it as KtFile }
+    println(ktFiles)
 }
