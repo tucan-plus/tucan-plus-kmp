@@ -1,5 +1,6 @@
 package de.selfmade4u
 
+import com.intellij.openapi.util.Disposer
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.components.KaDiagnosticCheckerFilter
 import java.nio.file.Paths
@@ -12,9 +13,12 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import kotlin.io.path.Path
+import kotlin.system.exitProcess
 
+
+// https://github.com/detekt/detekt/blob/9db81c0e15bc296ab3031f8406ad05de4a1a3b19/detekt-test-utils/src/main/kotlin/dev/detekt/test/utils/KotlinAnalysisApiEngine.kt#L6
+// https://github.com/detekt/detekt/blob/9db81c0e15bc296ab3031f8406ad05de4a1a3b19/detekt-core/src/main/kotlin/dev/detekt/core/settings/EnvironmentAware.kt#L14
 fun main() {
-    println(PathUtil.KOTLIN_JAVA_STDLIB_JAR)
     val targetPlatform = JvmPlatforms.defaultJvmPlatform
     val session = buildStandaloneAnalysisAPISession {
         buildKtModuleProvider {
@@ -50,4 +54,5 @@ fun main() {
         }
     }
     println("done")
+    exitProcess(0)
 }
