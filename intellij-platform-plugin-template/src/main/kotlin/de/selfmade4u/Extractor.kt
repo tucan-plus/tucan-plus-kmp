@@ -17,7 +17,12 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.XmlFile
 import com.intellij.psi.xml.XmlTag
+import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.components.resolveToCall
+import org.jetbrains.kotlin.analysis.api.symbols.KaCallableSymbol
 import org.jetbrains.kotlin.idea.base.util.projectScope
+import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtCallExpression
@@ -28,6 +33,7 @@ import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
@@ -55,18 +61,27 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 }
 class Extractor {
 
+    @OptIn(KaExperimentalApi::class)
     fun checkExpression(annotations: MutableList<PsiElement>, expression: KtExpression) {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
-            /*is KtCallExpression -> {
-            val args = statement.valueArgumentList
-            println("args $args")
-        }
-
-        is KtIfExpression -> {
-            println("some if")
-        }*/
+            is KtCallExpression -> {
+                println("args ${expression.valueArguments}")
+                analyze(expression) {
+                    val symbol = expression.mainReference.resolveToSymbol() as? KaCallableSymbol
+                    println(symbol)
+                    val callInfo = expression.resolveCall()
+                    println(callInfo)
+                }
+                println(expression.mainReference)
+                println(expression.calleeExpression!!::class)
+                when (expression.calleeExpression) {
+                    is KtReferenceExpression -> {
+                        println("calling ")
+                    }
+                }
+            }
             is KtProperty -> {
                 println("got a property, need to check what it gets assigned")
                 val initializer = expression.initializer

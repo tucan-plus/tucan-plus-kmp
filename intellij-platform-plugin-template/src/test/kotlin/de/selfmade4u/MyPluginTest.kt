@@ -17,9 +17,11 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.LightProjectDescriptor
 import com.intellij.testFramework.PsiTestUtil
+import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.fixtures.MavenDependencyUtil
+import com.intellij.testFramework.junit5.fixture.disposableFixture
 import com.intellij.util.lang.JavaVersion
 import com.jetbrains.Keyboard
 import com.sun.jna.platform.KeyboardUtils
