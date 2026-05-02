@@ -1,4 +1,4 @@
-annotation class HtmlFromResources(val path: String)
+package de.selfmade4u.tucanpluskmp
 
 object Test {
     @HtmlFromResources("html")
