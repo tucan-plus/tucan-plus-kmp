@@ -1,32 +1,12 @@
 package de.selfmade4u
 
-import com.intellij.java.library.JavaLibraryUtil
-import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.projectRoots.JavaSdk
-import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.roots.ContentEntry
-import com.intellij.openapi.roots.ExternalLibraryDescriptor
-import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.roots.OrderRootType
-import com.intellij.openapi.roots.impl.libraries.LibraryEx
-import com.intellij.openapi.roots.ui.configuration.libraryEditor.NewLibraryEditor
-import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
-import com.intellij.testFramework.LightProjectDescriptor
-import com.intellij.testFramework.PsiTestUtil
 import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
-import com.intellij.testFramework.fixtures.MavenDependencyUtil
-import com.intellij.testFramework.junit5.fixture.disposableFixture
-import com.intellij.util.lang.JavaVersion
-import com.jetbrains.Keyboard
-import com.sun.jna.platform.KeyboardUtils
 import org.junit.jupiter.api.Test
-import java.io.File
 
 // https://github.com/JetBrains/intellij-community/blob/master/plugins/kotlin/test-framework/test/org/jetbrains/kotlin/idea/test/kmp/KMPNativeLinuxProjectDescriptor.kt
 // https://github.com/JetBrains/intellij-community/blob/4192b57a80be69fb8901c5bbc3adf393285c432d/plugins/kotlin/test-framework/test/org/jetbrains/kotlin/idea/test/KotlinLightProjectDescriptor.java#L19
@@ -44,6 +24,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     // https://github.com/JetBrains/JetBrainsRuntime/blob/2a24ff85457db452a7499acfb0f16a98f446d4d9/src/java.desktop/unix/classes/sun/awt/wl/WLKeyboard.java#L40
     @Test
     fun testFindSimilarities() {
+        @Suppress("UnstableApiUsage")
+        ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "WLKeyboard.KeyRepeatManager", "AWT-Wayland")
         //Registry.get("platform.random.idempotence.check.rate").setValue(1, getTestRootDisposable())
         fixture.copyDirectoryToProject("", "");
         fixture.testHighlighting("HtmlParsing.kt")
