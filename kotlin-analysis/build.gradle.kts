@@ -27,6 +27,7 @@ dependencies {
 
     implementation(libs.kotlin.compiler)
     implementation(libs.kotlinx.serializationCore)
+    implementation(libs.caffeine)
 
     // maybe put this separately?
     implementation(libs.kotlin.analysisApiStandalone) { isTransitive = false }
