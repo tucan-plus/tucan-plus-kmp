@@ -1,18 +1,26 @@
 package de.selfmade4u
 
+import com.intellij.java.library.JavaLibraryUtil
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ContentEntry
+import com.intellij.openapi.roots.ExternalLibraryDescriptor
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.NewLibraryEditor
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.LightProjectDescriptor
+import com.intellij.testFramework.PsiTestUtil
+import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
+import com.intellij.testFramework.fixtures.MavenDependencyUtil
+import com.intellij.util.lang.JavaVersion
 import org.junit.jupiter.api.Test
 import java.io.File
 
@@ -22,38 +30,18 @@ import java.io.File
 // https://github.com/JetBrains/kotlin/blob/master/analysis/stubs/tests/org/jetbrains/kotlin/analysis/decompiler/BuiltinsDecompilerTest.kt
 
 // https://github.com/JetBrains/intellij-structural-search-for-kotlin/blob/master/src/test/kotlin/com/jetbrains/kotlin/structuralsearch/KotlinLightProjectDescriptor.kt
-open class KotlinLightProjectDescriptor : LightProjectDescriptor() {
+
+open class KotlinLightProjectDescriptor : DefaultLightProjectDescriptor() {
+
     override fun getSdk(): Sdk? {
-        val javaHome = System.getProperty("java.home")
-        assert(File(javaHome).isDirectory)
-        val table = ProjectJdkTable.getInstance()
-        val existing = table.findJdk("Full JDK")
-        return existing ?: JavaSdk.getInstance().createJdk("Full JDK", javaHome, true)
-    }
-
-    protected fun addLibrary(clazz: Class<*>, orderRootType: OrderRootType, model: ModifiableRootModel) {
-        val editor = NewLibraryEditor()
-        editor.name = clazz.canonicalName
-
-        val file = File(PathManager.getJarPathForClass(clazz) ?: "")
-        assert(file.exists())
-        editor.addRoot(
-            VfsUtil.getUrlForLibraryRoot(file),
-            orderRootType
-        )
-
-        val libraryTableModifiableModel = model.moduleLibraryTable.modifiableModel
-        val library = libraryTableModifiableModel.createLibrary(editor.name)
-
-        val libModel = library.modifiableModel
-        editor.applyTo(libModel as LibraryEx.ModifiableModelEx)
-
-        libModel.commit()
-        libraryTableModifiableModel.commit()
+        // This provides a basic JDK (equivalent to Java 11 or 17 depending on your platform version)
+        // which contains java.io.Serializable
+        return IdeaTestUtil.getMockJdk(LanguageLevel.JDK_26)
     }
 
     override fun configureModule(module: Module, model: ModifiableRootModel, contentEntry: ContentEntry) {
-        addLibrary(AccessDeniedException::class.java, OrderRootType.CLASSES, model)
+        super.configureModule(module, model, contentEntry)
+        MavenDependencyUtil.addFromMaven(model, "org.jetbrains.kotlin:kotlin-stdlib:2.4.0-Beta2")
     }
 }
 
