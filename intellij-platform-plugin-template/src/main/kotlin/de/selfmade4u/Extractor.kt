@@ -29,11 +29,13 @@ import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
+import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtConstantExpression
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtIfExpression
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
@@ -71,6 +73,14 @@ class Extractor {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
+            is KtLambdaExpression -> {
+                checkExpression(annotations, expression.bodyExpression!!)
+            }
+            is KtBlockExpression -> {
+                for (statement in expression.statements) {
+                    checkExpression(annotations, statement)
+                }
+            }
             is KtCallExpression -> {
                 println("call ${expression.text}")
                 println("args ${expression.valueArguments}")
