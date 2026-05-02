@@ -12,9 +12,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5() {
     @Test
     fun testFindSimilarities() {
         //Registry.get("platform.random.idempotence.check.rate").setValue(1, getTestRootDisposable())
-
-        val directory = fixture.copyDirectoryToProject("", "");
-        val project = fixture.project
+        fixture.copyDirectoryToProject("", "");
         fixture.testHighlighting("HtmlParsing.kt")
         fixture.testHighlighting("main.kt")
     }
