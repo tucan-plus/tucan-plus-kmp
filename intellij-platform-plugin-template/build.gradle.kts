@@ -9,14 +9,29 @@ plugins {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.13.2")
+    testRuntimeOnly("junit:junit:4.13.2")
+
+    // Import the BOM to align all junit-jupiter/platform versions
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+
+    // If you use specialized platform features:
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         intellijIdea("2026.1")
         bundledPlugin("org.jetbrains.kotlin")
+        bundledPlugin("com.intellij.java")
         testFramework(TestFrameworkType.Platform)
+        testFramework(TestFrameworkType.Plugin.Java)
     }
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
