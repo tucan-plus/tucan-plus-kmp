@@ -26,6 +26,7 @@ dependencies {
     // https://youtrack.jetbrains.com/issue/KT-61639
 
     implementation(libs.kotlin.compiler)
+    implementation(libs.kotlinx.serializationCore)
 
     // maybe put this separately?
     implementation(libs.kotlin.analysisApiStandalone) { isTransitive = false }
@@ -41,7 +42,7 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(21)
 }
 
 tasks.test {
