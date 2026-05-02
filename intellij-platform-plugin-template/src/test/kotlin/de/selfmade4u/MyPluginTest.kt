@@ -15,7 +15,6 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5() {
 
         val directory = fixture.copyDirectoryToProject("", "");
         val project = fixture.project
-        //KotlinFacet.get(module)?.configuration?.settings?.compilerSettings.
         fixture.testHighlighting("HtmlParsing.kt")
         fixture.testHighlighting("main.kt")
     }

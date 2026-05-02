@@ -23,10 +23,11 @@ dependencies {
     testRuntimeOnly("junit:junit:4.13.2")
 
     // Import the BOM to align all junit-jupiter/platform versions
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation(platform("org.junit:junit-bom:5.14.4"))
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter")
 
     // If you use specialized platform features:
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
