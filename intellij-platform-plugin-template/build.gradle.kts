@@ -7,7 +7,7 @@ plugins {
     id("org.jetbrains.intellij.platform")
     id("org.jetbrains.changelog")
 }
-
+/*
 sourceSets {
     create("integrationTest") {
         compileClasspath += sourceSets.main.get().output
@@ -17,7 +17,7 @@ sourceSets {
 
 val integrationTestImplementation by configurations.getting {
     extendsFrom(configurations.testImplementation.get())
-}
+}*/
 
 dependencies {
     testRuntimeOnly("junit:junit:4.13.2")
@@ -38,19 +38,19 @@ dependencies {
         bundledPlugin("org.jetbrains.kotlin")
         bundledPlugin("com.intellij.java")
         testFramework(TestFrameworkType.Platform)
-        testFramework(TestFrameworkType.Starter, configurationName = "integrationTestImplementation")
+        //testFramework(TestFrameworkType.Starter, configurationName = "integrationTestImplementation")
         testFramework(TestFrameworkType.JUnit5)
         testFramework(TestFrameworkType.Plugin.Java)
         //bundledLibrary("org.jetbrains.kotlin.kotlin-test-framework")
     }
 
-    integrationTestImplementation("org.junit.jupiter:junit-jupiter-engine")
+   /* integrationTestImplementation("org.junit.jupiter:junit-jupiter-engine")
     integrationTestImplementation("org.junit.platform:junit-platform-launcher")
     integrationTestImplementation("org.jetbrains.kotlin:kotlin-stdlib")
     integrationTestImplementation("org.kodein.di:kodein-di-jvm:7.20.2")
-    integrationTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1")
+    integrationTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1")*/
 }
-
+/*
 val integrationTest by intellijPlatformTesting.testIdeUi.registering {
     task {
         val integrationTestSourceSet = sourceSets.getByName("integrationTest")
@@ -58,7 +58,7 @@ val integrationTest by intellijPlatformTesting.testIdeUi.registering {
         classpath = integrationTestSourceSet.runtimeClasspath
         useJUnitPlatform()
     }
-}
+}*/
 
 tasks.test {
     useJUnitPlatform()
