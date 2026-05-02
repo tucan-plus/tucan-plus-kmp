@@ -120,6 +120,8 @@ kotlin-analysisApiImplBase = { module = "org.jetbrains.kotlin:analysis-api-impl-
 # Can likely be removed in future - https://youtrack.jetbrains.com/issue/KT-73751/Analysis-API-Caffeine-dependency
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version = "2.9.3" }
 kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
+# Should be possible to remove when https://youtrack.jetbrains.com/issue/KT-81457 fixed
+kotlinx-coroutinesCore-intellij = { module = "org.jetbrains.intellij.deps.kotlinx:kotlinx-coroutines-core", version = "1.10.2-intellij-1" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

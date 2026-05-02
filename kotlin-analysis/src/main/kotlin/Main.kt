@@ -1,5 +1,8 @@
 package de.selfmade4u
 
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.components.KaDiagnosticCheckerFilter
+import org.jetbrains.kotlin.analysis.api.fir.diagnostics.KaFirDiagnostic
 import java.nio.file.Paths
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtLibraryModule
@@ -24,4 +27,11 @@ fun main() {
     }
     val ktFiles = session.modulesWithFiles.values.flatten().map { it as KtFile }
     println(ktFiles)
+    for (ktFile in ktFiles) {
+        analyze(ktFile) {
+            val diagnostics = ktFile
+                .collectDiagnostics(KaDiagnosticCheckerFilter.ONLY_COMMON_CHECKERS)
+           println(diagnostics.map { it.defaultMessage }.joinToString("\n"))
+        }
+    }
 }
