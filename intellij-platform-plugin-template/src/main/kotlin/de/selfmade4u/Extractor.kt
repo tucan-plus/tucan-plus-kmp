@@ -21,9 +21,13 @@ import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaIdeApi
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.components.resolveToCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
+import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
 import org.jetbrains.kotlin.analysis.api.resolution.calls
+import org.jetbrains.kotlin.analysis.api.resolution.singleCallOrNull
 import org.jetbrains.kotlin.analysis.api.resolution.symbol
 import org.jetbrains.kotlin.analysis.api.symbols.KaCallableSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaFunctionSymbol
 import org.jetbrains.kotlin.analysis.api.symbols.name
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.references.mainReference
@@ -43,6 +47,10 @@ import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.psi.psiUtil.getTextWithLocation
+
+// https://github.com/JetBrains/kotlin/blob/master/analysis/docs/contribution-guide/api-development.md
+// https://youtrack.jetbrains.com/issue/KT-61404/Analysis-API-implement-proper-library-publishing-structure
+// lots of moving parts (assuming this work ever gets done)
 
 // https://github.com/JetBrains/intellij-community/blob/37b233a6b70fb606dad5f13eb001c63fb6b12cf4/plugins/kotlin/base/analysis/src/org/jetbrains/kotlin/idea/stubindex/IdeStubIndexService.java#L306
 // https://github.com/JetBrains/kotlin/blob/a66400f13ad48df4ed889ba98d94c0ece05d9acf/compiler/psi/psi-impl/src/org/jetbrains/kotlin/psi/stubs/elements/StubIndexService.kt#L12
@@ -66,6 +74,7 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
         }
     }
 }
+
 class Extractor {
 
     @OptIn(KaExperimentalApi::class, KaIdeApi::class)
@@ -88,17 +97,22 @@ class Extractor {
                     checkExpression(annotations, arg.getArgumentExpression()!!)
                 }
                 analyze(expression) {
-                    val callInfo = expression.resolveCall()!!
-                    if (callInfo.symbol.importableFqName == null) {
+                    //val resolveToCall: KaCallInfo? = expression.resolveToCall() // sealed class, can get a Ka(Function)Call
+                    val kaFunctionSymbol: KaFunctionSymbol = expression.resolveSymbol()!!
+                    //val callInfo: KaFunctionCall<*> = expression.resolveCall()!! // contains signature, symbol etc
+                    val psi = kaFunctionSymbol.psi
+                    println(psi)
+                    if (kaFunctionSymbol.importableFqName == null) {
+                        println(kaFunctionSymbol)
                         annotations[expression] = "failed to compute call probably just dynamic dispatch" // TODO
                     } else {
-                        println("containing file ${callInfo.symbol.importableFqName!!}")
-                        when (callInfo.symbol.importableFqName!!.toString()) {
+                        println("containing file ${kaFunctionSymbol.importableFqName!!}")
+                        when (kaFunctionSymbol.importableFqName!!.toString()) {
                             "de.selfmade4u.tucanpluskmp.doctype" -> {
                                 println("known call to doctype")
                             }
                             else -> {
-                                annotations[expression] = "unknown called method ${callInfo.symbol.importableFqName!!.toString()}"
+                                annotations[expression] = "unknown called method ${kaFunctionSymbol.importableFqName!!}"
                             }
                         }
                     }
