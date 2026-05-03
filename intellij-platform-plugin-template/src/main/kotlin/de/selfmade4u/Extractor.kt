@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.components.resolveToCall
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
+import org.jetbrains.kotlin.analysis.api.resolution.KaSuccessCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.calls
 import org.jetbrains.kotlin.analysis.api.resolution.singleCallOrNull
 import org.jetbrains.kotlin.analysis.api.resolution.symbol
@@ -38,6 +39,7 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtConstantExpression
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
@@ -77,7 +79,6 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 
 class Extractor {
 
-    @OptIn(KaExperimentalApi::class, KaIdeApi::class)
     fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression) {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
@@ -97,12 +98,28 @@ class Extractor {
                     checkExpression(annotations, arg.getArgumentExpression()!!)
                 }
                 analyze(expression) {
-                    //val resolveToCall: KaCallInfo? = expression.resolveToCall() // sealed class, can get a Ka(Function)Call
-                    val kaFunctionSymbol: KaFunctionSymbol = expression.resolveSymbol()!!
-                    //val callInfo: KaFunctionCall<*> = expression.resolveCall()!! // contains signature, symbol etc
-                    val psi = kaFunctionSymbol.psi
-                    println(psi)
-                    if (kaFunctionSymbol.importableFqName == null) {
+                    val resolveToCall: KaCallInfo? = expression.resolveToCall() // sealed class, can get a Ka(Function)Call
+                    when (resolveToCall) {
+                        is KaSuccessCallInfo -> {
+                            println(resolveToCall.call)
+                            val psi = (resolveToCall.call as KaFunctionCall<*>).symbol.psi
+                            println("psi $psi")
+                            val implementation = psi as? KtFunction
+
+                            if (implementation != null) {
+                                println("Implementation found: ${implementation.fqName}")
+                            } else {
+                                println("Symbol found, but no source PSI (likely a compiled library)")
+                            }
+                        }
+
+                        else -> {
+                            println("failed to resolve")
+                        }
+                    }
+                    //val psi = kaFunctionSymbol.containingDeclaration
+                    println("mainref ${expression.mainReference}")
+                    /*if (kaFunctionSymbol.importableFqName == null) {
                         println(kaFunctionSymbol)
                         annotations[expression] = "failed to compute call probably just dynamic dispatch" // TODO
                     } else {
@@ -115,9 +132,8 @@ class Extractor {
                                 annotations[expression] = "unknown called method ${kaFunctionSymbol.importableFqName!!}"
                             }
                         }
-                    }
+                    }*/
                 }
-                println("mainref ${expression.mainReference}")
                 when (expression.calleeExpression) {
                     is KtNameReferenceExpression -> {
                         println("calling")
