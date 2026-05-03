@@ -92,8 +92,6 @@ class Extractor {
                 }
             }
             is KtCallExpression -> {
-                println("call ${expression.text}")
-                println("args ${expression.valueArguments}")
                 for (arg in expression.valueArguments) {
                     checkExpression(annotations, arg.getArgumentExpression()!!, htmlTag)
                 }
@@ -101,11 +99,9 @@ class Extractor {
                     val resolveToCall: KaCallInfo? = expression.resolveToCall() // sealed class, can get a Ka(Function)Call
                     when (resolveToCall) {
                         is KaSuccessCallInfo -> {
-                            println(resolveToCall.call)
                             val psi = (resolveToCall.call as KaFunctionCall<*>).symbol.psi
 
                             val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName().asString()
-                            println(fqName)
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.doctype" -> {
                                     println("known call to doctype")
@@ -114,34 +110,25 @@ class Extractor {
                                     println("known call to attribute")
                                 }
                                 else -> {
-                                    annotations[expression] = "unknown called method"
+                                    val implementation = psi as? KtFunction
+
+                                    if (implementation != null) {
+                                        println("Implementation found: ${implementation.fqName}")
+                                        annotations[expression] = "TOOD implementation needs analysis"
+                                    } else {
+                                        annotations[expression] = "unknown called method"
+                                    }
                                 }
                             }
-                            println("psi $psi")
-                            val implementation = psi as? KtFunction
-
-                            if (implementation != null) {
-                                println("Implementation found: ${implementation.fqName}")
-                            } else {
-                                println("Symbol found, but no source PSI (likely a compiled library)")
-                            }
                         }
-
                         else -> {
-                            println("failed to resolve")
+                            annotations[expression] = "failed to resolve"
                         }
-                    }
-                }
-                when (expression.calleeExpression) {
-                    is KtNameReferenceExpression -> {
-                        println("calling")
                     }
                 }
             }
             is KtProperty -> {
-                println("got a property, need to check what it gets assigned")
                 val initializer = expression.initializer
-                println("initializer $initializer")
                 checkExpression(annotations, initializer!!, htmlTag)
             }
             is KtStringTemplateExpression -> {
