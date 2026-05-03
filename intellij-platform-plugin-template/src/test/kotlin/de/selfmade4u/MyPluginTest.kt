@@ -11,6 +11,8 @@ import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.runInEdtAndWait
+import com.intellij.testFramework.utils.editor.commitToPsi
+import com.intellij.testFramework.utils.editor.saveToDisk
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,9 +35,9 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     fun testHtmlParsing() {
         fixture.copyFileToProject("HtmlParsing.kt")
         fixture.copyDirectoryToProject("simple_html", "html");
-        fixture.copyFileToProject("main_annotated.kt");
+        fixture.copyFileToProject("main_annotated.kt", "main.kt");
         fixture.testHighlighting("HtmlParsing.kt")
-        fixture.testHighlighting("main_annotated.kt")
+        fixture.testHighlighting("main.kt")
         //fixture.testHighlighting("html/page1.html")
         //fixture.testHighlighting("html/page2.html")
     }
@@ -45,17 +47,21 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     fun testHtmlParsingQuickFix() {
         fixture.copyFileToProject("HtmlParsing.kt")
         fixture.copyDirectoryToProject("simple_html", "html");
-        fixture.copyFileToProject("main_before.kt");
-        fixture.configureByFile("main_before.kt")
+        fixture.copyFileToProject("main_before.kt", "main.kt")
+        fixture.configureByFile("main.kt")
         //val highlights = fixture.doHighlighting()
         //println("highlights $highlights")
-        val quickFixes = fixture.getAllQuickFixes("main_before.kt")
-        println("quickfixes $quickFixes")
         runInEdtAndWait {
+            var quickFixes = fixture.getAllQuickFixes("main.kt")
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main_after.kt")
-            val intentions = fixture.getAvailableIntentions("main_after.kt")
-            println("intentions $intentions")
+            //fixture.editor.document.commitToPsi(fixture.project)
+            //fixture.editor.document.saveToDisk()
+            fixture.copyFileToProject("main_after.kt", "main.kt")
+            quickFixes = fixture.getAllQuickFixes("main.kt")
+            println(quickFixes)
+            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+            fixture.checkResultByFile("main_after.kt")
         }
     }
 
