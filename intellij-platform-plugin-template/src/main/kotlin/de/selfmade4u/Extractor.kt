@@ -79,7 +79,7 @@ class Extractor {
         return expression.entries.single().text
     }
 
-    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlElement: XmlElement): XmlElement {
+    fun checkExpression(annotations: MutableMap<PsiElement, AnnotationResult>, expression: KtExpression, htmlElement: XmlElement): XmlElement {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
@@ -103,7 +103,7 @@ class Extractor {
                             val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName().asString()
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.doctype" -> {
-                                    annotations[expression] = "Deprecated. Doctype does not need to be parsed."
+                                    annotations[expression] = AnnotationResult("Deprecated. Doctype does not need to be parsed.")
                                     return htmlElement
                                 }
                                 "de.selfmade4u.tucanpluskmp.html" -> {
@@ -115,7 +115,7 @@ class Extractor {
                                         println("GOT GOT ${htmlElement.text}")
                                         return htmlElement
                                     } else {
-                                        annotations[expression] = "expected <html> but found ${htmlElement::class}"
+                                        annotations[expression] = AnnotationResult("expected <html> but found ${htmlElement::class}")
                                         return htmlElement
                                     }
                                 }
@@ -125,15 +125,15 @@ class Extractor {
                                         check(expression.valueArguments.size == 2)
                                         val (first, second) = expression.valueArguments
                                         if (htmlElement.name != getStringLiteral(first.stringTemplateExpression!!)) {
-                                            annotations[expression] = "attribute name actual ${htmlElement.name} does not match expected ${getStringLiteral(first.stringTemplateExpression!!)}"
+                                            annotations[expression] = AnnotationResult("attribute name actual ${htmlElement.name} does not match expected ${getStringLiteral(first.stringTemplateExpression!!)}")
                                         }
                                         if (htmlElement.value != getStringLiteral(second.stringTemplateExpression!!)) {
-                                            annotations[expression] = "attribute value actual ${htmlElement.value} does not match expected ${getStringLiteral(second.stringTemplateExpression!!)}"
+                                            annotations[expression] = AnnotationResult("attribute value actual ${htmlElement.value} does not match expected ${getStringLiteral(second.stringTemplateExpression!!)}")
                                         }
                                         val next = PsiTreeUtil.skipSiblingsForward(htmlElement, PsiWhiteSpace::class.java, XmlToken::class.java) as XmlElement
                                         return next
                                     } else {
-                                        annotations[expression] = "expected attribute but found ${htmlElement::class}"
+                                        annotations[expression] = AnnotationResult("expected attribute but found ${htmlElement::class}")
                                         return htmlElement
                                     }
                                 }
@@ -141,16 +141,16 @@ class Extractor {
                                     val implementation = psi as? KtFunction
 
                                     if (implementation != null) {
-                                        annotations[expression] = "TOOD implementation $fqName needs analysis"
+                                        annotations[expression] = AnnotationResult("TOOD implementation $fqName needs analysis")
                                     } else {
-                                        annotations[expression] = "TODO unknown called method $fqName"
+                                        annotations[expression] = AnnotationResult("TODO unknown called method $fqName")
                                     }
                                     return htmlElement
                                 }
                             }
                         }
                         else -> {
-                            annotations[expression] = "failed to resolve"
+                            annotations[expression] = AnnotationResult("failed to resolve")
                             return htmlElement
                         }
                     }
@@ -179,15 +179,17 @@ class Extractor {
                 return htmlElement
             }
             else -> {
-                annotations[expression] = "Unknown HTML parser statement ${expression::class}"
+                annotations[expression] = AnnotationResult("Unknown HTML parser statement ${expression::class}")
                 return htmlElement
             }
         }
     }
 
+    data class AnnotationResult(val message: String, val quickFix: MyQuickFix? = null)
+
     // https://github.com/JetBrains/intellij-community/blob/b926099be855e2e1c34d21df1e496f29ecbe7f52/platform/core-impl/src/com/intellij/util/CachedValueStabilityChecker.java#L62
-    fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<MutableMap<PsiElement, String>> {
-        val annotations = mutableMapOf<PsiElement, String>()
+    fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<MutableMap<PsiElement, AnnotationResult>> {
+        val annotations = mutableMapOf<PsiElement, AnnotationResult>()
         val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
         val path = getStringLiteral(valueArg.stringTemplateExpression!!)
         val htmls = project.guessProjectDir()!!.findFileByRelativePath(path)!!
@@ -203,7 +205,13 @@ class Extractor {
         for (htmlFile in htmlFiles) {
             // TODO here we should start parsing htmlTag
             val parsedUntil = checkExpression(annotations, block, htmlFile)
-            annotations[parsedUntil] = "Remaining part to parse"
+            // TODO produce quickfix
+            if (parsedUntil is XmlTag) {
+                // TODO FIXME I think persisting PsiElements like this is not allowed
+                annotations[parsedUntil] = AnnotationResult("Remaining part to parse", MyQuickFix(parsedUntil))
+            } else {
+                annotations[parsedUntil] = AnnotationResult("Remaining part to parse")
+            }
         }
 
         return CachedValueProvider.Result(annotations, annotationEntry, htmls)
@@ -222,8 +230,12 @@ class Extractor {
                 )
             }
             if (annotationContext != null && holder != null) {
-                annotations[annotationContext]?.let { holder.newAnnotation(HighlightSeverity.ERROR, it).range(annotationContext).create() }
-                // .withFix(MyQuickFix(annotation)
+                annotations[annotationContext]?.let { info ->
+                    holder.newAnnotation(HighlightSeverity.ERROR, info.message)
+                        .range(annotationContext)
+                        .apply { info.quickFix?.let { withFix(it) } }
+                        .create()
+                }
             }
         }
     }
