@@ -79,7 +79,7 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 
 class Extractor {
 
-    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression) {
+    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlTag: XmlTag) {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
@@ -173,12 +173,16 @@ class Extractor {
         val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
         //println("abc ${ktNamedFunction.text}")
         val block = ktNamedFunction.bodyBlockExpression!!
-        for (statement in block.statements) {
-            checkExpression(annotations, statement)
-        }
 
-        //println("path ${path}")
-        magicFunction(htmls, project, annotations)
+        val files = htmls.children
+        val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
+
+        for (htmlFile in htmlFiles) {
+            // TODO here we should start parsing htmlTag
+            for (statement in block.statements) {
+                checkExpression(annotations, statement, htmlFile)
+            }
+        }
 
         return CachedValueProvider.Result(annotations, annotationEntry, htmls)
     }
@@ -203,21 +207,8 @@ class Extractor {
     }
 }
 
-// https://platform.jetbrains.com/t/displaying-custom-problems-in-the-problems-tool-window/954/5
-fun magicFunction(
-    directory: VirtualFile,
-    project: Project,
-    annotations: MutableMap<PsiElement, String>
-) {
-    val files = directory.children
-    //println("files $files")
-    var tags = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
-    if (tags.all { it.name == tags[0].name }) {
-        tags = tags.mapNotNull { it.subTags.firstOrNull() }
-        // TODO quickfix to kotlin file
-    } else {
-        tags.forEach { tag ->
-            annotations[tag] = "not the same tag"
-        }
-    }
-}
+// we probably want to be able to calculate how far the parsing code is executed for each html file
+// the one that goes the shortest needs fixing at that place in the source code
+
+// some change examples then can be tested against all files and check whether we make more progress in the parsing code
+// and if we do there if we make more progress in the html code? maybe this is a 1:1 mapping if we count loops.

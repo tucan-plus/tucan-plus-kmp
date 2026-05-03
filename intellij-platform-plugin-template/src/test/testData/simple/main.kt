@@ -4,8 +4,8 @@ object Test {
     @HtmlFromResources("html")
     fun Root.someFun(sessionId: String, menuId: String) {
         val a = 42;
-        var sessionId = sessionId
-        var menuId = menuId
+        var sessionIdTmp = sessionId
+        var menuIdTmp = menuId
         doctype {
             attribute("#doctype", "html")
             attribute("name", "html")
