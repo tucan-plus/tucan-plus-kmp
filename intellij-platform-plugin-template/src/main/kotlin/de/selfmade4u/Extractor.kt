@@ -69,7 +69,7 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 class Extractor {
 
     @OptIn(KaExperimentalApi::class, KaIdeApi::class)
-    fun checkExpression(annotations: MutableList<PsiElement>, expression: KtExpression) {
+    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression) {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
@@ -90,8 +90,7 @@ class Extractor {
                 analyze(expression) {
                     val callInfo = expression.resolveCall()!!
                     if (callInfo.symbol.importableFqName == null) {
-                        println("failed to compute call ${expression.text}, probably just dynamic dispatch")
-                        annotations.add(expression) // TODO
+                        annotations[expression] = "failed to compute call ${expression.text}, probably just dynamic dispatch" // TODO
                     } else {
                         println("containing file ${callInfo.symbol.importableFqName!!}")
                         when (callInfo.symbol.importableFqName!!.toString()) {
@@ -99,7 +98,7 @@ class Extractor {
                                 println("known call to doctype")
                             }
                             else -> {
-                                annotations.add(expression)
+                                annotations[expression] = "unknown called method ${callInfo.symbol.importableFqName!!.toString()}"
                             }
                         }
                     }
@@ -124,16 +123,15 @@ class Extractor {
                 // variable reference
                 // maybe KtSimpleNameExpression
             }
-
             else -> {
-                annotations.add(expression)
+                annotations[expression]  = "Unknown HTML parser statement ${expression::class}"
             }
         }
     }
 
     // https://github.com/JetBrains/intellij-community/blob/b926099be855e2e1c34d21df1e496f29ecbe7f52/platform/core-impl/src/com/intellij/util/CachedValueStabilityChecker.java#L62
-    fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<MutableList<PsiElement>> {
-        val annotations = mutableListOf<PsiElement>()
+    fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<MutableMap<PsiElement, String>> {
+        val annotations = mutableMapOf<PsiElement, String>()
         val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
         val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
         val path = text.entries.first().text
@@ -164,24 +162,9 @@ class Extractor {
                     annotationEntry
                 )
             }
-            if (annotationContext is XmlTag) {
-                for (annotation in annotations) {
-                    if (annotation == annotationContext && annotation is XmlTag) {
-                        holder?.newAnnotation(HighlightSeverity.ERROR, "Different tags at same position")?.range(annotation)
-                            ?.create()
-                    }
-                }
-            }
-            if (annotationContext is KtElement) {
-                for (annotation in annotations) {
-                    if (annotation == annotationContext) {
-                        holder?.newAnnotation(
-                            HighlightSeverity.ERROR,
-                            "Unknown HTML parser statement ${annotation::class}"
-                        )?.range(annotation)
-                            ?.withFix(MyQuickFix(annotation))?.create()
-                    }
-                }
+            if (annotationContext != null && holder != null) {
+                annotations[annotationContext]?.let { holder.newAnnotation(HighlightSeverity.ERROR, it).range(annotationContext).create() }
+                // .withFix(MyQuickFix(annotation)
             }
         }
     }
@@ -191,7 +174,7 @@ class Extractor {
 fun magicFunction(
     directory: VirtualFile,
     project: Project,
-    annotations: MutableList<PsiElement>
+    annotations: MutableMap<PsiElement, String>
 ) {
     val files = directory.children
     //println("files $files")
@@ -201,7 +184,7 @@ fun magicFunction(
         // TODO quickfix to kotlin file
     } else {
         tags.forEach { tag ->
-            annotations.add(tag)
+            annotations[tag] = "not the same tag"
         }
     }
 }

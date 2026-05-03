@@ -23,6 +23,6 @@ internal class FolderAction : DumbAwareAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
         val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
-        magicFunction(directory, e.project!!, mutableListOf())
+        magicFunction(directory, e.project!!, mutableMapOf())
     }
 }
