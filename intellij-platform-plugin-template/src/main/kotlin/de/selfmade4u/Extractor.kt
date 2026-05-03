@@ -23,6 +23,7 @@ import com.intellij.psi.xml.XmlProlog
 import com.intellij.psi.xml.XmlTag
 import com.intellij.psi.xml.XmlText
 import com.intellij.psi.xml.XmlToken
+import com.intellij.util.text.trimMiddle
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
@@ -109,6 +110,7 @@ class Extractor {
                                 "de.selfmade4u.tucanpluskmp.html" -> {
                                     if (htmlElement is XmlTag && htmlElement.name == "html") {
                                         println("matched html tag")
+                                        // TODO FIXME skip whitespace only
                                         val next = PsiTreeUtil.findChildOfAnyType(htmlElement, XmlAttribute::class.java,
                                             XmlText::class.java, XmlTag::class.java)!!
                                         val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next)
@@ -130,8 +132,13 @@ class Extractor {
                                         if (htmlElement.value != getStringLiteral(second.stringTemplateExpression!!)) {
                                             annotations[expression] = AnnotationResult("attribute value actual ${htmlElement.value} does not match expected ${getStringLiteral(second.stringTemplateExpression!!)}")
                                         }
-                                        val next = PsiTreeUtil.skipSiblingsForward(htmlElement, PsiWhiteSpace::class.java, XmlToken::class.java) as XmlElement
-                                        return next
+                                        // here also xmltext which is empty needs to be skipped?
+                                        var next: PsiElement = htmlElement
+                                        do {
+                                            next = next.nextSibling
+                                        } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
+                                        //val next = PsiTreeUtil.skipSiblingsForward(htmlElement, PsiWhiteSpace::class.java, XmlToken::class.java) as XmlElement
+                                        return next as XmlElement
                                     } else {
                                         annotations[expression] = AnnotationResult("expected attribute but found ${htmlElement::class}")
                                         return htmlElement
