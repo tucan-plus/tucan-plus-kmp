@@ -113,10 +113,11 @@ object Extractor {
                                     val tag = fqName.split(".").last()
                                     if (htmlElement is XmlTag && htmlElement.name == tag) {
                                         println("matched html tag")
-                                        // TODO FIXME skip whitespace only
-                                        val next = PsiTreeUtil.findChildOfAnyType(htmlElement, XmlAttribute::class.java,
-                                            XmlText::class.java, XmlTag::class.java)!!
-                                        val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next)
+                                        var next = htmlElement.firstChild
+                                        do {
+                                            next = next.nextSibling
+                                        } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
+                                        val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next as XmlElement)
                                         return htmlElement
                                     } else {
                                         annotations[expression] = AnnotationResult("expected <$tag> but found ${htmlElement::class}")
