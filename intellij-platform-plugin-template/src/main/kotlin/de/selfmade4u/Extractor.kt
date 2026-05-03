@@ -74,7 +74,7 @@ class MyQuickFix(element: KtExpression, val expression: String) : PsiUpdateModCo
     }
 }
 
-class Extractor {
+object Extractor {
 
     fun getStringLiteral(expression: KtStringTemplateExpression): String {
         check(!expression.hasInterpolation())

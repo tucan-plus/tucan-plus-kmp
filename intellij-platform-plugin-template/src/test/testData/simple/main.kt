@@ -9,7 +9,7 @@ object Test {
         html {
             attribute("xmlns", "http://www.w3.org/1999/xhtml")
             attribute("xml:lang", "de")
-            attribute("lang", "de")
+            <error descr="Fix the parsing here">attribute("lang", "de")</error>
         }
     }
 }
