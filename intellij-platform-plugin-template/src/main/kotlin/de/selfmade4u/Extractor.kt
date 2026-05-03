@@ -103,6 +103,20 @@ class Extractor {
                         is KaSuccessCallInfo -> {
                             println(resolveToCall.call)
                             val psi = (resolveToCall.call as KaFunctionCall<*>).symbol.psi
+
+                            val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName().asString()
+                            println(fqName)
+                            when (fqName) {
+                                "de.selfmade4u.tucanpluskmp.doctype" -> {
+                                    println("known call to doctype")
+                                }
+                                "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
+                                    println("known call to attribute")
+                                }
+                                else -> {
+                                    annotations[expression] = "unknown called method"
+                                }
+                            }
                             println("psi $psi")
                             val implementation = psi as? KtFunction
 
@@ -117,22 +131,6 @@ class Extractor {
                             println("failed to resolve")
                         }
                     }
-                    //val psi = kaFunctionSymbol.containingDeclaration
-                    println("mainref ${expression.mainReference}")
-                    /*if (kaFunctionSymbol.importableFqName == null) {
-                        println(kaFunctionSymbol)
-                        annotations[expression] = "failed to compute call probably just dynamic dispatch" // TODO
-                    } else {
-                        println("containing file ${kaFunctionSymbol.importableFqName!!}")
-                        when (kaFunctionSymbol.importableFqName!!.toString()) {
-                            "de.selfmade4u.tucanpluskmp.doctype" -> {
-                                println("known call to doctype")
-                            }
-                            else -> {
-                                annotations[expression] = "unknown called method ${kaFunctionSymbol.importableFqName!!}"
-                            }
-                        }
-                    }*/
                 }
                 when (expression.calleeExpression) {
                     is KtNameReferenceExpression -> {
