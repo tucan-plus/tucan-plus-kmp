@@ -13,7 +13,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.xml.XmlFile
-import de.selfmade4u.magicFunction
 
 internal class FolderAction : DumbAwareAction() {
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
@@ -23,6 +22,5 @@ internal class FolderAction : DumbAwareAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
         val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
-        magicFunction(directory, e.project!!, mutableMapOf())
     }
 }

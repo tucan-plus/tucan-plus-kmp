@@ -84,18 +84,18 @@ class Extractor {
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
             is KtLambdaExpression -> {
-                checkExpression(annotations, expression.bodyExpression!!)
+                checkExpression(annotations, expression.bodyExpression!!, htmlTag)
             }
             is KtBlockExpression -> {
                 for (statement in expression.statements) {
-                    checkExpression(annotations, statement)
+                    checkExpression(annotations, statement, htmlTag)
                 }
             }
             is KtCallExpression -> {
                 println("call ${expression.text}")
                 println("args ${expression.valueArguments}")
                 for (arg in expression.valueArguments) {
-                    checkExpression(annotations, arg.getArgumentExpression()!!)
+                    checkExpression(annotations, arg.getArgumentExpression()!!, htmlTag)
                 }
                 analyze(expression) {
                     val resolveToCall: KaCallInfo? = expression.resolveToCall() // sealed class, can get a Ka(Function)Call
@@ -142,11 +142,11 @@ class Extractor {
                 println("got a property, need to check what it gets assigned")
                 val initializer = expression.initializer
                 println("initializer $initializer")
-                checkExpression(annotations, initializer!!)
+                checkExpression(annotations, initializer!!, htmlTag)
             }
             is KtStringTemplateExpression -> {
                 for (entry in expression.entries) {
-                    entry.expression?.let { checkExpression(annotations, it) }
+                    entry.expression?.let { checkExpression(annotations, it, htmlTag) }
                 }
             }
             is KtConstantExpression -> {
@@ -177,11 +177,10 @@ class Extractor {
         val files = htmls.children
         val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
 
+        println("$htmlFiles")
         for (htmlFile in htmlFiles) {
             // TODO here we should start parsing htmlTag
-            for (statement in block.statements) {
-                checkExpression(annotations, statement, htmlFile)
-            }
+            checkExpression(annotations, block, htmlFile)
         }
 
         return CachedValueProvider.Result(annotations, annotationEntry, htmls)
