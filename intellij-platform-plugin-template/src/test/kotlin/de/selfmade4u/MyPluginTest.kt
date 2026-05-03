@@ -33,6 +33,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         fixture.testHighlighting("html/page2.html")
     }
 
+    // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
     @Test
     fun testHtmlParsingQuickFix() {
         fixture.copyDirectoryToProject("", "");
@@ -41,7 +42,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         //println("highlights $highlights")
         val quickFixes = fixture.getAllQuickFixes("main.kt")
         println("quickfixes $quickFixes")
-        fixture.checkIntentionPreviewHtml(quickFixes.single().asIntention(), "Rename to 'UpdatedName'");
+        //fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+        fixture.checkIntentionPreviewHtml(quickFixes.single().asIntention(), "This doesn't work");
         //val intentions = fixture.getAvailableIntentions("main.kt")
         //println("intentions $intentions")
     }

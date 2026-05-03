@@ -69,6 +69,8 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
         // Use 'updater' to manage the PSI change.
         if (element is PsiNamedElement) {
             element.setName("UpdatedName")
+        } else {
+            updater.message("This doesn't work")
         }
     }
 }
