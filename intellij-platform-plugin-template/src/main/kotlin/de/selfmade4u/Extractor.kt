@@ -208,7 +208,7 @@ class Extractor {
             // TODO produce quickfix
             if (parsedUntil is XmlTag) {
                 // TODO FIXME I think persisting PsiElements like this is not allowed
-                annotations[parsedUntil] = AnnotationResult("Remaining part to parse", MyQuickFix(parsedUntil))
+                annotations[block] = AnnotationResult("Remaining part to parse", MyQuickFix(block))
             } else {
                 annotations[parsedUntil] = AnnotationResult("Remaining part to parse")
             }

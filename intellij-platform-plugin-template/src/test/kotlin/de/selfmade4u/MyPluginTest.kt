@@ -6,6 +6,8 @@ import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 // https://github.com/JetBrains/intellij-community/blob/master/plugins/kotlin/test-framework/test/org/jetbrains/kotlin/idea/test/kmp/KMPNativeLinuxProjectDescriptor.kt
@@ -23,10 +25,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
 
     // https://github.com/JetBrains/JetBrainsRuntime/blob/2a24ff85457db452a7499acfb0f16a98f446d4d9/src/java.desktop/unix/classes/sun/awt/wl/WLKeyboard.java#L40
     @Test
-    fun testFindSimilarities() {
-        @Suppress("UnstableApiUsage")
-        ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication(), "WLKeyboard.KeyRepeatManager", "AWT-Wayland")
-        //Registry.get("platform.random.idempotence.check.rate").setValue(1, getTestRootDisposable())
+    fun testHtmlParsing() {
         fixture.copyDirectoryToProject("", "");
         fixture.testHighlighting("HtmlParsing.kt")
         fixture.testHighlighting("main.kt")
@@ -34,5 +33,27 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         fixture.testHighlighting("html/page2.html")
     }
 
+    @Test
+    fun testHtmlParsingQuickFix() {
+        fixture.copyDirectoryToProject("", "");
+        fixture.testHighlighting("HtmlParsing.kt")
+        fixture.configureByFile("main.kt")
+        val quickFixes = fixture.getAvailableQuickFixes("main.kt")
+        println("quickfixes $quickFixes")
+        fixture.testHighlighting("html/page1.html")
+        fixture.testHighlighting("html/page2.html")
+    }
+
+
     override fun getTestDataPath() = "src/test/testData/simple"
+
+    @BeforeEach
+    fun beforeAll() {
+        @Suppress("UnstableApiUsage")
+        ThreadLeakTracker.longRunningThreadCreated(
+            ApplicationManager.getApplication(),
+            "WLKeyboard.KeyRepeatManager",
+            "AWT-Wayland"
+        )
+    }
 }
