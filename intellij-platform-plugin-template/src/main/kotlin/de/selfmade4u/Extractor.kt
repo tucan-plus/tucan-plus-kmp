@@ -18,6 +18,7 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.XmlDoctype
 import com.intellij.psi.xml.XmlElement
 import com.intellij.psi.xml.XmlFile
+import com.intellij.psi.xml.XmlProlog
 import com.intellij.psi.xml.XmlTag
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.analysis.api.KaIdeApi
@@ -49,6 +50,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
+import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.psi.psiUtil.getTextWithLocation
 
@@ -81,7 +83,7 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 
 class Extractor {
 
-    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlTag: XmlElement) {
+    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlTag: XmlElement): XmlElement {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
@@ -89,9 +91,11 @@ class Extractor {
                 checkExpression(annotations, expression.bodyExpression!!, htmlTag)
             }
             is KtBlockExpression -> {
+                var htmlTag = htmlTag
                 for (statement in expression.statements) {
-                    checkExpression(annotations, statement, htmlTag)
+                    htmlTag = checkExpression(annotations, statement, htmlTag)
                 }
+                return htmlTag
             }
             is KtCallExpression -> {
                 analyze(expression) {
@@ -103,14 +107,19 @@ class Extractor {
                             val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName().asString()
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.doctype" -> {
-                                    if (htmlTag is XmlDoctype) {
+                                    if (htmlTag is XmlProlog && htmlTag.doctype != null) {
                                         println("matched doctype")
+                                        for (arg in expression.valueArguments) {
+                                            checkExpression(annotations, arg.getArgumentExpression()!!, htmlTag)
+                                        }
+                                        return htmlTag.getNextSiblingIgnoringWhitespaceAndComments() as XmlElement
                                     } else {
                                         annotations[expression] = "expected <doctype> but found ${htmlTag::class}"
                                     }
                                 }
                                 "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
                                     println("known call to attribute")
+                                    annotations[expression] = "TODO known call to attribute"
                                 }
                                 else -> {
                                     val implementation = psi as? KtFunction
@@ -128,9 +137,6 @@ class Extractor {
                             annotations[expression] = "failed to resolve"
                         }
                     }
-                }
-                for (arg in expression.valueArguments) {
-                    checkExpression(annotations, arg.getArgumentExpression()!!, htmlTag)
                 }
             }
             is KtProperty -> {
@@ -150,9 +156,11 @@ class Extractor {
                 // maybe KtSimpleNameExpression
             }
             else -> {
-                annotations[expression]  = "Unknown HTML parser statement ${expression::class}"
+                annotations[expression] = "Unknown HTML parser statement ${expression::class}"
             }
         }
+        // TODO FIXME
+        return htmlTag
     }
 
     // https://github.com/JetBrains/intellij-community/blob/b926099be855e2e1c34d21df1e496f29ecbe7f52/platform/core-impl/src/com/intellij/util/CachedValueStabilityChecker.java#L62
@@ -168,7 +176,7 @@ class Extractor {
         val block = ktNamedFunction.bodyBlockExpression!!
 
         val files = htmls.children
-        val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile) }
+        val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).document!!.prolog!! }
 
         println("$htmlFiles")
         for (htmlFile in htmlFiles) {
