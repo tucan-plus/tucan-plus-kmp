@@ -74,7 +74,7 @@ class Extractor {
 
     fun getStringLiteral(expression: KtStringTemplateExpression): String {
         check(!expression.hasInterpolation())
-        return expression.text
+        return expression.entries.single().text
     }
 
     fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlElement: XmlElement): XmlElement {
@@ -174,8 +174,7 @@ class Extractor {
     fun myFun(project: Project, annotationEntry: KtAnnotationEntry): CachedValueProvider.Result<MutableMap<PsiElement, String>> {
         val annotations = mutableMapOf<PsiElement, String>()
         val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
-        val text = valueArg.getArgumentExpression() as KtStringTemplateExpression
-        val path = text.entries.first().text
+        val path = getStringLiteral(valueArg.stringTemplateExpression!!)
         val htmls = project.guessProjectDir()!!.findFileByRelativePath(path)!!
 
         val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
