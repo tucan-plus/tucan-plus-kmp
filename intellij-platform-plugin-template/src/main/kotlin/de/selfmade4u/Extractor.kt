@@ -215,10 +215,14 @@ object Extractor {
             // TODO here we should start parsing htmlTag
             val parsedUntil = checkExpression(annotations, block, htmlFile)
             // TODO produce quickfix
+            println("parsedUntil $parsedUntil")
             if (parsedUntil.first is XmlTag) {
                 // TODO FIXME I think persisting PsiElements like this is not allowed
                 annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "${(parsedUntil.first as XmlTag).name} {}"))
+            } else if (parsedUntil.first is XmlText) {
+                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "extractText()"))
             } else {
+                annotations[parsedUntil.second] = AnnotationResult("Failed to parse the rest but can't autofix")
                 annotations[parsedUntil.first] = AnnotationResult("Remaining part to parse")
             }
         }
