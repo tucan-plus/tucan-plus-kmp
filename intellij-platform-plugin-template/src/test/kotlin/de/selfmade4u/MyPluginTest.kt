@@ -38,8 +38,12 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         fixture.copyDirectoryToProject("", "");
         fixture.testHighlighting("HtmlParsing.kt")
         fixture.configureByFile("main.kt")
-        val quickFixes = fixture.getAvailableQuickFixes("main.kt")
+        val highlights = fixture.doHighlighting()
+        println("highlights $highlights")
+        val quickFixes = fixture.getAllQuickFixes("main.kt")
         println("quickfixes $quickFixes")
+        val intentions = fixture.getAvailableIntentions("main.kt")
+        println("intentions $intentions")
         fixture.testHighlighting("html/page1.html")
         fixture.testHighlighting("html/page2.html")
     }
