@@ -72,6 +72,11 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 
 class Extractor {
 
+    fun getStringLiteral(expression: KtStringTemplateExpression): String {
+        check(!expression.hasInterpolation())
+        return expression.text
+    }
+
     fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlElement: XmlElement): XmlElement {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
@@ -111,7 +116,14 @@ class Extractor {
                                 "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
                                     if (htmlElement is XmlAttribute) {
                                         println("matched attribute")
-                                        // TODO check key and value
+                                        check(expression.valueArguments.size == 2)
+                                        val (first, second) = expression.valueArguments
+                                        if (htmlElement.name != getStringLiteral(first.stringTemplateExpression!!)) {
+                                            annotations[expression] = "attribute name actual ${htmlElement.name} does not match expected ${getStringLiteral(first.stringTemplateExpression!!)}"
+                                        }
+                                        if (htmlElement.value != getStringLiteral(second.stringTemplateExpression!!)) {
+                                            annotations[expression] = "attribute value actual ${htmlElement.value} does not match expected ${getStringLiteral(second.stringTemplateExpression!!)}"
+                                        }
                                         return htmlElement.getNextSiblingIgnoringWhitespaceAndComments() as XmlElement
                                     } else {
                                         annotations[expression] = "expected attribute but found ${htmlElement::class}"
