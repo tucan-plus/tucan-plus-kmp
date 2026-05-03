@@ -20,6 +20,7 @@ import com.intellij.psi.xml.XmlElement
 import com.intellij.psi.xml.XmlFile
 import com.intellij.psi.xml.XmlProlog
 import com.intellij.psi.xml.XmlTag
+import com.intellij.psi.xml.XmlText
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
@@ -96,16 +97,16 @@ class Extractor {
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.doctype" -> {
                                     annotations[expression] = "Deprecated. Doctype does not need to be parsed."
-                                    /*if (htmlElement is XmlProlog && htmlElement.doctype != null) {
-                                        println("matched doctype")
-                                        for (arg in expression.valueArguments) {
-                                            val next = PsiTreeUtil.findChildOfAnyType<XmlElement>(htmlElement, XmlTag::class.java)
-                                            checkExpression(annotations, arg.getArgumentExpression()!!, htmlElement.doctype.getChildOfType<XmlElement>()!!)
-                                        }
-                                        return htmlElement.getNextSiblingIgnoringWhitespaceAndComments() as XmlElement
+                                }
+                                "de.selfmade4u.tucanpluskmp.html" -> {
+                                    if (htmlElement is XmlTag && htmlElement.name == "html") {
+                                        println("matched html tag")
+                                        val next = PsiTreeUtil.findChildOfAnyType(htmlElement, XmlAttribute::class.java,
+                                            XmlText::class.java, XmlTag::class.java)!!
+                                        return checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next)
                                     } else {
-                                        annotations[expression] = "expected <doctype> but found ${htmlElement::class}"
-                                    }*/
+                                        annotations[expression] = "expected <html> but found ${htmlElement::class}"
+                                    }
                                 }
                                 "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
                                     if (htmlElement is XmlAttribute) {
@@ -120,10 +121,9 @@ class Extractor {
                                     val implementation = psi as? KtFunction
 
                                     if (implementation != null) {
-                                        println("Implementation found: ${implementation.fqName}")
-                                        annotations[expression] = "TOOD implementation needs analysis"
+                                        annotations[expression] = "TOOD implementation $fqName needs analysis"
                                     } else {
-                                        annotations[expression] = "unknown called method"
+                                        annotations[expression] = "TODO unknown called method $fqName"
                                     }
                                 }
                             }
