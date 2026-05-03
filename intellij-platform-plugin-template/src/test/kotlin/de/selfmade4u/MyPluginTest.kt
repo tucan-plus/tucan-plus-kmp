@@ -30,7 +30,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     // https://github.com/JetBrains/JetBrainsRuntime/blob/2a24ff85457db452a7499acfb0f16a98f446d4d9/src/java.desktop/unix/classes/sun/awt/wl/WLKeyboard.java#L40
     @Test
     fun testHtmlParsing() {
-        fixture.copyDirectoryToProject("", "");
+        fixture.copyDirectoryToProject("simple", "");
         fixture.testHighlighting("HtmlParsing.kt")
         fixture.testHighlighting("main.kt")
         fixture.testHighlighting("html/page1.html")
@@ -40,7 +40,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
     @Test
     fun testHtmlParsingQuickFix() {
-        fixture.copyDirectoryToProject("", "");
+        fixture.copyDirectoryToProject("simple", "");
         fixture.configureByFile("main.kt")
         //val highlights = fixture.doHighlighting()
         //println("highlights $highlights")
@@ -48,13 +48,13 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         println("quickfixes $quickFixes")
         runInEdtAndWait {
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            //fixture.checkIntentionPreviewHtml(quickFixes.single().asIntention(), "Fix the html parsing");
+            fixture.checkResultByFile("simple_after/main.kt")
             //val intentions = fixture.getAvailableIntentions("main.kt")
             //println("intentions $intentions")
         }
     }
 
-    override fun getTestDataPath() = "src/test/testData/simple"
+    override fun getTestDataPath() = "src/test/testData"
 
     @BeforeEach
     fun beforeAll() {
