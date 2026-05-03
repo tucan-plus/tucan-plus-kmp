@@ -10,20 +10,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.xml.XmlAttribute
 import com.intellij.psi.xml.XmlElement
 import com.intellij.psi.xml.XmlFile
-import com.intellij.psi.xml.XmlProlog
 import com.intellij.psi.xml.XmlTag
 import com.intellij.psi.xml.XmlText
 import com.intellij.psi.xml.XmlToken
-import com.intellij.util.text.trimMiddle
+import com.intellij.refactoring.extractMethod.newImpl.ExtractMethodHelper.addSiblingAfter
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
@@ -41,9 +38,8 @@ import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
-import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
-import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 // https://github.com/JetBrains/kotlin/blob/master/analysis/docs/contribution-guide/api-development.md
@@ -56,22 +52,18 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 // my first task should be to extract the information from the kotlin html parsing code.
 // then we can try to generate autofixes in all directions
 
-class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(element) {
+class MyQuickFix(element: KtBlockExpression) : PsiUpdateModCommandAction<KtBlockExpression>(element) {
 
     override fun getFamilyName(): String = "My Plugin Fixes"
 
-    override fun getPresentation(context: ActionContext, element: PsiElement): Presentation? {
+    override fun getPresentation(context: ActionContext, element: KtBlockExpression): Presentation {
         return Presentation.of("Rename to 'UpdatedName'")
     }
 
-    override fun invoke(context: ActionContext, element: PsiElement, updater: ModPsiUpdater) {
-        // You don't need to wrap this in a WriteAction.
-        // Use 'updater' to manage the PSI change.
-        if (element is PsiNamedElement) {
-            element.setName("UpdatedName")
-        } else {
-            updater.message("This doesn't work")
-        }
+    override fun invoke(context: ActionContext, element: KtBlockExpression, updater: ModPsiUpdater) {
+        val factory = KtPsiFactory(element.project)
+        val expression = factory.createBlockCodeFragment("val isUpdated: Boolean = true", element)
+        element.addBefore(expression, element.statements.last())
     }
 }
 
