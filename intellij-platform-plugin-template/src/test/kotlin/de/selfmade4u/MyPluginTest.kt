@@ -1,11 +1,15 @@
 package de.selfmade4u
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.WriteAction
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.testFramework.EdtTestUtil
 import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.testFramework.RunsInEdt
 import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
+import com.intellij.testFramework.runInEdtAndWait
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -37,15 +41,17 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     @Test
     fun testHtmlParsingQuickFix() {
         fixture.copyDirectoryToProject("", "");
-        //fixture.configureByFile("main.kt")
+        fixture.configureByFile("main.kt")
         //val highlights = fixture.doHighlighting()
         //println("highlights $highlights")
         val quickFixes = fixture.getAllQuickFixes("main.kt")
         println("quickfixes $quickFixes")
-        //fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-        fixture.checkIntentionPreviewHtml(quickFixes.single().asIntention(), "This doesn't work");
-        //val intentions = fixture.getAvailableIntentions("main.kt")
-        //println("intentions $intentions")
+        runInEdtAndWait {
+            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+            //fixture.checkIntentionPreviewHtml(quickFixes.single().asIntention(), "Fix the html parsing");
+            //val intentions = fixture.getAvailableIntentions("main.kt")
+            //println("intentions $intentions")
+        }
     }
 
     override fun getTestDataPath() = "src/test/testData/simple"

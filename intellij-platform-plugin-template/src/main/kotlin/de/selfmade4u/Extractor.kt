@@ -21,12 +21,16 @@ import com.intellij.psi.xml.XmlTag
 import com.intellij.psi.xml.XmlText
 import com.intellij.psi.xml.XmlToken
 import com.intellij.refactoring.extractMethod.newImpl.ExtractMethodHelper.addSiblingAfter
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
 import org.jetbrains.kotlin.analysis.api.resolution.KaSuccessCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.symbol
+import org.jetbrains.kotlin.idea.base.psi.replaced
 import org.jetbrains.kotlin.idea.base.util.projectScope
+import org.jetbrains.kotlin.idea.codeinsight.api.applicable.intentions.KotlinApplicableModCommandAction
+import org.jetbrains.kotlin.idea.codeinsight.api.applicable.intentions.KotlinPsiUpdateModCommandAction
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtBlockExpression
@@ -52,18 +56,20 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 // my first task should be to extract the information from the kotlin html parsing code.
 // then we can try to generate autofixes in all directions
 
+// https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/docs/fir-ide/architecture/code-insights.md
+
+// https://docs.google.com/document/d/1-2_cNjq-Mc28j0eCX1TEuMM-k6UXKvfPTutvIBafIJA/edit?pli=1&tab=t.0#heading=h.z5lwn79yvfdm
+// https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/code-insight/api/src/org/jetbrains/kotlin/idea/codeinsight/api/applicable/intentions/KotlinPsiUpdateModCommandAction.kt#L12
 class MyQuickFix(element: KtBlockExpression) : PsiUpdateModCommandAction<KtBlockExpression>(element) {
 
     override fun getFamilyName(): String = "My Plugin Fixes"
 
     override fun getPresentation(context: ActionContext, element: KtBlockExpression): Presentation {
-        return Presentation.of("Rename to 'UpdatedName'")
+        return Presentation.of("Fix the html parsing")
     }
 
     override fun invoke(context: ActionContext, element: KtBlockExpression, updater: ModPsiUpdater) {
-        val factory = KtPsiFactory(element.project)
-        val expression = factory.createBlockCodeFragment("val isUpdated: Boolean = true", element)
-        element.addBefore(expression, element.statements.last())
+        element.replaced(KtPsiFactory(context.project).createExpression("println(1)"))
     }
 }
 
