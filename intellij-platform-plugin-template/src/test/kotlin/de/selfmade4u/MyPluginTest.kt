@@ -60,10 +60,19 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             fixture.checkResultByFile("main2.kt")
             val main = fixture.copyFileToProject("main2.kt", "main.kt")
             fixture.openFileInEditor(main)
-            quickFixes = fixture.getAllQuickFixes("main.kt")
-            println(quickFixes)
+            quickFixes = fixture.getAllQuickFixes()
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main3.kt")
+            quickFixes = fixture.getAllQuickFixes()
+            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+            quickFixes = fixture.getAllQuickFixes()
+            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+            quickFixes = fixture.getAllQuickFixes()
+            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+            quickFixes = fixture.getAllQuickFixes()
+            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+            fixture.checkResultByFile("main3.kt")
+
         }
     }
 
