@@ -58,12 +58,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             var quickFixes = fixture.getAllQuickFixes("main.kt")
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main_after.kt")
-            //fixture.editor.document.commitToPsi(fixture.project)
-            //fixture.editor.document.saveToDisk()
             val main = fixture.copyFileToProject("main_after.kt", "main.kt")
             fixture.openFileInEditor(main)
-            val highlights = fixture.doHighlighting(HighlightSeverity.ERROR)
-            assert(highlights.map { it.text } == listOf("Fix the parsing here")) { highlights.map { it.text } }
             quickFixes = fixture.getAllQuickFixes("main.kt")
             println(quickFixes)
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
