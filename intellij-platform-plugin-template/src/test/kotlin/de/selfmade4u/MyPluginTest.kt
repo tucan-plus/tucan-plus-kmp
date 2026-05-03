@@ -52,18 +52,18 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     fun testHtmlParsingQuickFix() {
         fixture.copyFileToProject("HtmlParsing.kt")
         fixture.copyDirectoryToProject("simple_html", "html");
-        val main = fixture.copyFileToProject("main_before.kt", "main.kt")
+        val main = fixture.copyFileToProject("main1.kt", "main.kt")
         runInEdtAndWait {
             fixture.openFileInEditor(main)
             var quickFixes = fixture.getAllQuickFixes("main.kt")
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            fixture.checkResultByFile("main_after.kt")
-            val main = fixture.copyFileToProject("main_after.kt", "main.kt")
+            fixture.checkResultByFile("main2.kt")
+            val main = fixture.copyFileToProject("main2.kt", "main.kt")
             fixture.openFileInEditor(main)
             quickFixes = fixture.getAllQuickFixes("main.kt")
             println(quickFixes)
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            fixture.checkResultByFile("main_after.kt")
+            fixture.checkResultByFile("main3.kt")
         }
     }
 
