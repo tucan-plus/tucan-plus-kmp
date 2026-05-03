@@ -6,12 +6,10 @@ object Test {
         val a = 42;
         var sessionIdTmp = sessionId
         var menuIdTmp = menuId
-        doctype {
-            attribute("#doctype", "html")
-            attribute("name", "html")
-            attribute("publicId", "-//W3C//DTD XHTML 1.0 Strict//EN")
-            attribute("systemId", "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")
-            attribute("pubsyskey", "PUBLIC")
+        html {
+            attribute("xmlns", "http://www.w3.org/1999/xhtml")
+            attribute("xml:lang", "de")
+            attribute("lang", "de")
         }
     }
 }

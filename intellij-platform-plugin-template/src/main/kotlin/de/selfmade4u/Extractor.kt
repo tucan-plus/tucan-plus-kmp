@@ -8,51 +8,39 @@ import com.intellij.modcommand.Presentation
 import com.intellij.modcommand.PsiUpdateModCommandAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.findPsiFile
-import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
-import com.intellij.psi.xml.XmlDoctype
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiUtil
+import com.intellij.psi.xml.XmlAttribute
 import com.intellij.psi.xml.XmlElement
 import com.intellij.psi.xml.XmlFile
 import com.intellij.psi.xml.XmlProlog
 import com.intellij.psi.xml.XmlTag
-import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
-import org.jetbrains.kotlin.analysis.api.KaIdeApi
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.components.resolveToCall
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
 import org.jetbrains.kotlin.analysis.api.resolution.KaSuccessCallInfo
-import org.jetbrains.kotlin.analysis.api.resolution.calls
-import org.jetbrains.kotlin.analysis.api.resolution.singleCallOrNull
 import org.jetbrains.kotlin.analysis.api.resolution.symbol
-import org.jetbrains.kotlin.analysis.api.symbols.KaCallableSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.KaFunctionSymbol
-import org.jetbrains.kotlin.analysis.api.symbols.name
 import org.jetbrains.kotlin.idea.base.util.projectScope
-import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtConstantExpression
-import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtIfExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
+import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
 import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespaceAndComments
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
-import org.jetbrains.kotlin.psi.psiUtil.getTextWithLocation
 
 // https://github.com/JetBrains/kotlin/blob/master/analysis/docs/contribution-guide/api-development.md
 // https://youtrack.jetbrains.com/issue/KT-61404/Analysis-API-implement-proper-library-publishing-structure
@@ -83,15 +71,15 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 
 class Extractor {
 
-    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlTag: XmlElement): XmlElement {
+    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlElement: XmlElement): XmlElement {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
             is KtLambdaExpression -> {
-                checkExpression(annotations, expression.bodyExpression!!, htmlTag)
+                checkExpression(annotations, expression.bodyExpression!!, htmlElement)
             }
             is KtBlockExpression -> {
-                var htmlTag = htmlTag
+                var htmlTag = htmlElement
                 for (statement in expression.statements) {
                     htmlTag = checkExpression(annotations, statement, htmlTag)
                 }
@@ -107,19 +95,26 @@ class Extractor {
                             val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName().asString()
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.doctype" -> {
-                                    if (htmlTag is XmlProlog && htmlTag.doctype != null) {
+                                    annotations[expression] = "Deprecated. Doctype does not need to be parsed."
+                                    /*if (htmlElement is XmlProlog && htmlElement.doctype != null) {
                                         println("matched doctype")
                                         for (arg in expression.valueArguments) {
-                                            checkExpression(annotations, arg.getArgumentExpression()!!, htmlTag)
+                                            val next = PsiTreeUtil.findChildOfAnyType<XmlElement>(htmlElement, XmlTag::class.java)
+                                            checkExpression(annotations, arg.getArgumentExpression()!!, htmlElement.doctype.getChildOfType<XmlElement>()!!)
                                         }
-                                        return htmlTag.getNextSiblingIgnoringWhitespaceAndComments() as XmlElement
+                                        return htmlElement.getNextSiblingIgnoringWhitespaceAndComments() as XmlElement
                                     } else {
-                                        annotations[expression] = "expected <doctype> but found ${htmlTag::class}"
-                                    }
+                                        annotations[expression] = "expected <doctype> but found ${htmlElement::class}"
+                                    }*/
                                 }
                                 "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
-                                    println("known call to attribute")
-                                    annotations[expression] = "TODO known call to attribute"
+                                    if (htmlElement is XmlAttribute) {
+                                        println("matched attribute")
+                                        // TODO check key and value
+                                        return htmlElement.getNextSiblingIgnoringWhitespaceAndComments() as XmlElement
+                                    } else {
+                                        annotations[expression] = "expected attribute but found ${htmlElement::class}"
+                                    }
                                 }
                                 else -> {
                                     val implementation = psi as? KtFunction
@@ -141,11 +136,11 @@ class Extractor {
             }
             is KtProperty -> {
                 val initializer = expression.initializer
-                checkExpression(annotations, initializer!!, htmlTag)
+                checkExpression(annotations, initializer!!, htmlElement)
             }
             is KtStringTemplateExpression -> {
                 for (entry in expression.entries) {
-                    entry.expression?.let { checkExpression(annotations, it, htmlTag) }
+                    entry.expression?.let { checkExpression(annotations, it, htmlElement) }
                 }
             }
             is KtConstantExpression -> {
@@ -160,7 +155,7 @@ class Extractor {
             }
         }
         // TODO FIXME
-        return htmlTag
+        return htmlElement
     }
 
     // https://github.com/JetBrains/intellij-community/blob/b926099be855e2e1c34d21df1e496f29ecbe7f52/platform/core-impl/src/com/intellij/util/CachedValueStabilityChecker.java#L62
@@ -176,7 +171,7 @@ class Extractor {
         val block = ktNamedFunction.bodyBlockExpression!!
 
         val files = htmls.children
-        val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).document!!.prolog!! }
+        val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
 
         println("$htmlFiles")
         for (htmlFile in htmlFiles) {
