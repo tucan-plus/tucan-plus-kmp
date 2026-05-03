@@ -30,6 +30,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         fixture.copyDirectoryToProject("", "");
         fixture.testHighlighting("HtmlParsing.kt")
         fixture.testHighlighting("main.kt")
+        fixture.testHighlighting("html/page1.html")
+        fixture.testHighlighting("html/page2.html")
     }
 
     override fun getTestDataPath() = "src/test/testData/simple"

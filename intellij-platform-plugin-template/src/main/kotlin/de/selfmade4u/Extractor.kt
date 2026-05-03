@@ -11,6 +11,7 @@ import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiTreeUtil
@@ -21,6 +22,7 @@ import com.intellij.psi.xml.XmlFile
 import com.intellij.psi.xml.XmlProlog
 import com.intellij.psi.xml.XmlTag
 import com.intellij.psi.xml.XmlText
+import com.intellij.psi.xml.XmlToken
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
@@ -82,7 +84,7 @@ class Extractor {
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
             is KtLambdaExpression -> {
-                checkExpression(annotations, expression.bodyExpression!!, htmlElement)
+                return checkExpression(annotations, expression.bodyExpression!!, htmlElement)
             }
             is KtBlockExpression -> {
                 var htmlTag = htmlElement
@@ -102,15 +104,19 @@ class Extractor {
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.doctype" -> {
                                     annotations[expression] = "Deprecated. Doctype does not need to be parsed."
+                                    return htmlElement
                                 }
                                 "de.selfmade4u.tucanpluskmp.html" -> {
                                     if (htmlElement is XmlTag && htmlElement.name == "html") {
                                         println("matched html tag")
                                         val next = PsiTreeUtil.findChildOfAnyType(htmlElement, XmlAttribute::class.java,
                                             XmlText::class.java, XmlTag::class.java)!!
-                                        return checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next)
+                                        val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next)
+                                        println("GOT GOT ${htmlElement.text}")
+                                        return htmlElement
                                     } else {
                                         annotations[expression] = "expected <html> but found ${htmlElement::class}"
+                                        return htmlElement
                                     }
                                 }
                                 "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
@@ -124,9 +130,11 @@ class Extractor {
                                         if (htmlElement.value != getStringLiteral(second.stringTemplateExpression!!)) {
                                             annotations[expression] = "attribute value actual ${htmlElement.value} does not match expected ${getStringLiteral(second.stringTemplateExpression!!)}"
                                         }
-                                        return htmlElement.getNextSiblingIgnoringWhitespaceAndComments() as XmlElement
+                                        val next = PsiTreeUtil.skipSiblingsForward(htmlElement, PsiWhiteSpace::class.java, XmlToken::class.java) as XmlElement
+                                        return next
                                     } else {
                                         annotations[expression] = "expected attribute but found ${htmlElement::class}"
+                                        return htmlElement
                                     }
                                 }
                                 else -> {
@@ -137,37 +145,44 @@ class Extractor {
                                     } else {
                                         annotations[expression] = "TODO unknown called method $fqName"
                                     }
+                                    return htmlElement
                                 }
                             }
                         }
                         else -> {
                             annotations[expression] = "failed to resolve"
+                            return htmlElement
                         }
                     }
                 }
             }
             is KtProperty -> {
                 val initializer = expression.initializer
-                checkExpression(annotations, initializer!!, htmlElement)
+                return checkExpression(annotations, initializer!!, htmlElement)
             }
             is KtStringTemplateExpression -> {
+                var htmlElement = htmlElement
                 for (entry in expression.entries) {
-                    entry.expression?.let { checkExpression(annotations, it, htmlElement) }
+                    entry.expression?.let {
+                        htmlElement = checkExpression(annotations, it, htmlElement)
+                    }
                 }
+                return htmlElement
             }
             is KtConstantExpression -> {
                 // fine
+                return htmlElement
             }
             is KtNameReferenceExpression -> {
                 // variable reference
                 // maybe KtSimpleNameExpression
+                return htmlElement
             }
             else -> {
                 annotations[expression] = "Unknown HTML parser statement ${expression::class}"
+                return htmlElement
             }
         }
-        // TODO FIXME
-        return htmlElement
     }
 
     // https://github.com/JetBrains/intellij-community/blob/b926099be855e2e1c34d21df1e496f29ecbe7f52/platform/core-impl/src/com/intellij/util/CachedValueStabilityChecker.java#L62
@@ -187,7 +202,8 @@ class Extractor {
         println("$htmlFiles")
         for (htmlFile in htmlFiles) {
             // TODO here we should start parsing htmlTag
-            checkExpression(annotations, block, htmlFile)
+            val parsedUntil = checkExpression(annotations, block, htmlFile)
+            annotations[parsedUntil] = "Remaining part to parse"
         }
 
         return CachedValueProvider.Result(annotations, annotationEntry, htmls)
