@@ -6,6 +6,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.RunsInEdt
+import com.intellij.testFramework.VfsTestUtil
 import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
@@ -30,6 +31,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     // https://github.com/JetBrains/JetBrainsRuntime/blob/2a24ff85457db452a7499acfb0f16a98f446d4d9/src/java.desktop/unix/classes/sun/awt/wl/WLKeyboard.java#L40
     @Test
     fun testHtmlParsing() {
+        fixture.copyFileToProject("HtmlParsing.kt")
+        fixture.copyDirectoryToProject("simple_html", "");
         fixture.copyDirectoryToProject("simple", "");
         fixture.testHighlighting("HtmlParsing.kt")
         fixture.testHighlighting("main.kt")
@@ -40,6 +43,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
     @Test
     fun testHtmlParsingQuickFix() {
+        fixture.copyFileToProject("HtmlParsing.kt")
+        fixture.copyDirectoryToProject("simple_html", "");
         fixture.copyDirectoryToProject("simple_before", "");
         fixture.configureByFile("main.kt")
         //val highlights = fixture.doHighlighting()
@@ -49,8 +54,9 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         runInEdtAndWait {
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("simple_after/main.kt")
-            //val intentions = fixture.getAvailableIntentions("main.kt")
-            //println("intentions $intentions")
+
+            val intentions = fixture.getAvailableIntentions("main.kt")
+            println("intentions $intentions")
         }
     }
 
