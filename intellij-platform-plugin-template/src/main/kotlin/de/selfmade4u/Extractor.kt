@@ -15,6 +15,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
+import com.intellij.psi.xml.XmlDoctype
+import com.intellij.psi.xml.XmlElement
 import com.intellij.psi.xml.XmlFile
 import com.intellij.psi.xml.XmlTag
 import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
@@ -79,7 +81,7 @@ class MyQuickFix(element: PsiElement) : PsiUpdateModCommandAction<PsiElement>(el
 
 class Extractor {
 
-    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlTag: XmlTag) {
+    fun checkExpression(annotations: MutableMap<PsiElement, String>, expression: KtExpression, htmlTag: XmlElement) {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
@@ -92,9 +94,6 @@ class Extractor {
                 }
             }
             is KtCallExpression -> {
-                for (arg in expression.valueArguments) {
-                    checkExpression(annotations, arg.getArgumentExpression()!!, htmlTag)
-                }
                 analyze(expression) {
                     val resolveToCall: KaCallInfo? = expression.resolveToCall() // sealed class, can get a Ka(Function)Call
                     when (resolveToCall) {
@@ -104,7 +103,11 @@ class Extractor {
                             val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName().asString()
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.doctype" -> {
-                                    println("known call to doctype")
+                                    if (htmlTag is XmlDoctype) {
+                                        println("matched doctype")
+                                    } else {
+                                        annotations[expression] = "expected <doctype> but found ${htmlTag::class}"
+                                    }
                                 }
                                 "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
                                     println("known call to attribute")
@@ -125,6 +128,9 @@ class Extractor {
                             annotations[expression] = "failed to resolve"
                         }
                     }
+                }
+                for (arg in expression.valueArguments) {
+                    checkExpression(annotations, arg.getArgumentExpression()!!, htmlTag)
                 }
             }
             is KtProperty -> {
@@ -162,7 +168,7 @@ class Extractor {
         val block = ktNamedFunction.bodyBlockExpression!!
 
         val files = htmls.children
-        val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
+        val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile) }
 
         println("$htmlFiles")
         for (htmlFile in htmlFiles) {
