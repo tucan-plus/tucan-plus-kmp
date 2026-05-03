@@ -60,15 +60,15 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 // https://docs.google.com/document/d/1-2_cNjq-Mc28j0eCX1TEuMM-k6UXKvfPTutvIBafIJA/edit?pli=1&tab=t.0#heading=h.z5lwn79yvfdm
 // https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/code-insight/api/src/org/jetbrains/kotlin/idea/codeinsight/api/applicable/intentions/KotlinPsiUpdateModCommandAction.kt#L12
-class MyQuickFix(element: KtBlockExpression) : PsiUpdateModCommandAction<KtBlockExpression>(element) {
+class MyQuickFix(element: KtExpression) : PsiUpdateModCommandAction<KtExpression>(element) {
 
     override fun getFamilyName(): String = "My Plugin Fixes"
 
-    override fun getPresentation(context: ActionContext, element: KtBlockExpression): Presentation {
+    override fun getPresentation(context: ActionContext, element: KtExpression): Presentation {
         return Presentation.of("Fix the html parsing")
     }
 
-    override fun invoke(context: ActionContext, element: KtBlockExpression, updater: ModPsiUpdater) {
+    override fun invoke(context: ActionContext, element: KtExpression, updater: ModPsiUpdater) {
         element.replaced(KtPsiFactory(context.project).createExpression("println(1)"))
     }
 }
@@ -80,7 +80,8 @@ class Extractor {
         return expression.entries.single().text
     }
 
-    fun checkExpression(annotations: MutableMap<PsiElement, AnnotationResult>, expression: KtExpression, htmlElement: XmlElement): XmlElement {
+    // the ktexpression is the one that has been parsed and after which to add new code
+    fun checkExpression(annotations: MutableMap<PsiElement, AnnotationResult>, expression: KtExpression, htmlElement: XmlElement): Pair<XmlElement, KtExpression> {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
@@ -88,9 +89,9 @@ class Extractor {
                 return checkExpression(annotations, expression.bodyExpression!!, htmlElement)
             }
             is KtBlockExpression -> {
-                var htmlTag = htmlElement
+                var htmlTag: Pair<XmlElement, KtExpression> = htmlElement to expression
                 for (statement in expression.statements) {
-                    htmlTag = checkExpression(annotations, statement, htmlTag)
+                    htmlTag = checkExpression(annotations, statement, htmlTag.first)
                 }
                 return htmlTag
             }
@@ -105,7 +106,7 @@ class Extractor {
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.doctype" -> {
                                     annotations[expression] = AnnotationResult("Deprecated. Doctype does not need to be parsed.")
-                                    return htmlElement
+                                    return htmlElement to expression
                                 }
                                 "de.selfmade4u.tucanpluskmp.html" -> {
                                     if (htmlElement is XmlTag && htmlElement.name == "html") {
@@ -117,7 +118,7 @@ class Extractor {
                                         return htmlElement
                                     } else {
                                         annotations[expression] = AnnotationResult("expected <html> but found ${htmlElement::class}")
-                                        return htmlElement
+                                        return htmlElement to expression
                                     }
                                 }
                                 "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
@@ -137,10 +138,10 @@ class Extractor {
                                             next = next.nextSibling
                                         } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
                                         //val next = PsiTreeUtil.skipSiblingsForward(htmlElement, PsiWhiteSpace::class.java, XmlToken::class.java) as XmlElement
-                                        return next as XmlElement
+                                        return next as XmlElement to expression
                                     } else {
                                         annotations[expression] = AnnotationResult("expected attribute but found ${htmlElement::class}")
-                                        return htmlElement
+                                        return htmlElement to expression
                                     }
                                 }
                                 else -> {
@@ -151,13 +152,13 @@ class Extractor {
                                     } else {
                                         annotations[expression] = AnnotationResult("TODO unknown called method $fqName")
                                     }
-                                    return htmlElement
+                                    return htmlElement to expression
                                 }
                             }
                         }
                         else -> {
                             annotations[expression] = AnnotationResult("failed to resolve")
-                            return htmlElement
+                            return htmlElement to expression
                         }
                     }
                 }
@@ -167,26 +168,26 @@ class Extractor {
                 return checkExpression(annotations, initializer!!, htmlElement)
             }
             is KtStringTemplateExpression -> {
-                var htmlElement = htmlElement
+                var htmlElement: Pair<XmlElement, KtExpression> = htmlElement to expression
                 for (entry in expression.entries) {
                     entry.expression?.let {
-                        htmlElement = checkExpression(annotations, it, htmlElement)
+                        htmlElement = checkExpression(annotations, it, htmlElement.first)
                     }
                 }
                 return htmlElement
             }
             is KtConstantExpression -> {
                 // fine
-                return htmlElement
+                return htmlElement to expression
             }
             is KtNameReferenceExpression -> {
                 // variable reference
                 // maybe KtSimpleNameExpression
-                return htmlElement
+                return htmlElement to expression
             }
             else -> {
                 annotations[expression] = AnnotationResult("Unknown HTML parser statement ${expression::class}")
-                return htmlElement
+                return htmlElement to expression
             }
         }
     }
@@ -212,11 +213,11 @@ class Extractor {
             // TODO here we should start parsing htmlTag
             val parsedUntil = checkExpression(annotations, block, htmlFile)
             // TODO produce quickfix
-            if (parsedUntil is XmlTag) {
+            if (parsedUntil.first is XmlTag) {
                 // TODO FIXME I think persisting PsiElements like this is not allowed
-                annotations[block] = AnnotationResult("Fix the parsing here", MyQuickFix(block))
+                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second))
             } else {
-                annotations[parsedUntil] = AnnotationResult("Remaining part to parse")
+                annotations[parsedUntil.first] = AnnotationResult("Remaining part to parse")
             }
         }
 
