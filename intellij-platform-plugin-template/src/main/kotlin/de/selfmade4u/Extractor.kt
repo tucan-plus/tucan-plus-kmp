@@ -69,7 +69,8 @@ class MyQuickFix(element: KtExpression) : PsiUpdateModCommandAction<KtExpression
     }
 
     override fun invoke(context: ActionContext, element: KtExpression, updater: ModPsiUpdater) {
-        element.replaced(KtPsiFactory(context.project).createExpression("println(1)"))
+        element.addSiblingAfter(KtPsiFactory(context.project).createExpression("println(1)"))
+        element.addSiblingAfter(KtPsiFactory(context.project).createNewLine())
     }
 }
 
