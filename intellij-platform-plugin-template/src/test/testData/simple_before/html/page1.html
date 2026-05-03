@@ -1,0 +1,514 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de">
+<head>
+    <title>Technische Universität Darmstadt</title>
+    <!--
+        © DATENLOTSEN INFORMATIONSSYSTEME GMBH
+        e-mail: 		info@datenlotsen.de
+        web: 			http://www.datenlotsen.de
+
+        customer: 		tuda
+        version: 		15.00.003
+        filename:		head.htm
+    //-->
+
+    <!-- IE document mode -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <meta http-equiv="cache-control" 		content="no-cache" />
+    <meta http-equiv="expires" 				content="-1" />
+    <meta http-equiv="pragma" 				content="no-cache" />
+    <meta http-equiv="Content-Type" 		content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Script-Type"	content="text/javascript" />
+    <meta name="referrer" content="origin" />
+    <meta name="keywords" content="Datenlotsen,Datenlotsen Informationssysteme GmbH,CampusNet,Campus Management" />
+
+    <!-- Other analytics code - e.g. PIWIK, Tag manager instead of Pageview etc. -->
+
+
+
+
+
+
+    <link rel="shortcut icon" type="image/x-icon" href="/gfx/tuda/icons/favicon.ico"/>
+
+    <script src="/js/jquery.js" 	type="text/javascript"></script>
+    <script src="/js/checkDate.js" 	type="text/javascript"></script>
+    <script src="/js/edittext.js" 	type="text/javascript"></script>
+    <script src="/js/skripts.js" 	type="text/javascript"></script>
+    <script src="/js/x.js" 			type="text/javascript"></script>
+
+
+
+
+    <script type="text/javascript">
+        // hide username and password for sso
+        $(document).ready(function () {
+            $('#fieldSet_login').hide();
+            $('#logIn_btn').mouseover(function(){ $('#fieldSet_login').show(); });
+            $('#logIn_btn_sso,#forgotPassword_btn').mouseover(function(){ $('#fieldSet_login').hide();	});
+        });
+    </script>
+
+
+    <!-- ++++++++++++++++++ DEFAULT STYLESHEETS  ++++++++++++++++++++ -->
+    <link id="defLayout" 	href="/css/_default/def_layout.css"	rel="stylesheet"  type="text/css"	media="screen" />
+    <link id="defMenu" 		href="/css/_default/def_menu.css" 	rel="stylesheet"  type="text/css"	media="screen" />
+    <link id="defStyles" 	href="/css/_default/def_styles.css"	rel="stylesheet"  type="text/css"	/><!-- no media specified - used for screen AND print -->
+    <link id="pagePrint" 	href="/css/_default/def_print.css" 	rel="stylesheet"  type="text/css"	media="print" />
+
+
+
+
+    <!-- ++++++++++++++++++ CUSTOM STYLESHEETS  ++++++++++++++++++++ -->
+    <link id="pageStyle"		href="/css/styles.css"	rel="stylesheet"	type="text/css"  	 />	<!-- no media specified - used for screen AND print -->
+
+
+    <link id="pageColors"		href="/css/colors.css"	rel="stylesheet" 	type="text/css" 	media="screen" />
+
+
+    <!-- ++++++++++++++++++ MINOR IE FIXES ++++++++++++++++++ -->
+    <!--[if IE 9]>
+    <link id="IE9FIXES" href="/css/_default/IE/fixes_ie9.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link id="IE7FIXES" href="/css/_default/IE/fixes_ie.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <!--[if lt IE 7]>
+    <link id="IE6FIXES" href="/css/_default/IE/fixes_ie6.css" rel="stylesheet" type="text/css"  media="screen" />
+    <noscript>
+        <link id="IE6FIXESNOSCRIPT" href="/css/_default/IE/fixes_ie6_noScript.css" 	rel="stylesheet" type="text/css"  media="screen" />
+    </noscript>
+    <![endif]-->
+    <!-- ++++++++++++++++++ MENU_CSS FOR HIGHLITING ++++++++++++++++++ -->
+
+
+
+
+
+
+
+    <style type="text/css">
+        #pageTopNavi ul.nav #link000344 a.link000344{
+            background-color:#ffffff;
+
+        }
+        #pageTopNavi ul.nav #link000344 a.link000344,
+        #pageTopNavi ul.nav #link000344 a.link000344 span{
+            color:#99A604;
+            text-decoration:underline;
+        }
+
+        #pageTopNavi ul.nav.depth_1 #link000344{
+
+        }
+        #pageTopNavi ul.nav.depth_1 #link000344 > a{
+
+        }
+        #pageTopNavi ul.nav.depth_1 #link000344:before{
+
+        }
+        #pageTopNavi ul.nav.depth_1 #link000344:first-child:before{
+
+        }
+        #pageTopNavi ul.nav.depth_1 #link000344:after{
+
+        }
+        #pageTopNavi ul.nav.depth_1 #link000344:last-child:before{
+
+        }
+        #pageTopNavi ul.nav.depth_1 #link000344:hover{
+
+        }
+        #pageTopNavi ul.nav #link000344.tree ul.nav{
+            left:0px;
+            height:auto; /* do NOT change or remove this! def_menu.css set this to 0 for inactive nav (scrollbar fix) */
+            display:block;
+        }
+        #pageTopNavi ul.nav #link000344.tree .tree ul{
+            height:0;
+        }
+    </style>
+
+
+
+
+
+
+
+</head>
+<body class="external_pages">
+
+
+
+<div id="Cn-system-desc">                                                                 </div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var SystemDesc = $.trim($("#Cn-system-desc").text());
+
+        if(SystemDesc !=''){
+            $("#Cn-system-desc").text(SystemDesc);
+            $("#Cn-system-desc").css('display','block');
+        }
+    });
+    var activateSignCheck = false;
+</script>
+<div id="acc_pageDescription" class="hidden"><a name="keypadDescription" class="hidden">keypadDescription</a>
+    Für maximale Nutzerfreundlichkeit empfehlen wir, die Ausführung von JavaScript und Cookies zu erlauben.Mithilfe der folgenden Accesskeys können Sie im Portal navigieren:
+    <a href="#mainNavi" accesskey="1">1 Hauptmenü</a>
+    <a href="#mainContent" accesskey="2">2 Inhalt</a>
+    <a href="#keypadDescription" accesskey="3">3 Zurück zu dieser Anleitung</a>
+</div>
+<div id="pageContainer" class="pageElementTop">
+    <div class="invAnchor">
+        <a name="top" class="invAnchor"></a>
+    </div>
+    <div id="pageHead" class="pageElementTop">
+        <div id="pageHeadTop" class="pageElementTop">
+            <a href="?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000344,-Aimprint" class="img img_arrowImprint pageElementLeft">Impressum</a>
+            <a href="?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000344,-Acontact" class="img img_arrowContact pageElementLeft">Kontakt</a>
+            <a href="#" onclick="window.print();" class="img img_arrowPrint pageElementLeft">Drucken</a>
+
+
+            <a href="#bottom" class="img img_arrowDown pageElementRight">Zum Ende der Seite</a>
+        </div>
+        <div id="pageHeadCenter" class="pageElementTop">
+            <div id="pageHeadLeft" class="pageElementLeft">
+                <a href="http://www.tu-darmstadt.de" title="extern http://www.tu-darmstadt.de">
+                    <img id="imagePageHeadLeft" src="/gfx/tuda/logo.gif" alt="Logo Technische Universität Darmstadt" />
+                </a>
+            </div>
+            <div id="pageHeadRight" class="pageElementRight">
+                &nbsp;
+            </div>
+        </div>
+        <div id="pageHeadBottom_1" class="pageElementTop">
+            <div id="pageHeadControlsLeft" class="pageElementLeft">
+                <a class="img pageHeadLink" href="#" id="extraNav_link1" target="_blank">Homepage</a>
+                <a class="img pageHeadLink" href="#" id="extraNav_link2" target="_blank">standardLink undef</a>
+            </div>
+            <div id="pageHeadControlsRight" class="pageElementRight">
+
+                <a class="img" href="#" id="extraNav_link3" target="_blank">standardLink undef</a>
+                <a class="img" href="#" id="extraNav_link4" target="_blank">standardLink undef</a>
+                <a class="img" href="#" id="extraNav_link5" target="_blank">&nbsp;</a>
+            </div>
+        </div>
+        <div id="pageHeadBottom_2" class="pageElementTop">
+
+            <div id="pageHeadBottom_2sub_1" class="pageElementTop">
+                &nbsp;
+            </div>
+            <div id="pageHeadBottom_2sub_2" class="pageElementTop">
+                &nbsp;
+            </div>
+            &nbsp;
+
+        </div>
+
+
+        <div id="pageTopNavi" class="pageElementTop"> <!-- INCLUDING MENU-FILE FOR NAVIGATION-->
+            <a name="mainNavi" class="hidden">&nbsp;</a> <!-- ANCHOR NAVI -->
+
+            <ul class="nav depth_1 linkItemContainer"><li class="intern depth_1 linkItem " title="Startseite" id="link000344"><a  class="depth_1 link000344 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000344,-Awelcome" >Startseite</a></li><li class="tree depth_1 linkItem branchLinkItem " title="Vorlesungsverzeichnis (VV)" id="link000334"><a  class="depth_1 link000334 navLink branchLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AJhtseh3aPfEXfNXoz4rVW244HcAuscvUsg1Cy2-Gg4GfhKeFNRp~397k5A2lHFuuBAve-SmnJQFaKCKxinP2sWrKSVhIUoN0xj8D6zY4sKpWVkzh912h8FGdD5ytSjR0OK9t4EZ-5Fqt9slQLzvfuuJVK6D54MGvnzbdf4GQ8prgK1w2Ooa8~F2IZQ__" >Vorlesungsverzeichnis (VV)</a><ul class="nav depth_2 linkItemContainer"><li class="intern depth_2 linkItem " title="Lehrveranstaltungssuche" id="link000335"><a  class="depth_2 link000335 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-A5ZG06Fyu4xaOocGQ9tboEKYxT9oWlCCF8jB-CmV9EDBZGrEkdCnWcP82yWmJaWtmbWIK-cea0jUoUhmYinsEFuAugbV1rzkr9pUUZWrY9-uaWjYkHnqH1HllLKRUlcm81rH-6Gzj9dlpFWcKiDQi5flV1O~e" >Lehrveranstaltungssuche</a></li><li class="intern depth_2 linkItem " title="Raumsuche" id="link000385"><a  class="depth_2 link000385 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=SEARCHROOM&amp;ARGUMENTS=-N000000000000001,-N000385," >Raumsuche</a></li><li class="intern depth_2 linkItem " title="Aktuell - Sommersemester 2026" id="link000721"><a  class="depth_2 link000721 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-A-DtOtgj89xB5tuVgv-noz9eJXdGws4S-87-UiJBXIHQ4zV~6eSrCXI1GGJNQ8fVKXvr-zzSSbONe7Jq98jMwgbJmERP4wCr4cf~LpvibO9He6vMyxmn1UwfIcnHjlOkBJ8SBIcTR4ZAxMW64rKFhhlmyEOwabH26JNoyuBBU~0aWL9yaSG9y9~AxDw__" >Aktuell - Sommersemester 2026</a></li><li class="intern depth_2 linkItem " title="Vorlesungsverzeichnis des WiSe 2025/26" id="link000713"><a  class="depth_2 link000713 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AlEyK37ks7vGirjq8YNiRbczb1jO0jXGSzJxErBEC~YF1aae541IvGJ9NMilbqU3UVVOuBfXmIgY0ckN08oY5pmCUpDiDXoG1mZ7cv65A0CyWddELSTwcLU4ApEtN93vCKBS0DuV93CYrd-PV8SgReM1Hn0Xa~G174xBnbUmA3XovY2NhCmVoA9nqPQ__" >Vorlesungsverzeichnis des WiSe 2025/26</a></li><li class="tree depth_2 linkItem branchLinkItem " title="Archiv" id="link000463"><a  class="depth_2 link000463 navLink branchLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000463,-Avvarchivstart%2Ehtml" >Archiv</a><ul class="nav depth_3 linkItemContainer"><li class="intern depth_3 linkItem " title="Sommersemester 2025" id="link000724"><a  class="depth_3 link000724 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AvtJE~MHzx4472z7CvxJkvuHP-N8L1hvCTiMDlbYuG2atsp4iurn6U181zefczZNcATBffwlJb9CEdFT78NO8fxmUzcRRaNbzxu~hbjQKtj~1sWIGVS1tmX-ffdu~JYAvNWE88fnECosyxVPUpVNQ18UiU2ukVEwD0kp7Q0l7DkpukPiMtRnrM9gkHA__" >Sommersemester 2025</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2024/25" id="link000723"><a  class="depth_3 link000723 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-A02t-dvgUyPxgDGIrVHHsigv5oyVQ9GSazbWmUGa3Smi7GGOlIEtQUE~ijfivTZTsO4HNMc327ewaDB3rbIzTfM0aSqcgpMYjn~m0mPUFgi7IWGnnxBfxK8qGO28IA4glHhfJnwziDu8NHDwgAHFACIjRnwL79Udgl0vceuXAoni~j2wPZKQw3prUHA__" >Wintersemester 2024/25</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2024" id="link000714"><a  class="depth_3 link000714 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AQhfZW8qUeDsEfaTcXhYoSKxD0M2MHGKWLPiwPzwoSwSXdch5oyrw1CTihT6d0777bgVm2Q2AC8FkdHgddym87v-4~x6DFyBZLMl9Hua3vMQxrNhBl422FpD2jG2wWJZyaCakkq0ZTjDEi~rJYM-L7orfba~AbbML4KIEKd4bIinCbtN9Yiocu~f-6g__" >Sommersemester 2024</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2023/24" id="link000705"><a  class="depth_3 link000705 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AuEr3EJGqp0sTWEqx2O4QVOeJRZELFYGh7WIXPh3Cej2myIL7zswtka5MZWbgbO5DuxO9TmC-Wdoma-kO9YFd9A1VTDzfZdoJYSGZMDhEyDJQnNNRsCg-qekfAVZcvjyLAP4~RMpg5QKpnmrIi88nv6OdgJ1PMk1~dpcb43hE2PpFFAKrNdU7YuE5eA__" >Wintersemester 2023/24</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2023" id="link000697"><a  class="depth_3 link000697 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-Atg2b4iaPgVb2ERLfCzePegMU5H51kj2lXfs9TMpMOWCEgQTtQnKFqyMHpYAIrxUY71PkGkv1QZaCwtkJv6roeStBiH-wiG1qLjDXKvoc4sckof8kbdshKWTHOW4ESa83slWVr~ozPekDcUtbyznGsIijsXE8aYnTPhBvQTjCAZMtMt0m5XnnZKlC0w__" >Sommersemester 2023</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2022/23" id="link000689"><a  class="depth_3 link000689 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-ABymNpmLzF2VqAZJxHdb3wj-opU8nRau1w49mYmcrigWPQMGEBuYncnnlm~OZcZR~r7qkvBOCZXy3YnEwPCevAfw2HbQFPo~t9Pt1tYNkyEZ4~2xS7ukrfDKvvLjDOhtKJZEMh6sDCadxW1WU0rc91k3ofarPO2b6fuRa1ZFh2LOld0M~ySm~RpgitA__" >Wintersemester 2022/23</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2022" id="link000682"><a  class="depth_3 link000682 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AkugrgjaX31G7cWWuddgoe~q-pfY5oR1z~hs5BNk93UZPk-Tvj8kGOGU6m2Ni2cgJ4QlxYz2QNtDnEue2ctPpZd9SXCWRBgfHrXjnAWKCKDWq3B9oRn26n3t1qiGi7GIbEheZmrc5WYeNeuVoTRJGN9wb7G8VJdLQgAaV1-SEi7CENGDMK3XG1Yh3Zg__" >Sommersemester 2022</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2021/22" id="link000670"><a  class="depth_3 link000670 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-ACTI4cCCBZY0~DB5rV0gyfS5zTWAVhLx9Ao5-aHCw-WE20l9gARGrLRNgkJAo56NluAySSpGa2T~Ox5mM0bIsbgN26DVC~khi-QFVb~x3dHro29JPYX56Xb7NyUlOCoWIVoxkrYeIrXJwYeVMWHGlfuXhW-hrpufj-qftLtFAS7W-M0Y-IdmcPCJ8Qw__" >Wintersemester 2021/22</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2021" id="link000663"><a  class="depth_3 link000663 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AouYRMGYn~8CSo9AAV~6wptj4WaqUuJ8iYSHjr3usGIHp-paxbAkW7EDAPJ5~KIcsAzx4hbDomJ~OI3mdRGdxwTi7ePy8pInW3OpDZRqCUYkbw4S7Dhy5iKSGsDjZGZ86KHBLg9X60ewoottLOUlfaXlubUg4usMV1nqr5Dl6qOr6L0Ipbcdj~1xm9A__" >Sommersemester 2021</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2020/21" id="link000655"><a  class="depth_3 link000655 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-A54eRg9SweMXSlmk1vdqr33Bz5kBqPhGm2sED92AETBYg0zJkm3GljmZlu2ZY5sNFHgamhguuyb76bxJt8Xggt611M1pmrFx-4ZgOP7nFpMbjkigOSnfeWTDAjzOSfn4tC~6HwTbqKPVPlABwKoqJGRwdYY5iQYdvEs24S47RanW6vHEZYuoVCXhxJA__" >Wintersemester 2020/21</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2020" id="link000635"><a  class="depth_3 link000635 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-A5-OjFSYuiK9k10CBzQkMHUP8XeRPPed0cBMCWPqPwfe15afpVcJ9vnfqFETImNMpbg9KIWUdddAbKk1vD7bLKL2XTws-PIl2yJErdOxLOoWE3Iq2bl7PgqhJ5vqCtSnQsLpB4l8PIRQnNpA-GFVU0A~bpn0nS3z7Dw~QRz6JFuWgOEetxuwqgqCx3g__" >Sommersemester 2020</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2019/20" id="link000627"><a  class="depth_3 link000627 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AdB3Ii7rjR002S1GBTCiun36Dse-Q5yhTemxfjLwtP6azP1xzOhsNZluTI~~xA7M8XOVjK94Se6HDt6p7RXD1D06IVAMczi1VCofFtHI0Udon4HFr5gK35a6ljBjN3WCd6QwUXwVfBraTFfYlElpP0RNoUd4izVq9duW5Wzw10cEC2sITpnIqEN1vRw__" >Wintersemester 2019/20</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2019" id="link000622"><a  class="depth_3 link000622 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-ApRU00GZyU-gzF9DxVVnaSs3d6376N4okmqEqvD~rSxaZg4Q6q66TfoXpJzNEpEwAnso8B0poGKn3kduInojJQLMhIgaxV1QtPAM8tTnoR4MMLI~gcje96DJfGHBRFYw0DAz92tub7Wa3aKWvZJW-0LQ5d9v4JSnu815jQvt9jeINabQXFglXaF29tQ__" >Sommersemester 2019</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2018/19" id="link000614"><a  class="depth_3 link000614 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AeHEMrl~wWiiNaZsykHkXQqcTz5X7j8Gq6pQIBkiWwBqoId6xJGVoL4suxWoqp2-jOWAoXfoNCSmeOCTHidrWk2DcR7MZozHKvlLdIGvgR23hXL487R9jAcrdDr67M6rQoDNY6iOPTkMR3DfPtPICVxS37a1SHdpvxUQFtYxzUT~fSzYx-1cWJPN82w__" >Wintersemester 2018/19</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2018" id="link000605"><a  class="depth_3 link000605 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AvQYDI-MqYpbL-p-z8dmL4QmBfBxfyVwwLIyaa-O-ksYV5JdIgC30NYqCSLV6zw5-rwGClRb9TRikIUBTmdCBbGKGVWtMLTMtpNWRjSF45UHf48MbF55kqHSsP-9V-PSE4ZjZC8Ak24vW67wMV9EWk80ALiCOEhpIQw2uzne6n92bKCQ5pGGZPSXlyw__" >Sommersemester 2018</a></li><li class="intern depth_3 linkItem " title="Wintersemester 17/18" id="link000595"><a  class="depth_3 link000595 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-A~YB1Ym1mSRCqC9zaMDToBBjNm0UfOUfSTtIXeXS-OKVA9caIP7fkNz~YxeUcHotPr2Trjll4TmpVTftet4ZouIw0ANMBY7YT7BuCkjU9T35om5W4~e4oIHtOUAw4ws9YKowPNDTZSMDUkqD8xIxQy~-xmIMhX2nRq1SnPaAyemt5DvJUJah70Mkh2w__" >Wintersemester 17/18</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2017" id="link000583"><a  class="depth_3 link000583 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AJ3HpsDZbI98zW9zL2x5dPykvJr0RmgS5b1Gk4sJd0-fpqWVnKBjnnzmqj1FWKfzQogDCwQQCfhO22axPhi7SPwHZXRJW0EYmcknyT5CIb0v9xMuT-uW4~kGvPPitbDJXlugGpozBRLpZzWOrHcM1P2i4uqGT1sVnsEpgYm0~5riq7RKfgn89aJPJGQ__" >Sommersemester 2017</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2016/17" id="link000576"><a  class="depth_3 link000576 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AbNvkIdoR84Rwl~jo5ykMQURH~QfS2Ucb0R01xb0dK572UIUGYeypUQRCb5338tuRV~w2IuHB8QyySjrtt11MsCc51a2ktzEHuOuUhxJGCrI6yAUCYlQpRdgTPpnMLCJGV37GOvQJW6vRzgmsqxCuufCSUv37ez34jrSGVDEHCS1hKCbgQWc0kHdK0g__" >Wintersemester 2016/17</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2015/16" id="link000560"><a  class="depth_3 link000560 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-APgR1m2cdmwaU99Tl8PlV5ZU0M0ReHCPXrJ5O3ElSbL9q~QKw6AIUn5y7z1vFheCXmUHjqeuLkMQ3BX-luGzzqfiWUFS8v5UdHjCZLttxFzrsXdcT3mJvD5d2tU6q3C2XjDihzGWdD2yFq09JhQJf0SeWyIzIIk3PhCSrGWPWfGuBPQVx8pgtySx3XA__" >Wintersemester 2015/16</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2016" id="link000567"><a  class="depth_3 link000567 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AuNzIQCJOouud8a-LzGdxaSBcs4BanpkbLpS9gVBu1~IYs47tRq7-HiR94EwZsHQZ4Vsp2SmJcTYv~G~iAHjXuhIdYrptt0FU6kqNHPzg8ve4Ya~vrQPSHjRaa8YgywbDA-CRXIZHXf0U9MAp1G~L3~IBzlZoaklv4V3fZR1D7IHSDXk3zspO4IKDdQ__" >Sommersemester 2016</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2015" id="link000549"><a  class="depth_3 link000549 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-Ao6b1nSDFwjYpXX2R7Y1Wc4LpeY1Ikgzmux1yUoinMK3dpt1mLlTHFoEMkk~nqn1SAO6h1q1K2LLn2YtT~-An6Mxu0cTfdBSDDXIZY--SKhzZoJ9ymSy970PjsN0OA3vmXj1kPBcJ4mqgReY40O3r21H~y6dpU6F6gRBHVDZbqlRiUkuonM8UQ8yndw__" >Sommersemester 2015</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2014/15" id="link000547"><a  class="depth_3 link000547 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AynSTMAPmJ9OQ7Ije5GcPWZSHPLBTrUh3HtlvlPOrI5icD5guVUE7kfGxT3~A3extue8BqZGn3OMbQaOSyInMfoDdqq35t02UatOVNxndxaqlVzSSD-ZHOKKw0tGueq~y5HEHHaOCr5d23GRGJiSS4GWfMOjXC3i9rRDSSX6pUTgJrhAHu5ejPBkElw__" >Wintersemester 2014/15</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2014" id="link000530"><a  class="depth_3 link000530 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-ACyd0QcDRFGOPY-gDNyRbdoCFS1fNpmCQESLRmY3vfYhTfvlTa3n8hKYkNVT7KCGmU-B4WdIBn4RVZgVLKRJyZLBb5lXCyZMv1NdT-CVnTHJ1lG4UoSEJnPE1~nuIaQu33BvsHYIh8PFFwlc7k7fp-TUvUvPEHsi~nd0uI924emH7uKYY~p7EIFWnoA__" >Sommersemester 2014</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2013/14" id="link000504"><a  class="depth_3 link000504 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AZB7m5xik9STAWTV5dJ9Z8KaQIs7MzJluq9qiyGcL2fOWsNmnoyRPLv4cuJTPO~pE5ZTBOSP0cV4ectxPc6vK~qu5TFYIauEKi0kzCDJ3SBm6aGsWGlIICs7xer36Ljy3D7qNRxUVwI3BKoK2Xu7vD~oTQWcRv5TFY2Vq8kC8Jm~5MQ1GpaOwv0ccLA__" >Wintersemester 2013/14</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2013" id="link000491"><a  class="depth_3 link000491 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-A7fy7VmOWlymJkpgw82234KjVs1Y1dNgUe3-A-Zy418sdYBt-ryPe2enbGCiO7aLXT-X192vlNbvHpknrD9kn98y5rbYkbmn0e0PXjomee7ihXyI-mRImOUfkiHGMDa5nYZMOomxLXiLbriPCcMBb4WplFW6DHOjHdiDDtNfor8ATVRXTtbMIryK~Pw__" >Sommersemester 2013</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2012/13" id="link000467"><a  class="depth_3 link000467 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AH273aoY4B2fhvJQx3BIp-mMK2QEpjWOhzTncU0d5-4-zMTXzD3i5U1hUvmkXM8TWPYYjrjAYjFWoD~1mPvGL7fRbASOCwpmo0hmyXoKsZ8xzWDSrXr-hUxX5Teb-Lbh6KxmuTQRi9in3QF25aFIL6a-QPyJh30Oif4aNIIHpVPMtCOeHU7iKKHjqJA__" >Wintersemester 2012/13</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2011/12" id="link000469"><a  class="depth_3 link000469 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-As5CbGXhj8rld~-tMjyyfeqTcnxi6ujxKIV9YfAT1z9sqRqGSNEY7K0DyhoRjo3PHrsDmXb0yBq~hsIQ31R7aNNQRpfhzqjJF-p6krm6~PoajNeoR4SL7tRTMSyvN7ZAoH6ug9I3yJUcOmd8smrYGaY1NGqLcwx7IacrP-xmJvkP4Mc~H0SaUcrqExw__" >Wintersemester 2011/12</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2012" id="link000468"><a  class="depth_3 link000468 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AP3gFOqJqmHxU7J858y74IEsILZ97xsPMgMChtU39ij7Zy7LDrfiLOVgpf5HZe1V1Nfn2x~c5LbpwlPQb8aVEWayNyENs6F-DunI2yYq4~eOCmKoyU4xdExzjQcznTHeAHFIujTx23NdiorghGhTiXWEEsH8PIaG5LV2Z6ZDOQw1dcAJG09DxTwqkJw__" >Sommersemester 2012</a></li><li class="intern depth_3 linkItem " title="Sommersemester 2011" id="link000470"><a  class="depth_3 link000470 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AP5~bXXr9r2LbPpQQODUMOQD15WQ4KqS8-8eAoQx0bdc61xV3WwivfDg8a3E95urc9OU4blJUBgZ5E2Aep~iHFRv~SQ2IxWZFmeLEEzzFf77odjn1CYYv0U4~iBb1bumc-nkPWvJe94qf6Mn3PZfvIgBIVp7MerfIzwYATXSdPMiMuUtCuVfvw0~hhQ__" >Sommersemester 2011</a></li><li class="intern depth_3 linkItem " title="Wintersemester 2010/11" id="link000471"><a  class="depth_3 link000471 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=ACTION&amp;ARGUMENTS=-AyrU3SQrF5N0vbJsGLxzKh-7S24UmaUKCHzSFSQsG~-y5NVMR78f9IDk94aHmSPglXHGWw2Aoj3eyO2Ie9eQhOdqodlb7CvvAoTguTMFZbN3FMFItwVwXEX~7Dd6jEgHwaylOndl0khACzbzWBO0AM8bZ9BxcvsDbFLTSe6WqcMzJdS0cz2iWA43wLQ__" >Wintersemester 2010/11</a></li><li class="intern depth_3 linkItem " title="Altsysteme" id="link000481"><a  class="depth_3 link000481 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000481,-Avvarchivaltsysteme%2Ehtml" >Altsysteme</a></li></ul></li></ul></li><li class="tree depth_1 linkItem branchLinkItem " title="TUCaN-Account" id="link000410"><a  class="depth_1 link000410 navLink branchLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000410,-Atucan%5Faccount%2Ehtml" >TUCaN-Account</a><ul class="nav depth_2 linkItemContainer"><li class="intern depth_2 linkItem " title="Account anlegen" id="link000425"><a  class="depth_2 link000425 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=CREATEACCOUNT&amp;ARGUMENTS=-N000000000000001,-N000425," >Account anlegen</a></li><li class="intern depth_2 linkItem " title="Passwort vergessen (nur für Bewerber/innen!)" id="link000426"><a  class="depth_2 link000426 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=LOSTPASS&amp;ARGUMENTS=-N000000000000001,-N000426,-A" >Passwort vergessen (nur für Bewerber/innen!)</a></li></ul></li><li class="intern depth_1 linkItem " title="Hilfe" id="link000340"><a  class="depth_1 link000340 navLink " href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000340,-Ahilfe%2Ehtml" >Hilfe</a></li></ul>
+
+        </div>
+        <div id="pageHeadBottom_3" class="pageElementTop">
+
+            <div id="pageHeadSwitchLang" class="pageElementRight">
+
+                <a href="/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=CHANGELANGUAGE&amp;ARGUMENTS=-N000000000000002,-N002" class="img img_LangEnglish pageElementLeft" title="English">English</a>
+
+
+
+
+            </div>
+
+            <div id="cn_loginForm">
+                <div>
+                    <a id="logIn_btn" class="img img_arrowSubmit" title="Anmelden" href="https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=ClassicWeb&scope=openid%20DSF%20email&response_mode=query&response_type=code&ui_locales=de&redirect_uri=https%3a%2f%2fwww.tucan.tu-darmstadt.de%2Fscripts%2Fmgrqispi.dll%3FAPPNAME%3DCampusNet%26PRGNAME%3DLOGINCHECK%26ARGUMENTS%3D-N000000000000001%2Cids_mode%26ids_mode%3DY">Anmelden</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pageContentContainer" class="pageElementTop">
+        <!-- Anker für Content2 -->
+        <div id="pageLeft" class="pageElementLeft"> <!-- LEFT COL OF CONTENT -->
+            <div id="pageLeftTop"></div>
+        </div>
+
+        <div id="pageContent" class="pageElementLeft">
+            <div id="featureBanner"></div>
+            <a name="mainContent" class="hidden">&nbsp;</a> <!-- ANCHOR MAIN CONTENT -->
+            <div id="pageContentTop" class="pageElementTop">
+            </div>
+            <div id="contentSpacer_IE" class="pageElementTop"><!-- FORCE MIN HEIGHT IN IE<7 -->
+                <!--[if lt IE 7]>
+                <p class="error">
+                    Sie verwenden eine Browserversion, die nicht mehr unterstützt wird. Bitte upgraden Sie Ihren Browser auf die aktuelle Version, um funktionale Störungen und Darstellungsprobleme zu vermeiden.
+                </p>
+                <![endif]-->
+
+
+                <!--
+                    © DATENLOTSEN INFORMATIONSSYSTEME GMBH
+                    e-mail: 		info@datenlotsen.de
+                    web: 			https://www.datenlotsen.de
+
+                    customer: 		tuda
+                    version: 		15.00.003
+                    filename:		external_pages.htm
+                //-->
+
+                <script type="text/javascript"></script>
+
+
+
+                <!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+                <title>CampusNet Technische Universit&auml;t Darmstadt</title>
+                <link href="/externalfiles/css/basis.css" rel="stylesheet" type="text/css" />
+                </head>
+
+                <body> -->
+                <html xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882" xmlns:mso="urn:schemas-microsoft-com:office:office"><head>
+                    <meta http-equiv="content-type" content="text/html; charset=windows-1252"></head><body><div id="inhalt" style="padding:0px; width:650px; margin:0px; background-color:#ffffff;">
+
+                    <h1>Herzlich willkommen bei TUCaN, <br>
+                        dem Campus Management System der TU Darmstadt! </h1>
+
+
+                    <!--START BOX BEWERBER ACCOUNTS LOSVERFAHREN
+                    <div style="padding:10px; width:650px; border:thin solid grey; margin:0px">
+                    <h2>Wichtiger Hinweis zur Online-Bewerbung</h2>
+                    <p>Für das Losverfahren sowie einen Fachwechsel endet die Bewerbungsfrist am 15. September 2025.<br>
+                    <b>Falls Sie bereits an der TU Darmstadt eingeschrieben waren, müssen Sie ggf. für die Bewerbung Ihr TUCaN-Account erneut aktivieren lassen. Diese Aktivierung muss manuell durch das Support-Team erfolgen und ist nur bis 16 Uhr am 15.09.2025 möglich. </b>
+                    <br>Ihre Online-Bewerbung können Sie dann noch bis 23:59 Uhr absenden.
+                    </p>
+                    <p>
+
+                    &#9658;  <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_31232.de.jsp" target="_blank">Infos zum Login / Account-Freischaltung</a><br>
+                     &#9658;  <a href="https://www.tu-darmstadt.de/studieren/studieninteressierte/bewerbung_zulassung_tu/bewerbungsfristen/index.de.jsp" target="_blank">Zu den Bewerbungsfristen</a>
+                    </p>
+                    </div>
+
+                    <p>&nbsp;</p>
+                     ENDE BOX BEWERBER ACCOUNTS-->
+
+
+
+                    <!--START BOX BEWERBER ACCOUNTS
+                    <div style="padding:10px; width:650px; border:thin solid grey; margin:0px">
+                    <br>
+                    <h2>Wichtiger Hinweis zur Online-Bewerbung</h2>
+                    <p>Die Bewerbungsfrist für viele Studiengänge endet am am 15. Januar 2026.<br>
+                    <b>Falls Sie bereits an der TU Darmstadt eingeschrieben waren, müssen Sie ggf. für die Bewerbung Ihr TUCaN-Account erneut aktivieren lassen. Diese Aktivierung muss manuell durch das Support-Team erfolgen und ist nur bis 15.01.2026 um 16 Uhr möglich. </b>
+                    <br>Ihre Online-Bewerbung können Sie dann noch bis 23:59 Uhr am 15.01.2026 absenden.
+                    </p>
+                    <p>
+
+                    &#9658;  <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_31232.de.jsp" target="_blank">Infos zum Login / Account-Freischaltung</a><br>
+                     &#9658;  <a href="https://www.tu-darmstadt.de/studieren/studieninteressierte/bewerbung_zulassung_tu/bewerbungsfristen/index.de.jsp" target="_blank">Zu den Bewerbungsfristen</a>
+                    </p>
+                    </div>
+
+                    <br>
+                    ENDE BOX BEWERBER ACCOUNTS-->
+
+
+                    <!--START BOX ENDE DER DOWNTIME
+                    <div style="padding:10px; width:650px; border:thin solid darkred; margin:0px">
+                    <h2><font color="red">Derzeit gibt es leider technische Probleme beim Login!</font></p>
+
+                    </h2>
+                    <p> Ein Login ist im Moment leider nicht möglich. An einer Lösung wird gearbeitet. Bitte haben Sie etwas geduld und versuchen Sie es später noch einmal.</p>
+
+                    <p> Wir bedauern die Unannehmilchkeiten!</p>
+                    </div>
+                    ENDE BOX ENDE Downtime-->
+
+
+
+                    <BR>
+
+                    <p style="line-height: 140%;"><strong>Studierende, Lehrende, Stellvertretungen und Mitarbeitende sowie bereits zugelassene Gasthörer:innen</strong><br>
+                        klicken oben rechts auf "Anmelden" und klicken auf der Anmeldeseite das Athene-Logo an und melden sich im folgenden Dialog mit ihrer TU-ID am Single Sign-On (SSO) an, um TUCaN zu nutzen. &rarr; <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_387584.de.jsp" target="_blank">Anleitung zum Login</a></p>
+                    <ul>
+                        <li><a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/index.de.jsp" target="_blank">FAQ für Studierende</a></li>
+                        <li><a href="https://www.intern.tu-darmstadt.de/dez_ii/campusmanagement/cm_tucan/infos_fuer_lehrende/index.de.jsp" target="_blank">FAQ für Lehrende, Stellvertretungen und Mitarbeitende</a></li>
+                        <li><a href="https://www.tu-darmstadt.de/gasthoerer" target="_blank">FAQ für Gasthörer:innen</a></li>
+                    </ul>
+
+                    <p style="line-height: 40%;">&nbsp;</p>
+                    <p style="line-height: 140%;"><strong>Neue Mitarbeitende und Lehrende</strong> stellen zunächst einen Antrag auf TUCaN-Zugang.<br>
+                        &rarr; <a href="https://www.intern.tu-darmstadt.de/verwaltung/dez_ii/campusmanagement/cm_tucan/infos_fuer_lehrende/tucan_zugang/index.de.jsp" target="_blank">TUCaN-Zugang für neue Mitarbeitende und Lehrende</a>. </p>
+
+                    <p style="line-height: 40%;">&nbsp;</p>
+                    <p style="line-height: 140%;"><strong>Bewerber:innen für ein Studium und Interessent:innen für eine Gasthörerschaft</strong><br>
+                        legen sich zunächst ein <a href="https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N000000000000001,-N000410,-Atucan%5Faccount%2Ehtml">TUCaN-Account</a>
+                        an, um ihre Zugangsdaten zu erhalten. Zum Anmelden oben rechts auf "Anmelden" klicken und anschließend mit diesen Zugangsdaten (E-Mail-Adresse und zugehöriges Passwort) auf der Anmeldeseite im Bereich "Login für Bewerber:innen" anmelden, bis sie ihre endgültige TU-ID erhalten.
+                        <br> &rarr; <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_387584.de.jsp" target="_blank">Anleitung zum Login</a></p>
+                    <ul>
+                        <li><a href="https://www.tu-darmstadt.de/studieren/studieninteressierte/bewerbung_zulassung_tu/online_bewerbung/index.de.jsp" target="_blank">FAQ für Bewerber:innen</a></li>
+                        <li><a href="https://www.tu-darmstadt.de/gasthoerer" target="_blank">FAQ für Gasthörer:innen</a></li>
+                    </ul>
+
+                    <p style="line-height: 40%;">&nbsp;</p>
+                    <p style="line-height: 140%;"><strong>Promovierende zur Registrierung / Einschreibung</strong><br>
+                        beachten bitte die Informationen auf den <a href="http://www.tu-darmstadt.de/promotion-registrierung" target="_blank">Webseiten</a>. </p>
+
+
+                    <p style="line-height: 40%;">&nbsp;</p>
+
+
+                    <!-- START BOX VORLESUNGSVERZEICHNIS -->
+                    <div style="padding:10px; width:650px; border:thin solid grey; margin:0px; background-color:#f8f9ed;">
+
+
+                        <p style="line-height: 140%;"> <strong>Aktuelles:</strong> <br>
+                            <br>
+
+                            <strong>Vorlesungsverzeichnis Sommersemester 2026</strong> <br>
+                            Das Vorlesungsverzeichnis für das Sommersemester 2026 ist in TUCaN verf&uuml;gbar. Die Anmeldung zu Modulen und Lehrveranstaltungen ist zu den <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_388288.de.jsp" target="_blank">jeweils eingestellten Fristen</a> möglich.</p>
+
+                        <p style="line-height: 140%;"><strong>Hinweis für Erstsemester</strong><br>
+                            In der Regel sollte unmittelbar nach
+                            Ihrer Aktivierung der TU-ID auch Ihr Zugang zu TUCaN freigeschaltet
+                            sein. Sollte es ausnahmsweise zu Verzögerungen kommen, bitten wir Sie um
+                            etwas Geduld. Spätestens nach zwei Arbeitstagen können Sie sich in
+                            TUCaN einloggen. <br>&rarr; <a href="https://www.tu-darmstadt.de/einfachstudieren" target="_blank">Alle wichtigen Infos für Erstsemester</a></p>
+
+                        <p style="line-height: 140%;"><strong>Weiterleitung von Nachrichten</strong> <br>
+                            Da wir sehr wichtige aktuelle Semesterinformationen  über TUCaN versenden, empfehlen wir Studierenden und Lehrenden dringend die Einrichtung der Weiterleitung der TUCaN-Nachrichten an Ihre E-Mail-Adresse - so bleiben Sie immer auf dem Laufenden!<br>
+                            &rarr; Zur Anleitung <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_17153.de.jsp" target="_blank">für Studierende</a> / <a href="https://www.intern.tu-darmstadt.de/dez_ii/campusmanagement/cm_tucan/infos_fuer_lehrende/faq_lehrende/details_18368.de.jsp" target="_blank">für Lehrende</a></p>
+
+
+                        <p style="line-height: 140%;"><strong>Studienbescheinigung</strong><br>
+                            Studierende k&ouml;nnen ihre Studienbescheinigung  selbst im TUCaN Webportal herunterladen. Die Bescheinigungen finden Sie nach dem Login unter <em>Service</em> / <em>Meine Dokumente</em>.
+                            <br>&rarr; <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_55040.de.jsp" target="_blank">Weitere Informationen</a></p>
+
+
+
+                    </div>
+                    <!--  ENDE BOX VORLESUNGSVERZEICHNIS -->
+
+
+
+
+                    <!-- START BOX PRÜFUNGSANMELDUNG
+                    <div style="padding:10px; width:650px; border:thin solid grey; margin:0px; background-color:#f8f9ed;">
+                    <p style="line-height: 140%;"> <strong>Aktuelles: Fristen zur Prüfungsanmeldung in TUCaN für das Wintersemester 2025/26
+                    </strong> </p>
+
+
+                    <p style="line-height: 140%;">Die Anmeldezeit zu Prüfungen im WiSe 2025/26 beginnt in vielen Fachbereichen am 15. November 2025.<br> In vielen Studiengängen endet die Anmeldefrist am 15. Dezember 2025 - bitte informieren Sie sich rechtzeitig! Ihre Anmeldung nehmen Sie im TUCaN-Webportal im Bereich <i>Prüfungen</i> unter <i>Meine Prüfungen / Anmeldung zu Prüfungen</i> vor.</p>
+
+                    <p style="line-height: 140%;">Fachbereiche können diese Fristen verschieden festlegen. Die konkreten An- und Abmeldefristen Ihrer Prüfungen entnehmen Sie bitte den <a href="http://www.tu-darmstadt.de/tucan-pruefungsdetails" target="_blank">Prüfungsdetails</a> in TUCaN.</p>
+
+
+
+
+                    &rarr; <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/index.de.jsp" target="_blank">Hilfe & FAQ zur Prüfungsanmeldung</a></br>
+
+                    </p><br>
+
+                    <p style="line-height: 140%;"><b>ACHTUNG!</b><br>Bitte merken Sie sich unbedingt Ihre Matrikelnummer und bringen Sie einen Lichtbildausweis mit zur Prüfung! <br>&rarr; <a href="https://www.tu-darmstadt.de/pruefung-hinweise" target="_blank">Weitere Infos</a></p>
+
+                    <br>
+
+                    </div>
+                     ENDE BOX PRÜFUNGSANMELDUNG -->
+
+                    <p>&nbsp;</p>
+                    &rarr; <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_37312.de.jsp" target="_blank">TUCaN Wartungszeit: Dienstag um 6 - 9 Uhr</a>
+
+                    <br><br>
+                    &rarr; <a href="https://www.hrz.tu-darmstadt.de/services/it_services/tu_id/2fa/index.de.jsp" target="_blank">Infos zur Zwei-Faktor-Authentifizierung</a>
+
+
+
+                    <br><br>
+                    &rarr; <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_344192.de.jsp" target="_blank">Hinweise zum Datenschutz</a>
+
+
+
+                    <p>&nbsp;</p>
+
+                    <!-- START BOXEN ARCHIV DEAKTIVIERT
+                    <div style="padding:10px; width:650px; border:thin solid darkred; margin:0px; background-color:#f8f9ed;">
+
+                    DEAKTIVIERT: HINWEIS ZUGRIFF VERWEIGERT <p style="line-height: 140%;"><strong>Login-Probleme?</strong> <br>
+                    Falls bei Ihnen die Meldung <strong>"Zugriff verweigert"</strong> erscheint, löschen Sie bitte Ihre Cookies und/oder starten Sie TUCaN in einem privaten Browser-Tab. Sollte es dennoch nicht klappen, schicken Sie uns bitte eine E-Mail an <a href="mailto:tucan@tu-darmstadt.de">tucan@tu-darmstadt.de</a>.</p>
+                    ENDE HINWEIS
+
+                    DEAKTIVIERT: HINWEIS WEITERLEITUNG VON NACHRICHTEN
+                    <p style="line-height: 140%;"><strong> Aktueller Hinweis</strong> <br>
+                    Liebe Studierende und Lehrende, da wir zurzeit sehr wichtige aktuelle Semesterinformationen  über TUCaN versenden, empfehlen wir dringend die Einrichtung der Weiterleitung der TUCaN-Nachrichten an Ihre E-Mail-Adresse - so bleiben Sie immer auf dem Laufenden!<br>
+                    <ul><li>Zur Anleitung <a href="https://www.tu-darmstadt.de/studieren/studierende_tu/studienorganisation_und_tucan/hilfe_und_faq/artikel_details_de_en_17153.de.jsp" target="_blank">für Studierende</a> / <a href="https://www.intern.tu-darmstadt.de/dez_ii/campusmanagement/cm_tucan/infos_fuer_lehrende/faq_lehrende/details_18368.de.jsp" target="_blank">für Lehrende</a></p>
+                    </li></ul>
+
+                    <br>
+
+                    </div>
+                    ENDE BOXEN-->
+
+                </body>
+                </html>
+
+                <!--[if gte mso 9]><xml>
+                    <mso:CustomDocumentProperties>
+                        <mso:Kommentar msdt:dt="string"></mso:Kommentar>
+                        <mso:Dokumentenstatus msdt:dt="string"></mso:Dokumentenstatus>
+                        <mso:Rubrik msdt:dt="string">---</mso:Rubrik>
+                    </mso:CustomDocumentProperties>
+                </xml><![endif]-->
+                <title></title></div></body></html>
+<!--
+    © DATENLOTSEN INFORMATIONSSYSTEME GMBH
+    e-mail: 		info@datenlotsen.de
+    web: 			http://www.datenlotsen.de
+
+    customer: 		tuda
+    version: 		15.00.003
+    filename:		foot.htm
+//-->
+</div>
+</div>
+</div>
+
+<div id="pageFoot" class="pageElementTop">
+    <div id="pageFootControls" class="pageElementTop">
+        <div id="pageFootControlsLeft">
+            <a href="?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000344,-Aimprint" class="img img_arrowImprint pageElementLeft" id="pageFootControl_imp">Impressum</a>
+            <a href="?APPNAME=CampusNet&amp;PRGNAME=EXTERNALPAGES&amp;ARGUMENTS=-N000000000000001,-N000344,-Acontact"  class="img img_arrowContact pageElementLeft" id="pageFootControl_con">Kontakt</a>
+            <a href="#" onclick="window.print();" class="img img_arrowPrint pageElementLeft" id="pageFootControl_pri">Drucken</a>
+
+
+        </div>
+        <div id="pageFootControlsRight">
+            <a href="#top" class="img img_arrowUp pageElementRight" id="pageFootControl_up">&nbsp;</a>
+        </div>
+    </div>
+</div>
+</div>
+<div id="IEdiv">&nbsp;</div><!-- purpose of this is to avoid a pretty strange bug in IE's -->
+
+<!-- in case the schedule exceeds the given width in lower IE's-->
+<!--[if lt IE 7]>
+<script language="JavaScript" type="text/javascript">
+    adjustWidth();
+</script>
+<![endif]-->
+
+<div class="invAnchor">
+    <a name="bottom" class="invAnchor">&nbsp;</a>
+</div>
+
+
+</body>
+</html>
+

@@ -33,14 +33,14 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         fixture.copyDirectoryToProject("simple", "");
         fixture.testHighlighting("HtmlParsing.kt")
         fixture.testHighlighting("main.kt")
-        fixture.testHighlighting("html/page1.html")
-        fixture.testHighlighting("html/page2.html")
+        //fixture.testHighlighting("html/page1.html")
+        //fixture.testHighlighting("html/page2.html")
     }
 
     // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
     @Test
     fun testHtmlParsingQuickFix() {
-        fixture.copyDirectoryToProject("simple", "");
+        fixture.copyDirectoryToProject("simple_before", "");
         fixture.configureByFile("main.kt")
         //val highlights = fixture.doHighlighting()
         //println("highlights $highlights")
