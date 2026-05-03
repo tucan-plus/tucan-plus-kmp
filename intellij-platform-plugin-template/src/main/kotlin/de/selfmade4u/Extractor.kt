@@ -2,6 +2,7 @@ package de.selfmade4u
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.lexer.HtmlRawTextLexer
 import com.intellij.modcommand.ActionContext
 import com.intellij.modcommand.ModPsiUpdater
 import com.intellij.modcommand.Presentation
@@ -11,6 +12,7 @@ import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.impl.source.html.HtmlRawTextImpl
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiTreeUtil
@@ -109,7 +111,8 @@ object Extractor {
                                     annotations[expression] = AnnotationResult("Deprecated. Doctype does not need to be parsed.")
                                     return htmlElement to expression
                                 }
-                                "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head" -> {
+                                // TODO FIXME urgently fix this here, maybe by some annotation or so
+                                "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head", "de.selfmade4u.tucanpluskmp.title" -> {
                                     val tag = fqName.split(".").last()
                                     if (htmlElement is XmlTag && htmlElement.name == tag) {
                                         println("matched html tag")
@@ -221,6 +224,8 @@ object Extractor {
                 // TODO FIXME I think persisting PsiElements like this is not allowed
                 annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "${(parsedUntil.first as XmlTag).name} {}"))
             } else if (parsedUntil.first is XmlText) {
+                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "extractText()"))
+            } else if (parsedUntil.first is HtmlRawTextImpl) {
                 annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "extractText()"))
             } else {
                 annotations[parsedUntil.second] = AnnotationResult("Failed to parse the rest but can't autofix")
