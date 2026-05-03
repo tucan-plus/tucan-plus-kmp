@@ -32,10 +32,10 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     @Test
     fun testHtmlParsing() {
         fixture.copyFileToProject("HtmlParsing.kt")
-        fixture.copyDirectoryToProject("simple_html", "");
-        fixture.copyDirectoryToProject("simple", "");
+        fixture.copyDirectoryToProject("simple_html", "html");
+        fixture.copyFileToProject("main_annotated.kt");
         fixture.testHighlighting("HtmlParsing.kt")
-        fixture.testHighlighting("main.kt")
+        fixture.testHighlighting("main_annotated.kt")
         //fixture.testHighlighting("html/page1.html")
         //fixture.testHighlighting("html/page2.html")
     }
@@ -44,18 +44,17 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     @Test
     fun testHtmlParsingQuickFix() {
         fixture.copyFileToProject("HtmlParsing.kt")
-        fixture.copyDirectoryToProject("simple_html", "");
-        fixture.copyDirectoryToProject("simple_before", "");
-        fixture.configureByFile("main.kt")
+        fixture.copyDirectoryToProject("simple_html", "html");
+        fixture.copyFileToProject("main_before.kt");
+        fixture.configureByFile("main_before.kt")
         //val highlights = fixture.doHighlighting()
         //println("highlights $highlights")
-        val quickFixes = fixture.getAllQuickFixes("main.kt")
+        val quickFixes = fixture.getAllQuickFixes("main_before.kt")
         println("quickfixes $quickFixes")
         runInEdtAndWait {
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            fixture.checkResultByFile("simple_after/main.kt")
-
-            val intentions = fixture.getAvailableIntentions("main.kt")
+            fixture.checkResultByFile("main_after.kt")
+            val intentions = fixture.getAvailableIntentions("main_after.kt")
             println("intentions $intentions")
         }
     }
