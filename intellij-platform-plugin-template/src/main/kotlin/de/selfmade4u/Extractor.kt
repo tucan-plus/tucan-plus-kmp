@@ -60,7 +60,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 // https://docs.google.com/document/d/1-2_cNjq-Mc28j0eCX1TEuMM-k6UXKvfPTutvIBafIJA/edit?pli=1&tab=t.0#heading=h.z5lwn79yvfdm
 // https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/code-insight/api/src/org/jetbrains/kotlin/idea/codeinsight/api/applicable/intentions/KotlinPsiUpdateModCommandAction.kt#L12
-class MyQuickFix(element: KtExpression) : PsiUpdateModCommandAction<KtExpression>(element) {
+class MyQuickFix(element: KtExpression, val expression: String) : PsiUpdateModCommandAction<KtExpression>(element) {
 
     override fun getFamilyName(): String = "My Plugin Fixes"
 
@@ -69,7 +69,7 @@ class MyQuickFix(element: KtExpression) : PsiUpdateModCommandAction<KtExpression
     }
 
     override fun invoke(context: ActionContext, element: KtExpression, updater: ModPsiUpdater) {
-        element.addSiblingAfter(KtPsiFactory(context.project).createExpression("println(1)"))
+        element.addSiblingAfter(KtPsiFactory(context.project).createExpression(expression))
         element.addSiblingAfter(KtPsiFactory(context.project).createNewLine())
     }
 }
@@ -216,7 +216,7 @@ class Extractor {
             // TODO produce quickfix
             if (parsedUntil.first is XmlTag) {
                 // TODO FIXME I think persisting PsiElements like this is not allowed
-                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second))
+                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "${(parsedUntil.first as XmlTag).name} {}"))
             } else {
                 annotations[parsedUntil.first] = AnnotationResult("Remaining part to parse")
             }
