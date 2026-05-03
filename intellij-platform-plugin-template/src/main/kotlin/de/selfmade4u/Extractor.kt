@@ -90,7 +90,7 @@ class Extractor {
                 analyze(expression) {
                     val callInfo = expression.resolveCall()!!
                     if (callInfo.symbol.importableFqName == null) {
-                        annotations[expression] = "failed to compute call ${expression.text}, probably just dynamic dispatch" // TODO
+                        annotations[expression] = "failed to compute call probably just dynamic dispatch" // TODO
                     } else {
                         println("containing file ${callInfo.symbol.importableFqName!!}")
                         when (callInfo.symbol.importableFqName!!.toString()) {
@@ -115,6 +115,11 @@ class Extractor {
                 val initializer = expression.initializer
                 println("initializer $initializer")
                 checkExpression(annotations, initializer!!)
+            }
+            is KtStringTemplateExpression -> {
+                for (entry in expression.entries) {
+                    entry.expression?.let { checkExpression(annotations, it) }
+                }
             }
             is KtConstantExpression -> {
                 // fine
