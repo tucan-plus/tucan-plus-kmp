@@ -36,18 +36,15 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     @Test
     fun testHtmlParsingQuickFix() {
         fixture.copyDirectoryToProject("", "");
-        fixture.testHighlighting("HtmlParsing.kt")
-        fixture.configureByFile("main.kt")
-        val highlights = fixture.doHighlighting()
-        println("highlights $highlights")
+        //fixture.configureByFile("main.kt")
+        //val highlights = fixture.doHighlighting()
+        //println("highlights $highlights")
         val quickFixes = fixture.getAllQuickFixes("main.kt")
         println("quickfixes $quickFixes")
-        val intentions = fixture.getAvailableIntentions("main.kt")
-        println("intentions $intentions")
-        fixture.testHighlighting("html/page1.html")
-        fixture.testHighlighting("html/page2.html")
+        fixture.checkIntentionPreviewHtml(quickFixes.single().asIntention(), "Rename to 'UpdatedName'");
+        //val intentions = fixture.getAvailableIntentions("main.kt")
+        //println("intentions $intentions")
     }
-
 
     override fun getTestDataPath() = "src/test/testData/simple"
 

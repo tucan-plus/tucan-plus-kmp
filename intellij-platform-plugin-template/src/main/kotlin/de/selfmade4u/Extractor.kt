@@ -114,7 +114,6 @@ class Extractor {
                                         val next = PsiTreeUtil.findChildOfAnyType(htmlElement, XmlAttribute::class.java,
                                             XmlText::class.java, XmlTag::class.java)!!
                                         val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next)
-                                        println("GOT GOT ${htmlElement.text}")
                                         return htmlElement
                                     } else {
                                         annotations[expression] = AnnotationResult("expected <html> but found ${htmlElement::class}")
