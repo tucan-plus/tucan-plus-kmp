@@ -1,5 +1,6 @@
 package de.selfmade4u
 
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.WriteAction
 import com.intellij.pom.java.LanguageLevel
@@ -33,11 +34,15 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     // https://github.com/JetBrains/JetBrainsRuntime/blob/2a24ff85457db452a7499acfb0f16a98f446d4d9/src/java.desktop/unix/classes/sun/awt/wl/WLKeyboard.java#L40
     @Test
     fun testHtmlParsing() {
-        fixture.copyFileToProject("HtmlParsing.kt")
+        val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
         fixture.copyDirectoryToProject("simple_html", "html");
-        fixture.copyFileToProject("main_annotated.kt", "main.kt");
-        fixture.testHighlighting("HtmlParsing.kt")
-        fixture.testHighlighting("main.kt")
+        val main = fixture.copyFileToProject("main_annotated.kt", "main.kt");
+        runInEdtAndWait {
+            fixture.openFileInEditor(htmlParsing)
+            fixture.checkHighlighting()
+            fixture.openFileInEditor(main)
+            fixture.testHighlighting()
+        }
         //fixture.testHighlighting("html/page1.html")
         //fixture.testHighlighting("html/page2.html")
     }
@@ -47,17 +52,18 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     fun testHtmlParsingQuickFix() {
         fixture.copyFileToProject("HtmlParsing.kt")
         fixture.copyDirectoryToProject("simple_html", "html");
-        fixture.copyFileToProject("main_before.kt", "main.kt")
-        fixture.configureByFile("main.kt")
-        //val highlights = fixture.doHighlighting()
-        //println("highlights $highlights")
+        val main = fixture.copyFileToProject("main_before.kt", "main.kt")
         runInEdtAndWait {
+            fixture.openFileInEditor(main)
             var quickFixes = fixture.getAllQuickFixes("main.kt")
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main_after.kt")
             //fixture.editor.document.commitToPsi(fixture.project)
             //fixture.editor.document.saveToDisk()
-            fixture.copyFileToProject("main_after.kt", "main.kt")
+            val main = fixture.copyFileToProject("main_after.kt", "main.kt")
+            fixture.openFileInEditor(main)
+            val highlights = fixture.doHighlighting(HighlightSeverity.ERROR)
+            assert(highlights.map { it.text } == listOf("Fix the parsing here")) { highlights.map { it.text } }
             quickFixes = fixture.getAllQuickFixes("main.kt")
             println(quickFixes)
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())

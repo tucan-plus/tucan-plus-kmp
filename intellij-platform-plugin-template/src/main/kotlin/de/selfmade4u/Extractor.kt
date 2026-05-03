@@ -109,8 +109,9 @@ object Extractor {
                                     annotations[expression] = AnnotationResult("Deprecated. Doctype does not need to be parsed.")
                                     return htmlElement to expression
                                 }
-                                "de.selfmade4u.tucanpluskmp.html" -> {
-                                    if (htmlElement is XmlTag && htmlElement.name == "html") {
+                                "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head" -> {
+                                    val tag = fqName.split(".").last()
+                                    if (htmlElement is XmlTag && htmlElement.name == tag) {
                                         println("matched html tag")
                                         // TODO FIXME skip whitespace only
                                         val next = PsiTreeUtil.findChildOfAnyType(htmlElement, XmlAttribute::class.java,
@@ -118,7 +119,7 @@ object Extractor {
                                         val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next)
                                         return htmlElement
                                     } else {
-                                        annotations[expression] = AnnotationResult("expected <html> but found ${htmlElement::class}")
+                                        annotations[expression] = AnnotationResult("expected <$tag> but found ${htmlElement::class}")
                                         return htmlElement to expression
                                     }
                                 }
