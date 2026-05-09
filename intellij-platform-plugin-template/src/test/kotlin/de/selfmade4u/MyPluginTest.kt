@@ -54,6 +54,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             var main = fixture.copyFileToProject("main2.kt", "main.kt")
             fixture.openFileInEditor(main)
             quickFixes = fixture.getAllQuickFixes()
+            fixture.checkHighlighting()
             println(fixture.doHighlighting(HighlightSeverity.ERROR).first())
             check(fixture.doHighlighting(HighlightSeverity.ERROR).first().findRegisteredQuickFix { _, _ -> true } != null)
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
