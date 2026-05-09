@@ -29,6 +29,13 @@ interface Attribute {
 }
 
 @HtmlTagMarker
+interface HtmlAttributeScope {
+    fun attribute(key: String, value: String?)
+    fun attributeValue(key: String): String
+    fun peekAttribute(): Attribute?
+}
+
+@HtmlTagMarker
 interface HtmlContentScope {
     fun extractText(): String
     fun text(text: String)
@@ -38,11 +45,7 @@ interface HtmlContentScope {
 }
 
 // The full version for the .attributes { } block
-interface HtmlTag : HtmlContentScope {
-    fun attribute(key: String, value: String?)
-    fun attributeValue(key: String): String // Moved here
-    fun peekAttribute(): Attribute?         // Moved here
-}
+interface HtmlTag : HtmlAttributeScope, HtmlContentScope
 
 interface Root : HtmlTag {
     fun doctypeImpl(): DoctypeBuilder
@@ -142,20 +145,25 @@ val Body.th: ThBuilder get() = thImpl()
 // --- Base Builders ---
 
 interface TagBuilder<T : HtmlTag> : TagContentBuilder<T> {
-    fun executeAttributes(init: T.() -> Unit): TagContentBuilder<T>
+    // Receiver is restricted to Attributes
+    fun executeAttributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T>
 }
 
 interface TagContentBuilder<T : HtmlTag> {
-    // Change the receiver type from T.() to HtmlContentScope.()
+    // Receiver is restricted to Content
     fun executeContent(init: HtmlContentScope.() -> Unit)
 }
 
 // Update the extension functions accordingly
-fun <T : HtmlTag> TagBuilder<T>.attributes(init: T.() -> Unit): TagContentBuilder<T> {
+@Suppress("LEAKED_IN_PLACE_LAMBDA", "WRONG_INVOCATION_KIND")
+@OptIn(ExperimentalContracts::class)
+fun <T : HtmlTag> TagBuilder<T>.attributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T> {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
     return executeAttributes(init)
 }
 
+@Suppress("LEAKED_IN_PLACE_LAMBDA", "WRONG_INVOCATION_KIND")
+@OptIn(ExperimentalContracts::class)
 fun <T : HtmlTag> TagContentBuilder<T>.content(init: HtmlContentScope.() -> Unit) {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
     executeContent(init)

@@ -49,6 +49,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
             if (peek() != null) {
                 style.attributes {
                     attribute("type", "text/css")
+                }.content {
                     extractData()
                 }
                 style {

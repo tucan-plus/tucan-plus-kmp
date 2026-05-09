@@ -140,19 +140,19 @@ class GenericTagBuilder<T : HtmlTag>(
 
     private var attributesExecuted = false
 
-    override fun executeAttributes(init: T.() -> Unit): TagContentBuilder<T> {
-        tagInstance.init()
-        check(attributes.isEmpty()) { "${next.normalName()} unparsed attributes ${if (attributes.isNotEmpty()) attributes[0] else ""}" }
+    override fun executeAttributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T> {
+        tagInstance.init() // 'this' inside init is now only HtmlAttributeScope
+        check(attributes.isEmpty()) { "${next.normalName()} unparsed attributes" }
         attributesExecuted = true
         return this
     }
 
     override fun executeContent(init: HtmlContentScope.() -> Unit) {
         if (!attributesExecuted) {
-            check(attributes.isEmpty()) { "${next.normalName()} unparsed attributes ${if (attributes.isNotEmpty()) attributes[0] else ""}" }
+            check(attributes.isEmpty()) { "${next.normalName()} unparsed attributes" }
         }
-        tagInstance.init()
-        check(childIterator.isEmpty()) { "unparsed children in ${next.normalName()} $childIterator" }
+        tagInstance.init() // 'this' inside init is now only HtmlContentScope
+        check(childIterator.isEmpty()) { "unparsed children in ${next.normalName()}" }
     }
 }
 
