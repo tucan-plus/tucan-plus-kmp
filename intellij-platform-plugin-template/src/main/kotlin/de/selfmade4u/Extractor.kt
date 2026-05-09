@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 // https://docs.google.com/document/d/1-2_cNjq-Mc28j0eCX1TEuMM-k6UXKvfPTutvIBafIJA/edit?pli=1&tab=t.0#heading=h.z5lwn79yvfdm
 // https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/code-insight/api/src/org/jetbrains/kotlin/idea/codeinsight/api/applicable/intentions/KotlinPsiUpdateModCommandAction.kt#L12
+// expression into which to insert at the end?
 class MyQuickFix(element: KtExpression, val expression: String) : PsiUpdateModCommandAction<KtExpression>(element) {
 
     override fun getFamilyName(): String = "My Plugin Fixes"
@@ -50,8 +51,8 @@ class MyQuickFix(element: KtExpression, val expression: String) : PsiUpdateModCo
     }
 
     override fun invoke(context: ActionContext, element: KtExpression, updater: ModPsiUpdater) {
-        element.addSiblingAfter(KtPsiFactory(context.project).createExpression(expression))
-        element.addSiblingAfter(KtPsiFactory(context.project).createNewLine())
+        element.add(KtPsiFactory(context.project).createExpression(expression))
+        element.add(KtPsiFactory(context.project).createNewLine())
     }
 }
 
@@ -142,7 +143,7 @@ object Extractor {
                                                 annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult(
                                                     "Fix the parsing here 1",
                                                     MyQuickFix(
-                                                        expr.bodyExpression!!.lastChild as KtExpression,
+                                                        expr.bodyExpression as KtExpression,
                                                         "${(htmlElement).name} {}"
                                                     )
                                                 )
@@ -153,7 +154,7 @@ object Extractor {
                                                     AnnotationResult(
                                                         "Fix the parsing here 2",
                                                         MyQuickFix(
-                                                            expr.bodyExpression!!.lastChild as KtExpression,
+                                                            expr.bodyExpression as KtExpression,
                                                             "extractText()"
                                                         )
                                                     )
@@ -164,7 +165,7 @@ object Extractor {
                                                     AnnotationResult(
                                                         "Fix the parsing here 3",
                                                         MyQuickFix(
-                                                            expr.bodyExpression!!.lastChild as KtExpression,
+                                                            expr.bodyExpression as KtExpression,
                                                             "extractText()"
                                                         )
                                                     )
