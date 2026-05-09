@@ -2,7 +2,6 @@ package de.selfmade4u
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.lexer.HtmlRawTextLexer
 import com.intellij.modcommand.ActionContext
 import com.intellij.modcommand.ModPsiUpdater
 import com.intellij.modcommand.Presentation
@@ -15,37 +14,17 @@ import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.html.HtmlRawTextImpl
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.xml.XmlAttribute
-import com.intellij.psi.xml.XmlElement
-import com.intellij.psi.xml.XmlFile
-import com.intellij.psi.xml.XmlTag
-import com.intellij.psi.xml.XmlText
-import com.intellij.psi.xml.XmlToken
+import com.intellij.psi.xml.*
 import com.intellij.refactoring.extractMethod.newImpl.ExtractMethodHelper.addSiblingAfter
-import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
 import org.jetbrains.kotlin.analysis.api.resolution.KaSuccessCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.symbol
-import org.jetbrains.kotlin.idea.base.psi.replaced
 import org.jetbrains.kotlin.idea.base.util.projectScope
-import org.jetbrains.kotlin.idea.codeinsight.api.applicable.intentions.KotlinApplicableModCommandAction
-import org.jetbrains.kotlin.idea.codeinsight.api.applicable.intentions.KotlinPsiUpdateModCommandAction
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
-import org.jetbrains.kotlin.psi.KtBlockExpression
-import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtConstantExpression
-import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtLambdaExpression
-import org.jetbrains.kotlin.psi.KtNameReferenceExpression
-import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtPsiFactory
-import org.jetbrains.kotlin.psi.KtStringTemplateExpression
+import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 // https://github.com/JetBrains/kotlin/blob/master/analysis/docs/contribution-guide/api-development.md
@@ -83,7 +62,9 @@ object Extractor {
         return expression.entries.single().text
     }
 
-    // the ktexpression is the one that has been parsed and after which to add new code
+    /**
+     * Pass the kotlin expression that should parse the passed html element. Returns a pair of which xml element should should be parsed next (as nothing may have been parsed) and which kotlin expression should do that.
+     */
     fun checkExpression(annotations: MutableMap<PsiElement, AnnotationResult>, expression: KtExpression, htmlElement: XmlElement): Pair<XmlElement, KtExpression> {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
@@ -117,9 +98,17 @@ object Extractor {
                                     if (htmlElement is XmlTag && htmlElement.name == tag) {
                                         println("matched html tag")
                                         var next = htmlElement.firstChild
+                                        while (next is PsiWhiteSpace) {
+                                            next = next.nextSibling
+                                        }
+                                        check((next as XmlToken).tokenType == XmlTokenType.XML_START_TAG_START)
                                         do {
                                             next = next.nextSibling
-                                        } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
+                                        } while (next is PsiWhiteSpace)
+                                        check((next as XmlToken).tokenType == XmlTokenType.XML_NAME)
+                                        do {
+                                            next = next.nextSibling
+                                        } while (next is PsiWhiteSpace || (next is XmlText && next.text.trim().isEmpty()))
                                         val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next as XmlElement)
                                         // here we expect closing?
                                         if (htmlElement.first.nextSibling != null) {
@@ -143,11 +132,10 @@ object Extractor {
                                         if (htmlElement.value != getStringLiteral(second.stringTemplateExpression!!)) {
                                             annotations[expression] = AnnotationResult("attribute value actual ${htmlElement.value} does not match expected ${getStringLiteral(second.stringTemplateExpression!!)}")
                                         }
-                                        // here also xmltext which is empty needs to be skipped?
                                         var next: PsiElement = htmlElement
                                         do {
                                             next = next.nextSibling
-                                        } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
+                                        } while (next is PsiWhiteSpace || (next is XmlToken && next.tokenType == XmlTokenType.XML_TAG_END) || (next is XmlText && next.text.trim().isEmpty()))
                                         return next as XmlElement to expression
                                     } else {
                                         annotations[expression] = AnnotationResult("expected attribute but found ${htmlElement::class}")
@@ -164,7 +152,7 @@ object Extractor {
                                             } else {
                                                 next = next.nextSibling
                                             }
-                                        } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
+                                        } while (next is PsiWhiteSpace || (next is XmlText && next.text.trim().isEmpty()))
                                         return next as XmlElement to expression
                                     } else {
                                         annotations[expression] = AnnotationResult("expected text but found ${htmlElement::class}")
@@ -241,14 +229,14 @@ object Extractor {
             // TODO here we should start parsing htmlTag
             val parsedUntil = checkExpression(annotations, block, htmlFile)
             // TODO produce quickfix
-            println("parsedUntil $parsedUntil")
+            println("parsedUntil $parsedUntil ${parsedUntil.first.text}")
             if (parsedUntil.first is XmlTag) {
                 // TODO FIXME I think persisting PsiElements like this is not allowed
-                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "${(parsedUntil.first as XmlTag).name} {}"))
+                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here 1", MyQuickFix(parsedUntil.second, "${(parsedUntil.first as XmlTag).name} {}"))
             } else if (parsedUntil.first is XmlText) {
-                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "extractText()"))
+                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here 2", MyQuickFix(parsedUntil.second, "extractText()"))
             } else if (parsedUntil.first is HtmlRawTextImpl) {
-                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here", MyQuickFix(parsedUntil.second, "extractText()"))
+                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here 3", MyQuickFix(parsedUntil.second, "extractText()"))
             } else {
                 annotations[parsedUntil.second] = AnnotationResult("Failed to parse the rest but can't autofix")
                 annotations[parsedUntil.first] = AnnotationResult("Remaining part to parse")
