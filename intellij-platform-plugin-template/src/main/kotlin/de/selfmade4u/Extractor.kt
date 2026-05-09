@@ -76,6 +76,12 @@ object Extractor {
                 var htmlTag: Pair<XmlElement, KtExpression> = htmlElement to expression
                 for (statement in expression.statements) {
                     htmlTag = checkExpression(annotations, statement, htmlTag.first)
+                    println("CHECK ${htmlTag.first} ${htmlTag.first.text}")
+                    while (htmlTag.first is XmlToken && htmlTag.first.tokenType == XmlTokenType.XML_TAG_END) {
+                        println("SKIP >")
+                        htmlTag = htmlTag.first.nextSibling as XmlElement to htmlTag.second
+                    }
+                    // skip xml tag end here?
                 }
                 return htmlTag
             }
