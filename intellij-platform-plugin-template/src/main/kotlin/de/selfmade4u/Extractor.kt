@@ -63,7 +63,7 @@ object Extractor {
     }
 
     /**
-     * Pass the kotlin expression that should parse the passed html element. Returns a pair of which xml element should should be parsed next (as nothing may have been parsed) and which kotlin expression should do that.
+     * Pass the kotlin expression that should parse the passed html element. Returns a pair of which xml element should be parsed next (as nothing may have been parsed) and which kotlin expression should do that.
      */
     fun checkExpression(annotations: MutableMap<PsiElement, AnnotationResult>, expression: KtExpression, htmlElement: XmlElement): Pair<XmlElement, KtExpression> {
         //println("statement ${statement.text}")
@@ -113,8 +113,17 @@ object Extractor {
                                         val htmlElement = checkExpression(annotations, expr, next as XmlElement)
                                         // here we expect closing?
                                         if (htmlElement.first.nextSibling != null) {
-                                            annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("TODO missing parsing")
-                                            // maybe return?
+                                            if (htmlElement.first is XmlTag) {
+                                                // TODO FIXME I think persisting PsiElements like this is not allowed
+                                                annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("Fix the parsing here 1", MyQuickFix(htmlElement.second, "${(htmlElement.first as XmlTag).name} {}"))
+                                            } else if (htmlElement.first is XmlText) {
+                                                annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("Fix the parsing here 2", MyQuickFix(htmlElement.second, "extractText()"))
+                                            } else if (htmlElement.first is HtmlRawTextImpl) {
+                                                annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("Fix the parsing here 3", MyQuickFix(htmlElement.second, "extractText()"))
+                                            } else {
+                                                annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("Failed to parse the rest but can't autofix")
+                                                annotations[htmlElement.first] = AnnotationResult("Remaining part to parse")
+                                            }
                                         }
                                         return htmlElement
                                     } else {

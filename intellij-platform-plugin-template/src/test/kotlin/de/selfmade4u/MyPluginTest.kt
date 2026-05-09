@@ -2,19 +2,12 @@ package de.selfmade4u
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.WriteAction
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.EdtTestUtil
 import com.intellij.testFramework.IdeaTestUtil
-import com.intellij.testFramework.RunsInEdt
-import com.intellij.testFramework.VfsTestUtil
 import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.runInEdtAndWait
-import com.intellij.testFramework.utils.editor.commitToPsi
-import com.intellij.testFramework.utils.editor.saveToDisk
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -54,7 +47,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         runInEdtAndWait {
             fixture.openFileInEditor(main)
             var quickFixes = fixture.getAllQuickFixes("main.kt")
-            fixture.checkHighlighting()
+            println(fixture.doHighlighting(HighlightSeverity.ERROR).single())
+            check(fixture.doHighlighting(HighlightSeverity.ERROR).single().findRegisteredQuickFix { _, _ -> true } != null)
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main2.kt")
             var main = fixture.copyFileToProject("main2.kt", "main.kt")
