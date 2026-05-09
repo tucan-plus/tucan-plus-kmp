@@ -147,7 +147,7 @@ class GenericTagBuilder<T : HtmlTag>(
         return this
     }
 
-    override fun executeContent(init: T.() -> Unit) {
+    override fun executeContent(init: HtmlContentScope.() -> Unit) {
         if (!attributesExecuted) {
             check(attributes.isEmpty()) { "${next.normalName()} unparsed attributes ${if (attributes.isNotEmpty()) attributes[0] else ""}" }
         }

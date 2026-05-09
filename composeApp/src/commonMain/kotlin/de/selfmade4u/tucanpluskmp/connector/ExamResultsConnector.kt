@@ -47,7 +47,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
         // menu id changes depending on language
         val response = parseBase(sessionId, menuLocalizer, menuId, {
             if (peek() != null) {
-                style {
+                style.attributes {
                     attribute("type", "text/css")
                     extractData()
                 }

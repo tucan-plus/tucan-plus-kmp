@@ -28,16 +28,20 @@ interface Attribute {
     val key: String
 }
 
-interface HtmlTag {
-    fun attribute(key: String, value: String?)
-    fun attributeValue(key: String): String
+@HtmlTagMarker
+interface HtmlContentScope {
     fun extractText(): String
     fun text(text: String)
     fun dataHash(hash: String)
     fun extractData(): String
-    // shit here we expose ksoup again
     fun peek(): Node?
-    fun peekAttribute(): Attribute?
+}
+
+// The full version for the .attributes { } block
+interface HtmlTag : HtmlContentScope {
+    fun attribute(key: String, value: String?)
+    fun attributeValue(key: String): String // Moved here
+    fun peekAttribute(): Attribute?         // Moved here
 }
 
 interface Root : HtmlTag {
@@ -142,16 +146,17 @@ interface TagBuilder<T : HtmlTag> : TagContentBuilder<T> {
 }
 
 interface TagContentBuilder<T : HtmlTag> {
-    fun executeContent(init: T.() -> Unit)
+    // Change the receiver type from T.() to HtmlContentScope.()
+    fun executeContent(init: HtmlContentScope.() -> Unit)
 }
 
-// Global Extension Functions for all builders
+// Update the extension functions accordingly
 fun <T : HtmlTag> TagBuilder<T>.attributes(init: T.() -> Unit): TagContentBuilder<T> {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
     return executeAttributes(init)
 }
 
-fun <T : HtmlTag> TagContentBuilder<T>.content(init: T.() -> Unit) {
+fun <T : HtmlTag> TagContentBuilder<T>.content(init: HtmlContentScope.() -> Unit) {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
     executeContent(init)
 }
