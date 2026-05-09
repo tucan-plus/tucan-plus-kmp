@@ -113,17 +113,29 @@ object Extractor {
                                         val htmlElement = checkExpression(annotations, expr, next as XmlElement)
                                         // here we expect closing?
                                         if (htmlElement.first.nextSibling != null) {
-                                            if (htmlElement.first is XmlTag) {
-                                                // TODO FIXME I think persisting PsiElements like this is not allowed
-                                                annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("Fix the parsing here 1", MyQuickFix(htmlElement.second, "${(htmlElement.first as XmlTag).name} {}"))
-                                            } else if (htmlElement.first is XmlText) {
-                                                annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("Fix the parsing here 2", MyQuickFix(htmlElement.second, "extractText()"))
-                                            } else if (htmlElement.first is HtmlRawTextImpl) {
-                                                annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("Fix the parsing here 3", MyQuickFix(htmlElement.second, "extractText()"))
-                                            } else {
-                                                annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("Failed to parse the rest but can't autofix")
-                                                annotations[htmlElement.first] = AnnotationResult("Remaining part to parse")
+                                            when (htmlElement.first) {
+                                                is XmlTag -> {
+                                                    annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult(
+                                                        "Fix the parsing here 1",
+                                                        MyQuickFix(htmlElement.second, "${(htmlElement.first as XmlTag).name} {}")
+                                                    )
+                                                }
+                                                is XmlText -> {
+                                                    annotations[expr.rightCurlyBrace!! as PsiElement] =
+                                                        AnnotationResult("Fix the parsing here 2", MyQuickFix(htmlElement.second, "extractText()"))
+                                                }
+                                                is HtmlRawTextImpl -> {
+                                                    annotations[expr.rightCurlyBrace!! as PsiElement] =
+                                                        AnnotationResult("Fix the parsing here 3", MyQuickFix(htmlElement.second, "extractText()"))
+                                                }
+                                                else -> {
+                                                    annotations[expr.rightCurlyBrace!! as PsiElement] =
+                                                        AnnotationResult("Failed to parse the rest but can't autofix $htmlElement ${htmlElement.first.text}")
+                                                    annotations[htmlElement.first] = AnnotationResult("Remaining part to parse")
+                                                }
                                             }
+                                            // here we should skip to the parent
+                                            return htmlElement.first.parent as XmlElement to htmlElement.second
                                         }
                                         return htmlElement
                                     } else {

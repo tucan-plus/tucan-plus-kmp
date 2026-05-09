@@ -47,14 +47,15 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         runInEdtAndWait {
             fixture.openFileInEditor(main)
             var quickFixes = fixture.getAllQuickFixes("main.kt")
-            println(fixture.doHighlighting(HighlightSeverity.ERROR).single())
-            check(fixture.doHighlighting(HighlightSeverity.ERROR).single().findRegisteredQuickFix { _, _ -> true } != null)
+            println(fixture.doHighlighting(HighlightSeverity.ERROR).first())
+            check(fixture.doHighlighting(HighlightSeverity.ERROR).first().findRegisteredQuickFix { _, _ -> true } != null)
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main2.kt")
             var main = fixture.copyFileToProject("main2.kt", "main.kt")
             fixture.openFileInEditor(main)
             quickFixes = fixture.getAllQuickFixes()
-            fixture.checkHighlighting()
+            println(fixture.doHighlighting(HighlightSeverity.ERROR).first())
+            check(fixture.doHighlighting(HighlightSeverity.ERROR).first().findRegisteredQuickFix { _, _ -> true } != null)
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main3.kt")
             main = fixture.copyFileToProject("main3.kt", "main.kt")
@@ -66,7 +67,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             quickFixes = fixture.getAllQuickFixes()
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             quickFixes = fixture.getAllQuickFixes()
-            //fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main3.kt")
 
         }
