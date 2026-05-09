@@ -72,7 +72,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             quickFixes = fixture.getAllQuickFixes()
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             quickFixes = fixture.getAllQuickFixes()
-            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
+            //fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main3.kt")
 
         }

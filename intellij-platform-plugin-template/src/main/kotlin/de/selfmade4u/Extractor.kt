@@ -112,7 +112,7 @@ object Extractor {
                                     return htmlElement to expression
                                 }
                                 // TODO FIXME urgently fix this here, maybe by some annotation or so
-                                "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head", "de.selfmade4u.tucanpluskmp.title" -> {
+                                "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head", "de.selfmade4u.tucanpluskmp.title", "de.selfmade4u.tucanpluskmp.meta" -> {
                                     val tag = fqName.split(".").last()
                                     if (htmlElement is XmlTag && htmlElement.name == tag) {
                                         println("matched html tag")
@@ -143,14 +143,31 @@ object Extractor {
                                         do {
                                             next = next.nextSibling
                                         } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
-                                        //val next = PsiTreeUtil.skipSiblingsForward(htmlElement, PsiWhiteSpace::class.java, XmlToken::class.java) as XmlElement
                                         return next as XmlElement to expression
                                     } else {
                                         annotations[expression] = AnnotationResult("expected attribute but found ${htmlElement::class}")
                                         return htmlElement to expression
                                     }
                                 }
+                                "de.selfmade4u.tucanpluskmp.HtmlTag.extractText" -> {
+                                    if (htmlElement is HtmlRawTextImpl || htmlElement is XmlText) {
+                                        var next: PsiElement = htmlElement
+                                        do {
+                                            if (next.nextSibling == null) {
+                                                // TODO FIXME here we need to close the parent
+                                                next = next.parent.nextSibling // we need to ensure this is correct
+                                            } else {
+                                                next = next.nextSibling
+                                            }
+                                        } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
+                                        return next as XmlElement to expression
+                                    } else {
+                                        annotations[expression] = AnnotationResult("expected text but found ${htmlElement::class}")
+                                        return htmlElement to expression
+                                    }
+                                }
                                 else -> {
+                                    TODO(fqName)
                                     val implementation = psi as? KtFunction
 
                                     if (implementation != null) {
