@@ -9,7 +9,7 @@ object Test {
         <error descr="TODO missing parsing">html {
             attribute("xmlns", "http://www.w3.org/1999/xhtml")
             attribute("xml:lang", "de")
-            <error descr="Fix the parsing here">attribute("lang", "de")</error>
+            <error descr="Fix the parsing here 1">attribute("lang", "de")</error>
         }</error>
     }
 }

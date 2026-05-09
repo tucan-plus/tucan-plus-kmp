@@ -41,10 +41,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             fixture.openFileInEditor(htmlParsing)
             fixture.checkHighlighting()
             fixture.openFileInEditor(main)
-            fixture.testHighlighting()
+            fixture.checkHighlighting()
         }
-        //fixture.testHighlighting("html/page1.html")
-        //fixture.testHighlighting("html/page2.html")
     }
 
     // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
@@ -61,6 +59,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             var main = fixture.copyFileToProject("main2.kt", "main.kt")
             fixture.openFileInEditor(main)
             quickFixes = fixture.getAllQuickFixes()
+            fixture.checkHighlighting()
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
             fixture.checkResultByFile("main3.kt")
             main = fixture.copyFileToProject("main3.kt", "main.kt")
