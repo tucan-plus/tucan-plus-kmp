@@ -52,7 +52,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                 }.content {
                     extractData()
                 }
-                style {
+                style.attributes {
                     attribute("type", "text/css")
                     extractData()
                 }
@@ -61,38 +61,39 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
             }
         }) { localizer: Localizer, pageType ->
             if (pageType == "timeout") {
-                script {
+                script.attributes {
                     attribute("type", "text/javascript")
                     // empty
                 }
-                h1 { text("Timeout!") }
-                p {
-                    b {
+                h1.content { text("Timeout!") }
+                p.content {
+                    b.content {
                         text("Es wurde seit den letzten 30 Minuten keine Abfrage mehr abgesetzt.")
-                        br {}
+                        br.content {}
                         text("Bitte melden Sie sich erneut an.")
                     }
                 }
                 return@parseBase ParserResponse.SessionTimeout()
             }
             check(pageType == "myexams") { pageType }
-            script {
+            script.attributes {
                 attribute("type", "text/javascript")
                 // empty
             }
-            h1 { extractText() }
-            div {
+            h1.content { extractText() }
+            div.attributes {
                 attribute("class", "tb")
-
-                form {
+            }.content {
+                form.attributes {
                     attribute("id", "semesterchange")
                     attribute("action", "/scripts/mgrqispi.dll")
                     attribute("method", "post")
                     attribute("class", "pageElementTop")
-
+                }.content {
                     div {
-                        div {
+                        div.attributes {
                             attribute("class", "tbhead")
+                        }.content {
                             text(localizer.exams)
                         }
 

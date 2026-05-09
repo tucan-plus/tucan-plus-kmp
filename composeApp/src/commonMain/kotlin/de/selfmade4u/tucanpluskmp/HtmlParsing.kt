@@ -27,7 +27,6 @@ interface Node {
 interface Attribute {
     val key: String
 }
-
 @HtmlTagMarker
 interface HtmlAttributeScope {
     fun attribute(key: String, value: String?)
@@ -36,7 +35,7 @@ interface HtmlAttributeScope {
 }
 
 @HtmlTagMarker
-interface HtmlContentScope {
+interface BaseContentScope {
     fun extractText(): String
     fun text(text: String)
     fun dataHash(hash: String)
@@ -44,231 +43,125 @@ interface HtmlContentScope {
     fun peek(): Node?
 }
 
-// The full version for the .attributes { } block
-interface HtmlTag : HtmlAttributeScope, HtmlContentScope
-
-interface Root : HtmlTag {
-    fun doctypeImpl(): DoctypeBuilder
-    fun htmlImpl(): HtmlBuilder
+interface RootContentScope : BaseContentScope {
+    val doctype: DoctypeBuilder
+    val html: HtmlBuilder
 }
 
+interface HtmlContentScope : BaseContentScope {
+    val head: HeadBuilder
+    val body: BodyBuilder
+}
+
+interface HeadContentScope : BaseContentScope {
+    val title: TitleBuilder
+    val meta: MetaBuilder
+    val link: LinkBuilder
+    val style: StyleHeadBuilder
+    val script: ScriptBuilder
+}
+
+interface BodyContentScope : BaseContentScope {
+    val script: ScriptBuilder
+    val style: StyleBodyBuilder
+    val a: ABuilder
+    val div: DivBuilder
+    val form: FormBuilder
+    val fieldset: FieldsetBuilder
+    val img: ImgBuilder
+    val legend: LegendBuilder
+    val label: LabelBuilder
+    val h1: H1Builder
+    val p: PBuilder
+    val ul: UlBuilder
+    val li: LiBuilder
+    val header: HeaderBuilder
+    val span: SpanBuilder
+    val b: BBuilder
+    val br: BrBuilder
+    val option: OptionBuilder
+    val input: InputBuilder
+    val select: SelectBuilder
+    val table: TableBuilder
+    val thead: TheadBuilder
+    val tbody: TbodyBuilder
+    val tr: TrBuilder
+    val td: TdBuilder
+    val th: ThBuilder
+}
+
+// --- Tag Interfaces ---
+
+interface HtmlTag : HtmlAttributeScope, BaseContentScope
+
+interface Root : HtmlTag, RootContentScope
 interface Doctype : HtmlTag
-
-interface Html : HtmlTag {
-    fun headImpl(): HeadBuilder
-    fun bodyImpl(): BodyBuilder
-}
-
-interface Head : HtmlTag {
-    fun titleImpl(): TitleBuilder
-    fun metaImpl(): MetaBuilder
-    fun linkImpl(): LinkBuilder
-    fun styleImpl(): StyleHeadBuilder
-    fun scriptImpl(): ScriptBuilder
-}
-
-sealed interface Body : HtmlTag {
-    fun scriptImpl(): ScriptBuilder
-    fun styleImpl(): StyleBodyBuilder
-    fun aImpl(): ABuilder
-    fun divImpl(): DivBuilder
-    fun formImpl(): FormBuilder
-    fun fieldsetImpl(): FieldsetBuilder
-    fun imgImpl(): ImgBuilder
-    fun legendImpl(): LegendBuilder
-    fun labelImpl(): LabelBuilder
-    fun h1Impl(): H1Builder
-    fun pImpl(): PBuilder
-    fun ulImpl(): UlBuilder
-    fun liImpl(): LiBuilder
-    fun headerImpl(): HeaderBuilder
-    fun spanImpl(): SpanBuilder
-    fun bImpl(): BBuilder
-    fun brImpl(): BrBuilder
-    fun optionImpl(): OptionBuilder
-    fun inputImpl(): InputBuilder
-    fun selectImpl(): SelectBuilder
-    fun tableImpl(): TableBuilder
-    fun theadImpl(): TheadBuilder
-    fun tbodyImpl(): TbodyBuilder
-    fun trImpl(): TrBuilder
-    fun tdImpl(): TdBuilder
-    fun thImpl(): ThBuilder
-}
+interface Html : HtmlTag, HtmlContentScope
+interface Head : HtmlTag, HeadContentScope
+interface Body : HtmlTag, BodyContentScope
 
 interface Title : HtmlTag
 interface Meta : HtmlTag
 interface Link : HtmlTag
 interface Script : HtmlTag
 
-// --- Entry Properties ---
+// --- Builder Infrastructure ---
 
-val Root.doctype: DoctypeBuilder get() = doctypeImpl()
-val Root.html: HtmlBuilder get() = htmlImpl()
-
-val Html.head: HeadBuilder get() = headImpl()
-val Html.body: BodyBuilder get() = bodyImpl()
-
-val Head.title: TitleBuilder get() = titleImpl()
-val Head.meta: MetaBuilder get() = metaImpl()
-val Head.link: LinkBuilder get() = linkImpl()
-val Head.style: StyleHeadBuilder get() = styleImpl()
-val Head.script: ScriptBuilder get() = scriptImpl()
-
-val Body.script: ScriptBuilder get() = scriptImpl()
-val Body.style: StyleBodyBuilder get() = styleImpl()
-val Body.a: ABuilder get() = aImpl()
-val Body.div: DivBuilder get() = divImpl()
-val Body.form: FormBuilder get() = formImpl()
-val Body.fieldset: FieldsetBuilder get() = fieldsetImpl()
-val Body.img: ImgBuilder get() = imgImpl()
-val Body.legend: LegendBuilder get() = legendImpl()
-val Body.label: LabelBuilder get() = labelImpl()
-val Body.h1: H1Builder get() = h1Impl()
-val Body.p: PBuilder get() = pImpl()
-val Body.ul: UlBuilder get() = ulImpl()
-val Body.li: LiBuilder get() = liImpl()
-val Body.header: HeaderBuilder get() = headerImpl()
-val Body.span: SpanBuilder get() = spanImpl()
-val Body.b: BBuilder get() = bImpl()
-val Body.br: BrBuilder get() = brImpl()
-val Body.option: OptionBuilder get() = optionImpl()
-val Body.input: InputBuilder get() = inputImpl()
-val Body.select: SelectBuilder get() = selectImpl()
-val Body.table: TableBuilder get() = tableImpl()
-val Body.thead: TheadBuilder get() = theadImpl()
-val Body.tbody: TbodyBuilder get() = tbodyImpl()
-val Body.tr: TrBuilder get() = trImpl()
-val Body.td: TdBuilder get() = tdImpl()
-val Body.th: ThBuilder get() = thImpl()
-
-// --- Base Builders ---
-
-interface TagBuilder<T : HtmlTag> : TagContentBuilder<T> {
-    // Receiver is restricted to Attributes
-    fun executeAttributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T>
+interface TagBuilder<T : HtmlTag, out S : BaseContentScope> : TagContentBuilder<T, S> {
+    fun executeAttributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T, S>
 }
 
-interface TagContentBuilder<T : HtmlTag> {
-    // Receiver is restricted to Content
-    fun executeContent(init: HtmlContentScope.() -> Unit)
+interface TagContentBuilder<T : HtmlTag, out S : BaseContentScope> {
+    fun executeContent(init: S.() -> Unit)
 }
 
-// Update the extension functions accordingly
-@Suppress("LEAKED_IN_PLACE_LAMBDA", "WRONG_INVOCATION_KIND")
 @OptIn(ExperimentalContracts::class)
-fun <T : HtmlTag> TagBuilder<T>.attributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T> {
+fun <T : HtmlTag, S : BaseContentScope> TagBuilder<T, S>.attributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T, S> {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
     return executeAttributes(init)
 }
 
-@Suppress("LEAKED_IN_PLACE_LAMBDA", "WRONG_INVOCATION_KIND")
 @OptIn(ExperimentalContracts::class)
-fun <T : HtmlTag> TagContentBuilder<T>.content(init: HtmlContentScope.() -> Unit) {
+fun <T : HtmlTag, S : BaseContentScope> TagContentBuilder<T, S>.content(init: S.() -> Unit) {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
     executeContent(init)
 }
 
-// --- Specific Builders ---
+// --- Concrete Builder Definitions ---
 
-interface DoctypeBuilder : TagBuilder<Doctype>
-interface DoctypeContentBuilder : TagContentBuilder<Doctype>
+interface DoctypeBuilder : TagBuilder<Doctype, BaseContentScope>
+interface HtmlBuilder : TagBuilder<Html, HtmlContentScope>
+interface HeadBuilder : TagBuilder<Head, HeadContentScope>
+interface BodyBuilder : TagBuilder<Body, BodyContentScope>
 
-interface HtmlBuilder : TagBuilder<Html>
-interface HtmlContentBuilder : TagContentBuilder<Html>
+interface TitleBuilder : TagBuilder<Title, BaseContentScope>
+interface MetaBuilder : TagBuilder<Meta, BaseContentScope>
+interface LinkBuilder : TagBuilder<Link, BaseContentScope>
+interface StyleHeadBuilder : TagBuilder<Head, HeadContentScope>
+interface ScriptBuilder : TagBuilder<Script, BaseContentScope>
 
-interface HeadBuilder : TagBuilder<Head>
-interface HeadContentBuilder : TagContentBuilder<Head>
-
-interface BodyBuilder : TagBuilder<Body>
-interface BodyContentBuilder : TagContentBuilder<Body>
-
-interface TitleBuilder : TagBuilder<Title>
-interface TitleContentBuilder : TagContentBuilder<Title>
-
-interface MetaBuilder : TagBuilder<Meta>
-interface MetaContentBuilder : TagContentBuilder<Meta>
-
-interface LinkBuilder : TagBuilder<Link>
-interface LinkContentBuilder : TagContentBuilder<Link>
-
-interface StyleHeadBuilder : TagBuilder<Head>
-interface StyleHeadContentBuilder : TagContentBuilder<Head>
-
-interface ScriptBuilder : TagBuilder<Script>
-interface ScriptContentBuilder : TagContentBuilder<Script>
-
-interface StyleBodyBuilder : TagBuilder<Body>
-interface StyleBodyContentBuilder : TagContentBuilder<Body>
-
-interface ABuilder : TagBuilder<Body>
-interface AContentBuilder : TagContentBuilder<Body>
-
-interface DivBuilder : TagBuilder<Body>
-interface DivContentBuilder : TagContentBuilder<Body>
-
-interface FormBuilder : TagBuilder<Body>
-interface FormContentBuilder : TagContentBuilder<Body>
-
-interface FieldsetBuilder : TagBuilder<Body>
-interface FieldsetContentBuilder : TagContentBuilder<Body>
-
-interface ImgBuilder : TagBuilder<Body>
-interface ImgContentBuilder : TagContentBuilder<Body>
-
-interface LegendBuilder : TagBuilder<Body>
-interface LegendContentBuilder : TagContentBuilder<Body>
-
-interface LabelBuilder : TagBuilder<Body>
-interface LabelContentBuilder : TagContentBuilder<Body>
-
-interface H1Builder : TagBuilder<Body>
-interface H1ContentBuilder : TagContentBuilder<Body>
-
-interface PBuilder : TagBuilder<Body>
-interface PContentBuilder : TagContentBuilder<Body>
-
-interface UlBuilder : TagBuilder<Body>
-interface UlContentBuilder : TagContentBuilder<Body>
-
-interface LiBuilder : TagBuilder<Body>
-interface LiContentBuilder : TagContentBuilder<Body>
-
-interface HeaderBuilder : TagBuilder<Body>
-interface HeaderContentBuilder : TagContentBuilder<Body>
-
-interface SpanBuilder : TagBuilder<Body>
-interface SpanContentBuilder : TagContentBuilder<Body>
-
-interface BBuilder : TagBuilder<Body>
-interface BContentBuilder : TagContentBuilder<Body>
-
-interface BrBuilder : TagBuilder<Body>
-interface BrContentBuilder : TagContentBuilder<Body>
-
-interface OptionBuilder : TagBuilder<Body>
-interface OptionContentBuilder : TagContentBuilder<Body>
-
-interface InputBuilder : TagBuilder<Body>
-interface InputContentBuilder : TagContentBuilder<Body>
-
-interface SelectBuilder : TagBuilder<Body>
-interface SelectContentBuilder : TagContentBuilder<Body>
-
-interface TableBuilder : TagBuilder<Body>
-interface TableContentBuilder : TagContentBuilder<Body>
-
-interface TheadBuilder : TagBuilder<Body>
-interface TheadContentBuilder : TagContentBuilder<Body>
-
-interface TbodyBuilder : TagBuilder<Body>
-interface TbodyContentBuilder : TagContentBuilder<Body>
-
-interface TrBuilder : TagBuilder<Body>
-interface TrContentBuilder : TagContentBuilder<Body>
-
-interface TdBuilder : TagBuilder<Body>
-interface TdContentBuilder : TagContentBuilder<Body>
-
-interface ThBuilder : TagBuilder<Body>
-interface ThContentBuilder : TagContentBuilder<Body>
+interface StyleBodyBuilder : TagBuilder<Body, BodyContentScope>
+interface ABuilder : TagBuilder<Body, BodyContentScope>
+interface DivBuilder : TagBuilder<Body, BodyContentScope>
+interface FormBuilder : TagBuilder<Body, BodyContentScope>
+interface FieldsetBuilder : TagBuilder<Body, BodyContentScope>
+interface ImgBuilder : TagBuilder<Body, BodyContentScope>
+interface LegendBuilder : TagBuilder<Body, BodyContentScope>
+interface LabelBuilder : TagBuilder<Body, BodyContentScope>
+interface H1Builder : TagBuilder<Body, BodyContentScope>
+interface PBuilder : TagBuilder<Body, BodyContentScope>
+interface UlBuilder : TagBuilder<Body, BodyContentScope>
+interface LiBuilder : TagBuilder<Body, BodyContentScope>
+interface HeaderBuilder : TagBuilder<Body, BodyContentScope>
+interface SpanBuilder : TagBuilder<Body, BodyContentScope>
+interface BBuilder : TagBuilder<Body, BodyContentScope>
+interface BrBuilder : TagBuilder<Body, BodyContentScope>
+interface OptionBuilder : TagBuilder<Body, BodyContentScope>
+interface InputBuilder : TagBuilder<Body, BodyContentScope>
+interface SelectBuilder : TagBuilder<Body, BodyContentScope>
+interface TableBuilder : TagBuilder<Body, BodyContentScope>
+interface TheadBuilder : TagBuilder<Body, BodyContentScope>
+interface TbodyBuilder : TagBuilder<Body, BodyContentScope>
+interface TrBuilder : TagBuilder<Body, BodyContentScope>
+interface TdBuilder : TagBuilder<Body, BodyContentScope>
+interface ThBuilder : TagBuilder<Body, BodyContentScope>
