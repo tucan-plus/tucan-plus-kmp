@@ -6,10 +6,10 @@ object Test {
         val a = 42;
         var sessionIdTmp = sessionId
         var menuIdTmp = menuId
-        html {
+        <error descr="TODO missing parsing">html {
             attribute("xmlns", "http://www.w3.org/1999/xhtml")
             attribute("xml:lang", "de")
             <error descr="Fix the parsing here">attribute("lang", "de")</error>
-        }
+        }</error>
     }
 }

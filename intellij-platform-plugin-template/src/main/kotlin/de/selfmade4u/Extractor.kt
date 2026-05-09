@@ -122,7 +122,10 @@ object Extractor {
                                         } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
                                         val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next as XmlElement)
                                         // here we expect closing?
-                                        check(htmlElement.first.nextSibling == null, { htmlElement.first })
+                                        if (htmlElement.first.nextSibling != null) {
+                                            annotations[expression] = AnnotationResult("TODO missing parsing")
+                                            // maybe return?
+                                        }
                                         return htmlElement
                                     } else {
                                         annotations[expression] = AnnotationResult("expected <$tag> but found ${htmlElement::class}")
@@ -156,8 +159,8 @@ object Extractor {
                                         var next: PsiElement = htmlElement
                                         do {
                                             if (next.nextSibling == null) {
-                                                // TODO FIXME here we need to close the parent
-                                                next = next.parent.nextSibling // we need to ensure this is correct
+                                                // return so caller can close element? this is technically wrong as we seem to want to return which element we want to parse next not which one we just parsed? maybe change that?
+                                                return next as XmlElement to expression as KtExpression
                                             } else {
                                                 next = next.nextSibling
                                             }
