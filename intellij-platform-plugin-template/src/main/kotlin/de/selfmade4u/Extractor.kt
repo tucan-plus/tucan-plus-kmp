@@ -109,10 +109,11 @@ object Extractor {
                                         do {
                                             next = next.nextSibling
                                         } while (next is PsiWhiteSpace || (next is XmlText && next.text.trim().isEmpty()))
-                                        val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next as XmlElement)
+                                        val expr = expression.valueArguments.single().getArgumentExpression()!! as KtLambdaExpression
+                                        val htmlElement = checkExpression(annotations, expr, next as XmlElement)
                                         // here we expect closing?
                                         if (htmlElement.first.nextSibling != null) {
-                                            annotations[expression] = AnnotationResult("TODO missing parsing")
+                                            annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult("TODO missing parsing")
                                             // maybe return?
                                         }
                                         return htmlElement
@@ -226,23 +227,8 @@ object Extractor {
 
         println("$htmlFiles")
         for (htmlFile in htmlFiles) {
-            // TODO here we should start parsing htmlTag
             val parsedUntil = checkExpression(annotations, block, htmlFile)
-            // TODO produce quickfix
-            println("parsedUntil $parsedUntil ${parsedUntil.first.text}")
-            if (parsedUntil.first is XmlTag) {
-                // TODO FIXME I think persisting PsiElements like this is not allowed
-                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here 1", MyQuickFix(parsedUntil.second, "${(parsedUntil.first as XmlTag).name} {}"))
-            } else if (parsedUntil.first is XmlText) {
-                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here 2", MyQuickFix(parsedUntil.second, "extractText()"))
-            } else if (parsedUntil.first is HtmlRawTextImpl) {
-                annotations[parsedUntil.second] = AnnotationResult("Fix the parsing here 3", MyQuickFix(parsedUntil.second, "extractText()"))
-            } else {
-                annotations[parsedUntil.second] = AnnotationResult("Failed to parse the rest but can't autofix")
-                annotations[parsedUntil.first] = AnnotationResult("Remaining part to parse")
-            }
         }
-
         return CachedValueProvider.Result(annotations, annotationEntry, htmls)
     }
 
