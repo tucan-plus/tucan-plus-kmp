@@ -39,53 +39,54 @@ interface HtmlTag {
     fun peek(): Node?
     fun peekAttribute(): Attribute?
 }
+
 interface Root : HtmlTag {
-    fun <T> doctypeImpl(init: Doctype.() -> T): T
-    fun <R> htmlImpl(init: Html.() -> R): R
+    fun doctypeImpl(): DoctypeBuilder
+    fun htmlImpl(): HtmlBuilder
 }
 
 interface Doctype : HtmlTag
 
 interface Html : HtmlTag {
-    fun <R> headImpl(init: Head.() -> R): R
-    fun <R> bodyImpl(init: Body.() -> R): R
+    fun headImpl(): HeadBuilder
+    fun bodyImpl(): BodyBuilder
 }
 
 interface Head : HtmlTag {
-    fun <R> titleImpl(init: Title.() -> R): R
-    fun <R> metaImpl(init: Meta.() -> R): R
-    fun <R> linkImpl(init: Link.() -> R): R
-    fun <R> styleImpl(init: Head.() -> R): R
-    fun <R> scriptImpl(init: Script.() -> R): R
+    fun titleImpl(): TitleBuilder
+    fun metaImpl(): MetaBuilder
+    fun linkImpl(): LinkBuilder
+    fun styleImpl(): StyleHeadBuilder
+    fun scriptImpl(): ScriptBuilder
 }
 
 sealed interface Body : HtmlTag {
-    fun <R> scriptImpl(init: Script.() -> R): R
-    fun <R> styleImpl(init: Body.() -> R): R
-    fun <R> aImpl(init: Body.() -> R): R
-    fun <R> divImpl(init: Body.() -> R): R
-    fun <R> formImpl(init: Body.() -> R): R
-    fun <R> fieldsetImpl(init: Body.() -> R): R
-    fun <R> imgImpl(init: Body.() -> R): R
-    fun <R> legendImpl(init: Body.() -> R): R
-    fun <R> labelImpl(init: Body.() -> R): R
-    fun <R> h1Impl(init: Body.() -> R): R
-    fun <R> pImpl(init: Body.() -> R): R
-    fun <R> ulImpl(init: Body.() -> R): R
-    fun <R> liImpl(init: Body.() -> R): R
-    fun <R> headerImpl(init: Body.() -> R): R
-    fun <R> spanImpl(init: Body.() -> R): R
-    fun <R> bImpl(init: Body.() -> R): R
-    fun <R> brImpl(init: Body.() -> R): R
-    fun <R> optionImpl(init: Body.() -> R): R
-    fun <R> inputImpl(init: Body.() -> R): R
-    fun <R> selectImpl(init: Body.() -> R): R
-    fun <R> tableImpl(init: Body.() -> R): R
-    fun <R> theadImpl(init: Body.() -> R): R
-    fun <R> tbodyImpl(init: Body.() -> R): R
-    fun <R> trImpl(init: Body.() -> R): R
-    fun <R> tdImpl(init: Body.() -> R): R
-    fun <R> thImpl(init: Body.() -> R): R
+    fun scriptImpl(): ScriptBuilder
+    fun styleImpl(): StyleBodyBuilder
+    fun aImpl(): ABuilder
+    fun divImpl(): DivBuilder
+    fun formImpl(): FormBuilder
+    fun fieldsetImpl(): FieldsetBuilder
+    fun imgImpl(): ImgBuilder
+    fun legendImpl(): LegendBuilder
+    fun labelImpl(): LabelBuilder
+    fun h1Impl(): H1Builder
+    fun pImpl(): PBuilder
+    fun ulImpl(): UlBuilder
+    fun liImpl(): LiBuilder
+    fun headerImpl(): HeaderBuilder
+    fun spanImpl(): SpanBuilder
+    fun bImpl(): BBuilder
+    fun brImpl(): BrBuilder
+    fun optionImpl(): OptionBuilder
+    fun inputImpl(): InputBuilder
+    fun selectImpl(): SelectBuilder
+    fun tableImpl(): TableBuilder
+    fun theadImpl(): TheadBuilder
+    fun tbodyImpl(): TbodyBuilder
+    fun trImpl(): TrBuilder
+    fun tdImpl(): TdBuilder
+    fun thImpl(): ThBuilder
 }
 
 interface Title : HtmlTag
@@ -93,176 +94,168 @@ interface Meta : HtmlTag
 interface Link : HtmlTag
 interface Script : HtmlTag
 
-// https://github.com/Kotlin/kotlinx.html/blob/76b16f09180185a9e283e164fa02fb54a1627e9f/src/commonMain/kotlin/generated/gen-tags-d.kt#L24-L25
-fun <T> Root.doctype(init: Doctype.() -> T): T {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return doctypeImpl(init)
+// --- Entry Properties ---
+
+val Root.doctype: DoctypeBuilder get() = doctypeImpl()
+val Root.html: HtmlBuilder get() = htmlImpl()
+
+val Html.head: HeadBuilder get() = headImpl()
+val Html.body: BodyBuilder get() = bodyImpl()
+
+val Head.title: TitleBuilder get() = titleImpl()
+val Head.meta: MetaBuilder get() = metaImpl()
+val Head.link: LinkBuilder get() = linkImpl()
+val Head.style: StyleHeadBuilder get() = styleImpl()
+val Head.script: ScriptBuilder get() = scriptImpl()
+
+val Body.script: ScriptBuilder get() = scriptImpl()
+val Body.style: StyleBodyBuilder get() = styleImpl()
+val Body.a: ABuilder get() = aImpl()
+val Body.div: DivBuilder get() = divImpl()
+val Body.form: FormBuilder get() = formImpl()
+val Body.fieldset: FieldsetBuilder get() = fieldsetImpl()
+val Body.img: ImgBuilder get() = imgImpl()
+val Body.legend: LegendBuilder get() = legendImpl()
+val Body.label: LabelBuilder get() = labelImpl()
+val Body.h1: H1Builder get() = h1Impl()
+val Body.p: PBuilder get() = pImpl()
+val Body.ul: UlBuilder get() = ulImpl()
+val Body.li: LiBuilder get() = liImpl()
+val Body.header: HeaderBuilder get() = headerImpl()
+val Body.span: SpanBuilder get() = spanImpl()
+val Body.b: BBuilder get() = bImpl()
+val Body.br: BrBuilder get() = brImpl()
+val Body.option: OptionBuilder get() = optionImpl()
+val Body.input: InputBuilder get() = inputImpl()
+val Body.select: SelectBuilder get() = selectImpl()
+val Body.table: TableBuilder get() = tableImpl()
+val Body.thead: TheadBuilder get() = theadImpl()
+val Body.tbody: TbodyBuilder get() = tbodyImpl()
+val Body.tr: TrBuilder get() = trImpl()
+val Body.td: TdBuilder get() = tdImpl()
+val Body.th: ThBuilder get() = thImpl()
+
+// --- Base Builders ---
+
+interface TagBuilder<T : HtmlTag> : TagContentBuilder<T> {
+    fun executeAttributes(init: T.() -> Unit): TagContentBuilder<T>
 }
 
-fun <R> Root.html(init: Html.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return htmlImpl(init)
+interface TagContentBuilder<T : HtmlTag> {
+    fun executeContent(init: T.() -> Unit)
 }
 
-fun <R> Html.head(init: Head.() -> R): R {
+// Global Extension Functions for all builders
+fun <T : HtmlTag> TagBuilder<T>.attributes(init: T.() -> Unit): TagContentBuilder<T> {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return headImpl(init)
+    return executeAttributes(init)
 }
 
-fun <R> Html.body(init: Body.() -> R): R {
+fun <T : HtmlTag> TagContentBuilder<T>.content(init: T.() -> Unit) {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return bodyImpl(init)
-}
-fun <R> Head.title(init: Title.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return titleImpl(init)
+    executeContent(init)
 }
 
-fun <R> Head.meta(init: Meta.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return metaImpl(init)
-}
+// --- Specific Builders ---
 
-fun <R> Head.link(init: Link.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return linkImpl(init)
-}
+interface DoctypeBuilder : TagBuilder<Doctype>
+interface DoctypeContentBuilder : TagContentBuilder<Doctype>
 
-fun <R> Head.style(init: Head.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return styleImpl(init)
-}
+interface HtmlBuilder : TagBuilder<Html>
+interface HtmlContentBuilder : TagContentBuilder<Html>
 
-fun <R> Head.script(init: Script.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return scriptImpl(init)
-}
-fun <R> Body.script(init: Script.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return scriptImpl(init)
-}
+interface HeadBuilder : TagBuilder<Head>
+interface HeadContentBuilder : TagContentBuilder<Head>
 
-fun <R> Body.style(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return styleImpl(init)
-}
+interface BodyBuilder : TagBuilder<Body>
+interface BodyContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.a(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return aImpl(init)
-}
+interface TitleBuilder : TagBuilder<Title>
+interface TitleContentBuilder : TagContentBuilder<Title>
 
-fun <R> Body.div(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return divImpl(init)
-}
+interface MetaBuilder : TagBuilder<Meta>
+interface MetaContentBuilder : TagContentBuilder<Meta>
 
-fun <R> Body.form(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return formImpl(init)
-}
+interface LinkBuilder : TagBuilder<Link>
+interface LinkContentBuilder : TagContentBuilder<Link>
 
-fun <R> Body.fieldset(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return fieldsetImpl(init)
-}
+interface StyleHeadBuilder : TagBuilder<Head>
+interface StyleHeadContentBuilder : TagContentBuilder<Head>
 
-fun <R> Body.img(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return imgImpl(init)
-}
+interface ScriptBuilder : TagBuilder<Script>
+interface ScriptContentBuilder : TagContentBuilder<Script>
 
-fun <R> Body.legend(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return legendImpl(init)
-}
+interface StyleBodyBuilder : TagBuilder<Body>
+interface StyleBodyContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.label(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return labelImpl(init)
-}
+interface ABuilder : TagBuilder<Body>
+interface AContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.h1(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return h1Impl(init)
-}
+interface DivBuilder : TagBuilder<Body>
+interface DivContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.p(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return pImpl(init)
-}
+interface FormBuilder : TagBuilder<Body>
+interface FormContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.ul(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return ulImpl(init)
-}
+interface FieldsetBuilder : TagBuilder<Body>
+interface FieldsetContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.li(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return liImpl(init)
-}
+interface ImgBuilder : TagBuilder<Body>
+interface ImgContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.header(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return headerImpl(init)
-}
+interface LegendBuilder : TagBuilder<Body>
+interface LegendContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.span(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return spanImpl(init)
-}
+interface LabelBuilder : TagBuilder<Body>
+interface LabelContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.b(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return bImpl(init)
-}
+interface H1Builder : TagBuilder<Body>
+interface H1ContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.br(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return brImpl(init)
-}
+interface PBuilder : TagBuilder<Body>
+interface PContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.option(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return optionImpl(init)
-}
+interface UlBuilder : TagBuilder<Body>
+interface UlContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.input(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return inputImpl(init)
-}
+interface LiBuilder : TagBuilder<Body>
+interface LiContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.select(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return selectImpl(init)
-}
+interface HeaderBuilder : TagBuilder<Body>
+interface HeaderContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.table(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return tableImpl(init)
-}
+interface SpanBuilder : TagBuilder<Body>
+interface SpanContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.thead(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return theadImpl(init)
-}
+interface BBuilder : TagBuilder<Body>
+interface BContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.tbody(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return tbodyImpl(init)
-}
+interface BrBuilder : TagBuilder<Body>
+interface BrContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.tr(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return trImpl(init)
-}
+interface OptionBuilder : TagBuilder<Body>
+interface OptionContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.td(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return tdImpl(init)
-}
+interface InputBuilder : TagBuilder<Body>
+interface InputContentBuilder : TagContentBuilder<Body>
 
-fun <R> Body.th(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return thImpl(init)
-}
+interface SelectBuilder : TagBuilder<Body>
+interface SelectContentBuilder : TagContentBuilder<Body>
+
+interface TableBuilder : TagBuilder<Body>
+interface TableContentBuilder : TagContentBuilder<Body>
+
+interface TheadBuilder : TagBuilder<Body>
+interface TheadContentBuilder : TagContentBuilder<Body>
+
+interface TbodyBuilder : TagBuilder<Body>
+interface TbodyContentBuilder : TagContentBuilder<Body>
+
+interface TrBuilder : TagBuilder<Body>
+interface TrContentBuilder : TagContentBuilder<Body>
+
+interface TdBuilder : TagBuilder<Body>
+interface TdContentBuilder : TagContentBuilder<Body>
+
+interface ThBuilder : TagBuilder<Body>
+interface ThContentBuilder : TagContentBuilder<Body>

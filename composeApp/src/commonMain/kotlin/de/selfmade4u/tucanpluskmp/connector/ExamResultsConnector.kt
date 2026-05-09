@@ -124,7 +124,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                                         val selected: Boolean
                                         val semester: Semester
                                         val year: Int
-                                        option {
+                                        option.attributes {
                                             value = attributeValue("value").trimStart('0').toLong()
                                             selected = if (peekAttribute()?.key == "selected") {
                                                 attribute("selected", "selected")
@@ -132,10 +132,11 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                                             } else {
                                                 false
                                             }
+                                        }.content {
                                             val semesterName =
                                                 extractText() // SoSe 2025; WiSe 2024/25
                                             if (semesterName == localizer.all) {
-                                                return@option;
+                                                return@content;
                                             }
                                             if (semesterName.startsWith(("SoSe "))) {
                                                 year = semesterName.removePrefix("SoSe ").toInt()
