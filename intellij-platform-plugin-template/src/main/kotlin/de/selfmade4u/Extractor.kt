@@ -121,6 +121,8 @@ object Extractor {
                                             next = next.nextSibling
                                         } while (next is PsiWhiteSpace || next is XmlToken || (next is XmlText && next.text.trim().isEmpty()))
                                         val htmlElement = checkExpression(annotations, expression.valueArguments.single().getArgumentExpression()!!, next as XmlElement)
+                                        // here we expect closing?
+                                        check(htmlElement.first.nextSibling == null, { htmlElement.first })
                                         return htmlElement
                                     } else {
                                         annotations[expression] = AnnotationResult("expected <$tag> but found ${htmlElement::class}")
