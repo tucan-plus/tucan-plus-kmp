@@ -11,7 +11,6 @@ import de.selfmade4u.tucanpluskmp.TucanUrl
 import de.selfmade4u.tucanpluskmp.connector.Common.parseBase
 import de.selfmade4u.tucanpluskmp.connector.MyExamsConnector.MyExamsResponse
 import de.selfmade4u.tucanpluskmp.data.MyExams
-import de.selfmade4u.tucanpluskmp.option
 import de.selfmade4u.tucanpluskmp.shouldIgnore
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
@@ -54,6 +53,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                 }
                 style.attributes {
                     attribute("type", "text/css")
+                }.content {
                     extractData()
                 }
             } else {
@@ -90,27 +90,31 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                     attribute("method", "post")
                     attribute("class", "pageElementTop")
                 }.content {
-                    div {
+                    div.content {
                         div.attributes {
                             attribute("class", "tbhead")
                         }.content {
                             text(localizer.exams)
                         }
 
-                        div {
+                        div.attributes {
                             attribute("class", "tbsubhead")
+                        }.content {
                             text(localizer.choose_semester)
                         }
 
-                        div {
+                        div.attributes {
                             attribute("class", "formRow")
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("class", "inputFieldLabel long")
-                                label {
+                            }.content {
+                                label.attributes {
                                     attribute("for", "semester")
+                                }.content {
                                     text(localizer.course_module_semester)
                                 }
-                                select {
+                                select.attributes {
                                     attribute("id", "semester")
                                     attribute("name", "semester")
                                     attribute(
@@ -118,6 +122,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                                         "reloadpage.createUrlAndReload('/scripts/mgrqispi.dll','CampusNet','MYEXAMS','$sessionId','$menuId','-N'+this.value);"
                                     )
                                     attribute("class", "tabledata")
+                                }.content {
 
                                     // we can predict the value so we could use this at some places do directly get correct value
                                     // maybe do everywhere for consistency
@@ -166,7 +171,7 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                                     }
                                 }
 
-                                input {
+                                input.attributes {
                                     attribute("name", "Refresh")
                                     attribute("type", "submit")
                                     attribute("value", localizer.refresh)
@@ -175,65 +180,83 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                             }
                         }
 
-                        input {
-                            attribute("name", "APPNAME"); attribute(
-                            "type",
-                            "hidden"
-                        ); attribute("value", "CampusNet")
+                        input.attributes {
+                            attribute("name", "APPNAME");
+                            attribute(
+                                "type",
+                                "hidden"
+                            );
+                            attribute("value", "CampusNet")
                         }
-                        input {
-                            attribute("name", "PRGNAME"); attribute(
-                            "type",
-                            "hidden"
-                        ); attribute("value", "MYEXAMS")
+                        input.attributes {
+                            attribute("name", "PRGNAME");
+                            attribute(
+                                "type",
+                                "hidden"
+                            );
+                            attribute("value", "MYEXAMS")
                         }
-                        input {
-                            attribute("name", "ARGUMENTS"); attribute(
-                            "type",
-                            "hidden"
-                        ); attribute("value", "sessionno,menuno,semester")
+                        input.attributes {
+                            attribute("name", "ARGUMENTS");
+                            attribute(
+                                "type",
+                                "hidden"
+                            );
+                            attribute("value", "sessionno,menuno,semester")
                         }
-                        input {
-                            attribute("name", "sessionno"); attribute("type", "hidden"); attribute(
-                            "value",
-                            sessionId
-                        )
+                        input.attributes {
+                            attribute("name", "sessionno");
+                            attribute("type", "hidden");
+                            attribute(
+                                "value",
+                                sessionId
+                            )
                         }
-                        input {
-                            attribute("name", "menuno"); attribute("type", "hidden"); attribute(
-                            "value",
-                            menuId
-                        )
+                        input.attributes {
+                            attribute("name", "menuno");
+                            attribute("type", "hidden");
+                            attribute(
+                                "value",
+                                menuId
+                            )
                         }
                     }
                 }
 
-                table {
+                table.attributes {
                     attribute("class", "nb list")
-
-                    thead {
-                        tr {
+                }.content {
+                    thead.content {
+                        tr.attributes {
                             attribute("class", "tbcontrol");
-                            td {
+                        }.content {
+                            td.attributes {
                                 attribute("colspan", "5")
-                                a {
-                                    attribute("href", "/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXAMREGISTRATION&amp;ARGUMENTS=-N$sessionId,-N000318,-N${selectedSemester!!.id.toString().padStart(15, '0')}")
+                            }.content {
+                                a.attributes {
+                                    attribute(
+                                        "href",
+                                        "/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXAMREGISTRATION&amp;ARGUMENTS=-N$sessionId,-N000318,-N${
+                                            selectedSemester!!.id.toString().padStart(15, '0')
+                                        }"
+                                    )
                                     attribute("class", "arrow")
+                                }.content {
                                     text(localizer.exam_registration)
                                 }
                             }
                         }
-                        tr {
-                            th { attribute("scope", "col"); attribute("id", localizer.module_results_no); text(localizer.module_results_no) }
-                            th { attribute("scope", "col"); attribute("id", "Course_event_module"); text(localizer.my_exams_course_or_module)}
-                            th { attribute("scope", "col"); attribute("id", "Name"); text(localizer.my_exams_name) }
-                            th { attribute("scope", "col"); attribute("id", "Date"); text(localizer.my_exams_date) }
-                            th {
+                        tr.content {
+                            th.attributes { attribute("scope", "col"); attribute("id", localizer.module_results_no); }.content { text(localizer.module_results_no) }
+                            th.attributes { attribute("scope", "col"); attribute("id", "Course_event_module"); }.content { text(localizer.my_exams_course_or_module)}
+                            th.attributes { attribute("scope", "col"); attribute("id", "Name"); }.content { text(localizer.my_exams_name) }
+                            th.attributes { attribute("scope", "col"); attribute("id", "Date"); }.content { text(localizer.my_exams_date) }
+                            th.content {
                             }
                         }
                     }
 
-                    tbody {
+                    tbody.content {
                         while (peek()?.firstChild()?.normalName() == "td"
                         ) {
                             val id: String
@@ -241,73 +264,83 @@ object ExamResultsConnector : Connector<String?, MyExamsConnector.MyExamsRespons
                             val coursedetailsOrModuleDetails: TucanUrl.CourseOrModuleDetails
                             val examType: String
                             val date: String
-                            tr {
-                                td {
+                            tr.content {
+                                td.attributes {
                                     attribute("class", "tbdata");
+                                }.content {
                                     // id
                                     id = extractText()
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata");
-                                    a {
+                                }.content {
+                                    a.attributes {
                                         attribute("class", "link");
                                         if (peekAttribute()?.key == "name") {
                                             attribute("name", "eventLink");
                                         }
-                                        coursedetailsOrModuleDetails = TucanUrl.CourseOrModuleDetails.fromString(attributeValue("href"));
+                                        coursedetailsOrModuleDetails =
+                                            TucanUrl.CourseOrModuleDetails.fromString(attributeValue("href"));
+                                    }.content {
                                         // module title
                                         name = extractText()
                                     }
                                     if (peek() != null) {
-                                        br { }
+                                        br.content { }
                                         if (peek() is TextNode) {
                                             // list of courses
                                             extractText()
                                         } else {
                                             // thesis
-                                            b {
+                                            b.content {
                                                 text(localizer.thesis_subject)
                                             }
                                             val title = extractText()
-                                            br {}
+                                            br.content {}
                                             val handedIn = extractText()
-                                            br {}
+                                            br.content {}
                                         }
                                     }
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
-                                    a {
+                                }.content {
+                                    a.attributes {
                                         attribute("class", "link");
                                         // examdetails
                                         attributeValue("href");
+                                    }.content {
                                         /// type of exam
                                         examType = extractText()
                                     }
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
+                                }.content {
                                     if (peek() is TextNode) {
                                         date = extractText()
                                     } else {
-                                        a {
+                                        a.attributes {
                                             attribute("class", "link");
                                             // courseprep date link
                                             attributeValue("href");
+                                        }.content {
                                             // date text
                                             date = extractText()
                                         }
                                     }
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
+                                }.content {
                                     if (peek() is TextNode) {
                                         extractText()
                                     } else {
-                                        a {
+                                        a.attributes {
                                             // EXAMUNREG link
                                             attributeValue("href");
                                             attribute("class", "img img_arrowLeftRed");
+                                        }.content {
                                             text(localizer.unregister)
                                         }
                                     }
