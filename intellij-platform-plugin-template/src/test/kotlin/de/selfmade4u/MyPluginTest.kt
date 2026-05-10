@@ -1,5 +1,6 @@
 package de.selfmade4u
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.pom.java.LanguageLevel
@@ -32,9 +33,9 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         val main = fixture.copyFileToProject("main_annotated.kt", "main.kt");
         runInEdtAndWait {
             fixture.openFileInEditor(htmlParsing)
-            fixture.checkHighlighting(true, false, true, true)
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
             fixture.openFileInEditor(main)
-            fixture.checkHighlighting(true, false, true, true)
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
         }
     }
 
@@ -45,9 +46,9 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         val main = fixture.copyFileToProject("a.kt", "a.kt");
         runInEdtAndWait {
             fixture.openFileInEditor(htmlParsing)
-            fixture.checkHighlighting(true, false, true, true)
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
             fixture.openFileInEditor(main)
-            fixture.checkHighlighting(true, false, true, true)
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
         }
     }
 
@@ -58,9 +59,9 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         val main = fixture.copyFileToProject("b.kt", "b.kt");
         runInEdtAndWait {
             fixture.openFileInEditor(htmlParsing)
-            fixture.checkHighlighting(true, false, true, true)
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
             fixture.openFileInEditor(main)
-            fixture.checkHighlighting(true, false, true, true)
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
         }
     }
 
@@ -71,9 +72,9 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         val main = fixture.copyFileToProject("c.kt", "c.kt");
         runInEdtAndWait {
             fixture.openFileInEditor(htmlParsing)
-            fixture.checkHighlighting(true, false, true, true)
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
             fixture.openFileInEditor(main)
-            fixture.checkHighlighting()
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
         }
     }
 
