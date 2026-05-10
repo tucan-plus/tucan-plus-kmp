@@ -91,10 +91,15 @@ object Extractor {
                 return htmlTag
             }
             is KtDotQualifiedExpression -> {
-                val selectorExpression = expression.selectorExpression
                 val receiverExpression = expression.receiverExpression
+                val selectorExpression = expression.selectorExpression
+                println("selector ${receiverExpression::class}")
+                println("receiver ${selectorExpression!!::class}")
                 // TODO receiverExpression could be another dotqualifiedexpression
-                if (receiverExpression is KtNameReferenceExpression && selectorExpression is KtCallExpression) {
+                if (receiverExpression is KtDotQualifiedExpression && selectorExpression is KtCallExpression) {
+                    annotations[expression] = AnnotationResult("double chained call ${expression::class}")
+                    return htmlElement
+                } else if (receiverExpression is KtNameReferenceExpression && selectorExpression is KtCallExpression) {
                     // receiverExpression "html"
                     // selectorExpression .content {}
                     analyze(receiverExpression) {
@@ -111,8 +116,14 @@ object Extractor {
                                 val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName()
                                     .asString()
                                 when (fqName) {
+                                    "de.selfmade4u.tucanpluskmp.attributes" -> {
+                                        println("TODO handle attributes")
+                                    }
+                                    "de.selfmade4u.tucanpluskmp.content" -> {
+                                        println("TODO handle content")
+                                    }
                                     "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head", "de.selfmade4u.tucanpluskmp.title", "de.selfmade4u.tucanpluskmp.meta" -> {
-                                        val tag = fqName.split(".").last()
+                                        val tag = receiverExpression.text
                                         if (htmlElement is XmlTag && htmlElement.name == tag) {
                                             println("matched html tag")
                                             var htmlElement: PsiElement = htmlElement.firstChild

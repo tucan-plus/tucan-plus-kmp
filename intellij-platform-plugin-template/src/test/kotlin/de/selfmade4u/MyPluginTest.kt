@@ -38,6 +38,45 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         }
     }
 
+    @Test
+    fun testHtmlParsingA() {
+        val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
+        fixture.copyDirectoryToProject("simple_html", "html");
+        val main = fixture.copyFileToProject("a.kt", "a.kt");
+        runInEdtAndWait {
+            fixture.openFileInEditor(htmlParsing)
+            fixture.checkHighlighting(true, false, true, true)
+            fixture.openFileInEditor(main)
+            fixture.checkHighlighting(true, false, true, true)
+        }
+    }
+
+    @Test
+    fun testHtmlParsingB() {
+        val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
+        fixture.copyDirectoryToProject("simple_html", "html");
+        val main = fixture.copyFileToProject("b.kt", "b.kt");
+        runInEdtAndWait {
+            fixture.openFileInEditor(htmlParsing)
+            fixture.checkHighlighting(true, false, true, true)
+            fixture.openFileInEditor(main)
+            fixture.checkHighlighting(true, false, true, true)
+        }
+    }
+
+    @Test
+    fun testHtmlParsingC() {
+        val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
+        fixture.copyDirectoryToProject("simple_html", "html");
+        val main = fixture.copyFileToProject("c.kt", "c.kt");
+        runInEdtAndWait {
+            fixture.openFileInEditor(htmlParsing)
+            fixture.checkHighlighting(true, false, true, true)
+            fixture.openFileInEditor(main)
+            fixture.checkHighlighting()
+        }
+    }
+
     // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
     @Test
     fun testHtmlParsingQuickFix() {
