@@ -48,12 +48,9 @@ androidx-datastore-core-okio = { module = "androidx.datastore:datastore-core-oki
 androidx-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "junitKtx" }
 androidx-orchestrator = { module = "androidx.test:orchestrator", version.ref = "orchestrator" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "core" }
-androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "composeMultiplatform" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
 core-ktx = { module = "androidx.test:core-ktx", version.ref = "core" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junitJupiter" }
-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
-junit-platform-engine = { module = "org.junit.platform:junit-platform-engine" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
