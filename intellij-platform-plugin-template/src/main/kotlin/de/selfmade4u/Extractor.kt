@@ -127,6 +127,35 @@ object Extractor {
                     return htmlElement
                 }
                 println("name ${name.text} attributes ${attributes?.text} content ${content?.text}")
+                val tag = name.getReferencedName()
+                if (htmlElement is XmlTag && htmlElement.name == tag) {
+                    println("matched html tag")
+                    var htmlElement: PsiElement = htmlElement.firstChild
+                    while (htmlElement is PsiWhiteSpace) {
+                        htmlElement = htmlElement.nextSibling
+                    }
+                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_START_TAG_START)
+                    do {
+                        htmlElement = htmlElement.nextSibling
+                    } while (htmlElement is PsiWhiteSpace)
+                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_NAME)
+                    do {
+                        htmlElement = htmlElement.nextSibling
+                    } while (htmlElement is PsiWhiteSpace || (htmlElement is XmlText && htmlElement.text.trim()
+                            .isEmpty())
+                    )
+                    attributes?.let { attributes ->
+                        val expr = attributes.valueArguments.single()
+                            .getArgumentExpression()!! as KtLambdaExpression
+                        htmlElement = checkExpression(annotations, expr, htmlElement as XmlElement)
+                    }
+                    println("ABC $htmlElement")
+                    while (htmlElement is PsiWhiteSpace || htmlElement is XmlText && htmlElement.text.trim()
+                            .isEmpty()
+                    ) {
+                        htmlElement = htmlElement.nextSibling
+                    }
+                }
                 /*else {
                     // receiverExpression "html"
                     // selectorExpression .content {}
@@ -152,30 +181,7 @@ object Extractor {
                                     }
                                     "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head", "de.selfmade4u.tucanpluskmp.title", "de.selfmade4u.tucanpluskmp.meta" -> {
                                         val tag = receiverExpression.text
-                                        if (htmlElement is XmlTag && htmlElement.name == tag) {
-                                            println("matched html tag")
-                                            var htmlElement: PsiElement = htmlElement.firstChild
-                                            while (htmlElement is PsiWhiteSpace) {
-                                                htmlElement = htmlElement.nextSibling
-                                            }
-                                            check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_START_TAG_START)
-                                            do {
-                                                htmlElement = htmlElement.nextSibling
-                                            } while (htmlElement is PsiWhiteSpace)
-                                            check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_NAME)
-                                            do {
-                                                htmlElement = htmlElement.nextSibling
-                                            } while (htmlElement is PsiWhiteSpace || (htmlElement is XmlText && htmlElement.text.trim()
-                                                    .isEmpty())
-                                            )
-                                            val expr = selectorExpression.valueArguments.single()
-                                                .getArgumentExpression()!! as KtLambdaExpression
-                                            htmlElement = checkExpression(annotations, expr, htmlElement as XmlElement)
-                                            println("ABC $htmlElement")
-                                            while (htmlElement is PsiWhiteSpace || htmlElement is XmlText && htmlElement.text.trim()
-                                                    .isEmpty()) {
-                                                htmlElement = htmlElement.nextSibling
-                                            }
+
                                             when (htmlElement) {
                                                 is XmlToken if htmlElement.tokenType == XmlTokenType.XML_TAG_END -> {
                                                     println("found closing tag")
@@ -265,7 +271,7 @@ object Extractor {
                             val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName()
                                 .asString()
                             when (fqName) {
-                                "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
+                                "de.selfmade4u.tucanpluskmp.HtmlAttributeScope.attribute" -> {
                                     if (htmlElement is XmlAttribute) {
                                         println("matched attribute")
                                         check(selectorExpression.valueArguments.size == 2)
