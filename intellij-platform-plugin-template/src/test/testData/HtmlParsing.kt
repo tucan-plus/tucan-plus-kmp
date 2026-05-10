@@ -27,242 +27,141 @@ interface Node {
 interface Attribute {
     val key: String
 }
-
-interface HtmlTag {
+@HtmlTagMarker
+interface HtmlAttributeScope {
     fun attribute(key: String, value: String?)
     fun attributeValue(key: String): String
+    fun peekAttribute(): Attribute?
+}
+
+@HtmlTagMarker
+interface BaseContentScope {
     fun extractText(): String
     fun text(text: String)
     fun dataHash(hash: String)
     fun extractData(): String
-    // shit here we expose ksoup again
     fun peek(): Node?
-    fun peekAttribute(): Attribute?
-}
-interface Root : HtmlTag {
-    fun <T> doctypeImpl(init: Doctype.() -> T): T
-    fun <R> htmlImpl(init: Html.() -> R): R
 }
 
+interface RootContentScope : BaseContentScope {
+    val doctype: DoctypeBuilder
+    val html: HtmlBuilder
+}
+
+interface HtmlContentScope : BaseContentScope {
+    val head: HeadBuilder
+    val body: BodyBuilder
+}
+
+interface HeadContentScope : BaseContentScope {
+    val title: TitleBuilder
+    val meta: MetaBuilder
+    val link: LinkBuilder
+    val style: StyleHeadBuilder
+    val script: ScriptBuilder
+}
+
+interface BodyContentScope : BaseContentScope {
+    val script: ScriptBuilder
+    val style: StyleBodyBuilder
+    val a: ABuilder
+    val div: DivBuilder
+    val form: FormBuilder
+    val fieldset: FieldsetBuilder
+    val img: ImgBuilder
+    val legend: LegendBuilder
+    val label: LabelBuilder
+    val h1: H1Builder
+    val p: PBuilder
+    val ul: UlBuilder
+    val li: LiBuilder
+    val header: HeaderBuilder
+    val span: SpanBuilder
+    val b: BBuilder
+    val br: BrBuilder
+    val option: OptionBuilder
+    val input: InputBuilder
+    val select: SelectBuilder
+    val table: TableBuilder
+    val thead: TheadBuilder
+    val tbody: TbodyBuilder
+    val tr: TrBuilder
+    val td: TdBuilder
+    val th: ThBuilder
+}
+
+// --- Tag Interfaces ---
+
+interface HtmlTag : HtmlAttributeScope, BaseContentScope
+
+interface Root : HtmlTag, RootContentScope
 interface Doctype : HtmlTag
-
-interface Html : HtmlTag {
-    fun <R> headImpl(init: Head.() -> R): R
-    fun <R> bodyImpl(init: Body.() -> R): R
-}
-
-interface Head : HtmlTag {
-    fun <R> titleImpl(init: Title.() -> R): R
-    fun <R> metaImpl(init: Meta.() -> R): R
-    fun <R> linkImpl(init: Link.() -> R): R
-    fun <R> styleImpl(init: Head.() -> R): R
-    fun <R> scriptImpl(init: Script.() -> R): R
-}
-
-sealed interface Body : HtmlTag {
-    fun <R> scriptImpl(init: Script.() -> R): R
-    fun <R> styleImpl(init: Body.() -> R): R
-    fun <R> aImpl(init: Body.() -> R): R
-    fun <R> divImpl(init: Body.() -> R): R
-    fun <R> formImpl(init: Body.() -> R): R
-    fun <R> fieldsetImpl(init: Body.() -> R): R
-    fun <R> imgImpl(init: Body.() -> R): R
-    fun <R> legendImpl(init: Body.() -> R): R
-    fun <R> labelImpl(init: Body.() -> R): R
-    fun <R> h1Impl(init: Body.() -> R): R
-    fun <R> pImpl(init: Body.() -> R): R
-    fun <R> ulImpl(init: Body.() -> R): R
-    fun <R> liImpl(init: Body.() -> R): R
-    fun <R> headerImpl(init: Body.() -> R): R
-    fun <R> spanImpl(init: Body.() -> R): R
-    fun <R> bImpl(init: Body.() -> R): R
-    fun <R> brImpl(init: Body.() -> R): R
-    fun <R> optionImpl(init: Body.() -> R): R
-    fun <R> inputImpl(init: Body.() -> R): R
-    fun <R> selectImpl(init: Body.() -> R): R
-    fun <R> tableImpl(init: Body.() -> R): R
-    fun <R> theadImpl(init: Body.() -> R): R
-    fun <R> tbodyImpl(init: Body.() -> R): R
-    fun <R> trImpl(init: Body.() -> R): R
-    fun <R> tdImpl(init: Body.() -> R): R
-    fun <R> thImpl(init: Body.() -> R): R
-}
+interface Html : HtmlTag, HtmlContentScope
+interface Head : HtmlTag, HeadContentScope
+interface Body : HtmlTag, BodyContentScope
 
 interface Title : HtmlTag
 interface Meta : HtmlTag
 interface Link : HtmlTag
 interface Script : HtmlTag
 
-// https://github.com/Kotlin/kotlinx.html/blob/76b16f09180185a9e283e164fa02fb54a1627e9f/src/commonMain/kotlin/generated/gen-tags-d.kt#L24-L25
-fun <T> Root.doctype(init: Doctype.() -> T): T {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return doctypeImpl(init)
+// --- Builder Infrastructure ---
+
+interface TagBuilder<T : HtmlTag, out S : BaseContentScope> : TagContentBuilder<T, S> {
+    fun executeAttributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T, S>
 }
 
-fun <R> Root.html(init: Html.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return htmlImpl(init)
+interface TagContentBuilder<T : HtmlTag, out S : BaseContentScope> {
+    fun <R> executeContent(init: S.() -> R): R
 }
 
-fun <R> Html.head(init: Head.() -> R): R {
+@OptIn(ExperimentalContracts::class)
+fun <T : HtmlTag, S : BaseContentScope> TagBuilder<T, S>.attributes(init: HtmlAttributeScope.() -> Unit): TagContentBuilder<T, S> {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return headImpl(init)
+    return executeAttributes(init)
 }
 
-fun <R> Html.body(init: Body.() -> R): R {
+@OptIn(ExperimentalContracts::class)
+fun <T : HtmlTag, S : BaseContentScope, R> TagContentBuilder<T, S>.content(init: S.() -> R): R {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return bodyImpl(init)
-}
-fun <R> Head.title(init: Title.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return titleImpl(init)
+    return executeContent(init)
 }
 
-fun <R> Head.meta(init: Meta.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return metaImpl(init)
-}
+// --- Concrete Builder Definitions ---
 
-fun <R> Head.link(init: Link.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return linkImpl(init)
-}
+interface DoctypeBuilder : TagBuilder<Doctype, BaseContentScope>
+interface HtmlBuilder : TagBuilder<Html, HtmlContentScope>
+interface HeadBuilder : TagBuilder<Head, HeadContentScope>
+interface BodyBuilder : TagBuilder<Body, BodyContentScope>
 
-fun <R> Head.style(init: Head.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return styleImpl(init)
-}
+interface TitleBuilder : TagBuilder<Title, BaseContentScope>
+interface MetaBuilder : TagBuilder<Meta, BaseContentScope>
+interface LinkBuilder : TagBuilder<Link, BaseContentScope>
+interface StyleHeadBuilder : TagBuilder<Head, HeadContentScope>
+interface ScriptBuilder : TagBuilder<Script, BaseContentScope>
 
-fun <R> Head.script(init: Script.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return scriptImpl(init)
-}
-fun <R> Body.script(init: Script.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return scriptImpl(init)
-}
-
-fun <R> Body.style(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return styleImpl(init)
-}
-
-fun <R> Body.a(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return aImpl(init)
-}
-
-fun <R> Body.div(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return divImpl(init)
-}
-
-fun <R> Body.form(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return formImpl(init)
-}
-
-fun <R> Body.fieldset(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return fieldsetImpl(init)
-}
-
-fun <R> Body.img(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return imgImpl(init)
-}
-
-fun <R> Body.legend(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return legendImpl(init)
-}
-
-fun <R> Body.label(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return labelImpl(init)
-}
-
-fun <R> Body.h1(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return h1Impl(init)
-}
-
-fun <R> Body.p(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return pImpl(init)
-}
-
-fun <R> Body.ul(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return ulImpl(init)
-}
-
-fun <R> Body.li(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return liImpl(init)
-}
-
-fun <R> Body.header(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return headerImpl(init)
-}
-
-fun <R> Body.span(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return spanImpl(init)
-}
-
-fun <R> Body.b(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return bImpl(init)
-}
-
-fun <R> Body.br(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return brImpl(init)
-}
-
-fun <R> Body.option(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return optionImpl(init)
-}
-
-fun <R> Body.input(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return inputImpl(init)
-}
-
-fun <R> Body.select(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return selectImpl(init)
-}
-
-fun <R> Body.table(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return tableImpl(init)
-}
-
-fun <R> Body.thead(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return theadImpl(init)
-}
-
-fun <R> Body.tbody(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return tbodyImpl(init)
-}
-
-fun <R> Body.tr(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return trImpl(init)
-}
-
-fun <R> Body.td(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return tdImpl(init)
-}
-
-fun <R> Body.th(init: Body.() -> R): R {
-    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    return thImpl(init)
-}
+interface StyleBodyBuilder : TagBuilder<Body, BodyContentScope>
+interface ABuilder : TagBuilder<Body, BodyContentScope>
+interface DivBuilder : TagBuilder<Body, BodyContentScope>
+interface FormBuilder : TagBuilder<Body, BodyContentScope>
+interface FieldsetBuilder : TagBuilder<Body, BodyContentScope>
+interface ImgBuilder : TagBuilder<Body, BodyContentScope>
+interface LegendBuilder : TagBuilder<Body, BodyContentScope>
+interface LabelBuilder : TagBuilder<Body, BodyContentScope>
+interface H1Builder : TagBuilder<Body, BodyContentScope>
+interface PBuilder : TagBuilder<Body, BodyContentScope>
+interface UlBuilder : TagBuilder<Body, BodyContentScope>
+interface LiBuilder : TagBuilder<Body, BodyContentScope>
+interface HeaderBuilder : TagBuilder<Body, BodyContentScope>
+interface SpanBuilder : TagBuilder<Body, BodyContentScope>
+interface BBuilder : TagBuilder<Body, BodyContentScope>
+interface BrBuilder : TagBuilder<Body, BodyContentScope>
+interface OptionBuilder : TagBuilder<Body, BodyContentScope>
+interface InputBuilder : TagBuilder<Body, BodyContentScope>
+interface SelectBuilder : TagBuilder<Body, BodyContentScope>
+interface TableBuilder : TagBuilder<Body, BodyContentScope>
+interface TheadBuilder : TagBuilder<Body, BodyContentScope>
+interface TbodyBuilder : TagBuilder<Body, BodyContentScope>
+interface TrBuilder : TagBuilder<Body, BodyContentScope>
+interface TdBuilder : TagBuilder<Body, BodyContentScope>
+interface ThBuilder : TagBuilder<Body, BodyContentScope>
