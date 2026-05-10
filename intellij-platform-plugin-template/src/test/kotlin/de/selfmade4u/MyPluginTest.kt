@@ -32,9 +32,9 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         val main = fixture.copyFileToProject("main_annotated.kt", "main.kt");
         runInEdtAndWait {
             fixture.openFileInEditor(htmlParsing)
-            fixture.checkHighlighting()
+            fixture.checkHighlighting(true, false, true, true)
             fixture.openFileInEditor(main)
-            fixture.checkHighlighting()
+            fixture.checkHighlighting(true, false, true, true)
         }
     }
 
