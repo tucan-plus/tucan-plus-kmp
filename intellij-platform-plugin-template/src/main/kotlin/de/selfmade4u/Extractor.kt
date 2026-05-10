@@ -149,6 +149,7 @@ object Extractor {
                     while (htmlElement is PsiWhiteSpace) {
                         htmlElement = htmlElement.nextSibling
                     }
+                    // if this fails we're probably missing some attribute parsing
                     check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_TAG_END)
                     while (htmlElement is PsiWhiteSpace || htmlElement is XmlText && htmlElement.text.trim()
                             .isEmpty()
@@ -161,9 +162,9 @@ object Extractor {
                         htmlElement = checkExpression(annotations, expr, htmlElement as XmlElement)
                     }
                     // closing tag
-                    do {
+                    while (htmlElement is PsiWhiteSpace) {
                         htmlElement = htmlElement.nextSibling
-                    } while (htmlElement is PsiWhiteSpace)
+                    }
                     check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_TAG_END)
                 }
                 /*else {
@@ -308,7 +309,7 @@ object Extractor {
                                     }
                                 }
 
-                                "de.selfmade4u.tucanpluskmp.HtmlTag.extractText" -> {
+                                "de.selfmade4u.tucanpluskmp.BaseContentScope.extractText" -> {
                                     if (htmlElement is HtmlRawTextImpl || htmlElement is XmlText) {
                                         var next: PsiElement = htmlElement
                                         do {

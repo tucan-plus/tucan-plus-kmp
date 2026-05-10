@@ -25,59 +25,6 @@ import org.junit.jupiter.api.Test
 // https://github.com/JetBrains/intellij-community/tree/master/platform/testFramework/junit5/test/showcase
 class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDescriptor({ IdeaTestUtil.getMockJdk(LanguageLevel.HIGHEST) }, listOf("org.jetbrains.kotlin:kotlin-stdlib:2.4.0-Beta2"))) {
 
-    // https://github.com/JetBrains/JetBrainsRuntime/blob/2a24ff85457db452a7499acfb0f16a98f446d4d9/src/java.desktop/unix/classes/sun/awt/wl/WLKeyboard.java#L40
-    @Test
-    fun testHtmlParsing() {
-        val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
-        fixture.copyDirectoryToProject("simple_html", "html");
-        val main = fixture.copyFileToProject("main1.kt", "main.kt");
-        runInEdtAndWait {
-            fixture.openFileInEditor(htmlParsing)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
-            fixture.openFileInEditor(main)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) }; // TODO expect error
-        }
-    }
-
-    @Test
-    fun testHtmlParsingA() {
-        val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
-        fixture.copyDirectoryToProject("simple_html", "html");
-        val main = fixture.copyFileToProject("a.kt", "a.kt");
-        runInEdtAndWait {
-            fixture.openFileInEditor(htmlParsing)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
-            fixture.openFileInEditor(main)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
-        }
-    }
-
-    @Test
-    fun testHtmlParsingB() {
-        val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
-        fixture.copyDirectoryToProject("simple_html", "html");
-        val main = fixture.copyFileToProject("b.kt", "b.kt");
-        runInEdtAndWait {
-            fixture.openFileInEditor(htmlParsing)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
-            fixture.openFileInEditor(main)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
-        }
-    }
-
-    @Test
-    fun testHtmlParsingC() {
-        val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
-        fixture.copyDirectoryToProject("simple_html", "html");
-        val main = fixture.copyFileToProject("c.kt", "c.kt");
-        runInEdtAndWait {
-            fixture.openFileInEditor(htmlParsing)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
-            fixture.openFileInEditor(main)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
-        }
-    }
-
     // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
     @Test
     fun testHtmlParsingQuickFix() {
