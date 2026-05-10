@@ -126,7 +126,7 @@ object Extractor {
                     annotations[expression] = AnnotationResult("Unknown chained call ${expression::class}")
                     return htmlElement
                 }
-                println("name $name attributes ${attributes?.text} content ${content?.text}")
+                println("name ${name.text} attributes ${attributes?.text} content ${content?.text}")
                 /*else {
                     // receiverExpression "html"
                     // selectorExpression .content {}
