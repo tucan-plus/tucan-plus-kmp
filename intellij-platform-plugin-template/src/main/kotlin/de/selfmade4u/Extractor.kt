@@ -111,12 +111,6 @@ object Extractor {
                                 val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName()
                                     .asString()
                                 when (fqName) {
-                                    "de.selfmade4u.tucanpluskmp.doctype" -> {
-                                        annotations[selectorExpression] =
-                                            AnnotationResult("Deprecated. Doctype does not need to be parsed.")
-                                        return htmlElement
-                                    }
-                                    // TODO FIXME urgently fix this here, maybe by some annotation or so
                                     "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head", "de.selfmade4u.tucanpluskmp.title", "de.selfmade4u.tucanpluskmp.meta" -> {
                                         val tag = fqName.split(".").last()
                                         if (htmlElement is XmlTag && htmlElement.name == tag) {
@@ -194,61 +188,6 @@ object Extractor {
                                             return htmlElement
                                         }
                                     }
-
-                                    "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
-                                        if (htmlElement is XmlAttribute) {
-                                            println("matched attribute")
-                                            check(selectorExpression.valueArguments.size == 2)
-                                            val (first, second) = selectorExpression.valueArguments
-                                            if (htmlElement.name != getStringLiteral(first.stringTemplateExpression!!)) {
-                                                annotations[selectorExpression] = AnnotationResult(
-                                                    "attribute name actual ${htmlElement.name} does not match expected ${
-                                                        getStringLiteral(first.stringTemplateExpression!!)
-                                                    }"
-                                                )
-                                            }
-                                            if (htmlElement.value != getStringLiteral(second.stringTemplateExpression!!)) {
-                                                annotations[selectorExpression] = AnnotationResult(
-                                                    "attribute value actual ${htmlElement.value} does not match expected ${
-                                                        getStringLiteral(second.stringTemplateExpression!!)
-                                                    }"
-                                                )
-                                            }
-                                            var next: PsiElement = htmlElement
-                                            do {
-                                                next = next.nextSibling
-                                            } while (next is PsiWhiteSpace || (next is XmlToken && next.tokenType == XmlTokenType.XML_TAG_END) || (next is XmlText && next.text.trim()
-                                                    .isEmpty())
-                                            )
-                                            return next as XmlElement
-                                        } else {
-                                            annotations[selectorExpression] =
-                                                AnnotationResult("expected attribute but found ${htmlElement::class}")
-                                            return htmlElement
-                                        }
-                                    }
-
-                                    "de.selfmade4u.tucanpluskmp.HtmlTag.extractText" -> {
-                                        if (htmlElement is HtmlRawTextImpl || htmlElement is XmlText) {
-                                            var next: PsiElement = htmlElement
-                                            do {
-                                                if (next.nextSibling == null) {
-                                                    // return so caller can close element? this is technically wrong as we seem to want to return which element we want to parse next not which one we just parsed? maybe change that?
-                                                    return next as XmlElement
-                                                } else {
-                                                    next = next.nextSibling
-                                                }
-                                            } while (next is PsiWhiteSpace || (next is XmlText && next.text.trim()
-                                                    .isEmpty())
-                                            )
-                                            return next as XmlElement
-                                        } else {
-                                            annotations[selectorExpression] =
-                                                AnnotationResult("expected text but found ${htmlElement::class}")
-                                            return htmlElement
-                                        }
-                                    }
-
                                     else -> {
                                         TODO(fqName)
                                         val implementation = psi as? KtFunction
@@ -277,6 +216,94 @@ object Extractor {
                 println(expression.selectorExpression)
                 println(expression.receiverExpression)
                 return htmlElement
+            }
+            is KtCallExpression -> {
+                val selectorExpression = expression
+                analyze(selectorExpression) {
+                    val resolveToCall: KaCallInfo? =
+                        selectorExpression.resolveToCall() // sealed class, can get a Ka(Function)Call
+                    when (resolveToCall) {
+                        is KaSuccessCallInfo -> {
+                            val psi = (resolveToCall.call as KaFunctionCall<*>).symbol.psi
+
+                            val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName()
+                                .asString()
+                            when (fqName) {
+                                "de.selfmade4u.tucanpluskmp.HtmlTag.attribute" -> {
+                                    if (htmlElement is XmlAttribute) {
+                                        println("matched attribute")
+                                        check(selectorExpression.valueArguments.size == 2)
+                                        val (first, second) = selectorExpression.valueArguments
+                                        if (htmlElement.name != getStringLiteral(first.stringTemplateExpression!!)) {
+                                            annotations[selectorExpression] = AnnotationResult(
+                                                "attribute name actual ${htmlElement.name} does not match expected ${
+                                                    getStringLiteral(first.stringTemplateExpression!!)
+                                                }"
+                                            )
+                                        }
+                                        if (htmlElement.value != getStringLiteral(second.stringTemplateExpression!!)) {
+                                            annotations[selectorExpression] = AnnotationResult(
+                                                "attribute value actual ${htmlElement.value} does not match expected ${
+                                                    getStringLiteral(second.stringTemplateExpression!!)
+                                                }"
+                                            )
+                                        }
+                                        var next: PsiElement = htmlElement
+                                        do {
+                                            next = next.nextSibling
+                                        } while (next is PsiWhiteSpace || (next is XmlToken && next.tokenType == XmlTokenType.XML_TAG_END) || (next is XmlText && next.text.trim()
+                                                .isEmpty())
+                                        )
+                                        return next as XmlElement
+                                    } else {
+                                        annotations[selectorExpression] =
+                                            AnnotationResult("expected attribute but found ${htmlElement::class}")
+                                        return htmlElement
+                                    }
+                                }
+
+                                "de.selfmade4u.tucanpluskmp.HtmlTag.extractText" -> {
+                                    if (htmlElement is HtmlRawTextImpl || htmlElement is XmlText) {
+                                        var next: PsiElement = htmlElement
+                                        do {
+                                            if (next.nextSibling == null) {
+                                                // return so caller can close element? this is technically wrong as we seem to want to return which element we want to parse next not which one we just parsed? maybe change that?
+                                                return next as XmlElement
+                                            } else {
+                                                next = next.nextSibling
+                                            }
+                                        } while (next is PsiWhiteSpace || (next is XmlText && next.text.trim()
+                                                .isEmpty())
+                                        )
+                                        return next as XmlElement
+                                    } else {
+                                        annotations[selectorExpression] =
+                                            AnnotationResult("expected text but found ${htmlElement::class}")
+                                        return htmlElement
+                                    }
+                                }
+
+                                else -> {
+                                    TODO(fqName)
+                                    val implementation = psi as? KtFunction
+
+                                    if (implementation != null) {
+                                        annotations[expression] =
+                                            AnnotationResult("TOOD implementation $fqName needs analysis")
+                                    } else {
+                                        annotations[expression] = AnnotationResult("TODO unknown called method $fqName")
+                                    }
+                                    return htmlElement
+                                }
+                            }
+                        }
+
+                        else -> {
+                            annotations[expression] = AnnotationResult("failed to resolve")
+                            return htmlElement
+                        }
+                    }
+                }
             }
 
             is KtProperty -> {
