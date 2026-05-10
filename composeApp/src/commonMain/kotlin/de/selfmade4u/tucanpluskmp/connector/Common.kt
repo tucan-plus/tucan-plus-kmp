@@ -47,8 +47,8 @@ object Common {
         sessionId: String,
         menuLocalizer: Localizer,
         menuId: String,
-        headInit: Head.() -> Unit,
-        inner: Body.(localizer: Localizer, pageType: String) -> T
+        headInit: HeadContentScope.() -> Unit,
+        inner: BodyContentScope.(localizer: Localizer, pageType: String) -> T
     ): T {
         var sessionId = sessionId
         var menuId = menuId
@@ -181,8 +181,9 @@ object Common {
                 }
                 headInit()
             }
+            val pageType: String
             body.attributes {
-                val pageType = attributeValue("class")
+                pageType = attributeValue("class")
                 if (pageType == "timeout" || pageType == "access_denied") {
                     sessionId = "000000000000001"
                     menuId = "000000"
@@ -685,7 +686,7 @@ object Common {
         }
     }
 
-    fun Body.parseLoggedInNavigation(menuLocalizer: Localizer, contentLocalizer: Localizer, sessionId: String) {
+    fun BodyContentScope.parseLoggedInNavigation(menuLocalizer: Localizer, contentLocalizer: Localizer, sessionId: String) {
         parseLiWithChildren(
             menuLocalizer.my_tucan.text,
             "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=MLSSTART&ARGUMENTS=-N$sessionId,-N${menuLocalizer.my_tucan.id6()},",
@@ -804,7 +805,7 @@ object Common {
         }
     }
 
-    fun Body.parseLoggedOutNavigation(menuLocalizer: Localizer, contentLocalizer: Localizer, sessionId: String) {
+    fun BodyContentScope.parseLoggedOutNavigation(menuLocalizer: Localizer, contentLocalizer: Localizer, sessionId: String) {
         li.attributes {
             attribute("class", "intern depth_1 linkItem")
             attribute("title", "Startseite")
@@ -891,7 +892,7 @@ object Common {
         )
     }
 
-    private fun Body.parseVV(
+    private fun BodyContentScope.parseVV(
         localizer: Localizer,
         sessionId: String,
         course_search_id: Int,
@@ -978,7 +979,7 @@ object Common {
         }
     }
 
-    private fun Body.parseLi(name: String, url: String, id: Int, depth: Int = 2) {
+    private fun BodyContentScope.parseLi(name: String, url: String, id: Int, depth: Int = 2) {
         val link = "link${id.toString().padStart(6, '0')}"
         return li.attributes {
             attribute("class", "intern depth_$depth linkItem")
@@ -994,11 +995,11 @@ object Common {
         }
     }
 
-    private fun Body.parseLi(name: TextAndId, depth: Int = 2, url: (id6: String) -> String) {
+    private fun BodyContentScope.parseLi(name: TextAndId, depth: Int = 2, url: (id6: String) -> String) {
         parseLi(name.text, url(name.id6()), name.id, depth)
     }
 
-    private fun Body.parseLiHref(name: String, id: Int, depth: Int = 2): String {
+    private fun BodyContentScope.parseLiHref(name: String, id: Int, depth: Int = 2): String {
         val link = "link${id.toString().padStart(6, '0')}"
         return li.attributes {
             attribute("class", "intern depth_$depth linkItem")
@@ -1018,11 +1019,11 @@ object Common {
         }
     }
 
-    private fun Body.parseLiWithChildrenHref(
+    private fun BodyContentScope.parseLiWithChildrenHref(
         name: String,
         id: Int,
         depth: Int = 1,
-        init: Body.() -> Unit
+        init: BodyContentScope.() -> Unit
     ): String {
         val link = "link${id.toString().padStart(6, '0')}"
         return li.attributes {
@@ -1049,12 +1050,12 @@ object Common {
     }
 
 
-    private fun Body.parseLiWithChildren(
+    private fun BodyContentScope.parseLiWithChildren(
         name: String,
         url: String,
         id: Int,
         depth: Int = 1,
-        init: Body.() -> Unit
+        init: BodyContentScope.() -> Unit
     ) {
         val link = "link${id.toString().padStart(6, '0')}"
         li.attributes {

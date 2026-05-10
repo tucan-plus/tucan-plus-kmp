@@ -146,7 +146,7 @@ object MyExamsConnector : Connector<String?, MyExamsConnector.MyExamsResponse> {
                                             val semesterName =
                                                 extractText() // SoSe 2025; WiSe 2024/25
                                             if (semesterName == localizer.all) {
-                                                return@option;
+                                                return@content;
                                             }
                                             if (semesterName.startsWith(("SoSe "))) {
                                                 year = semesterName.removePrefix("SoSe ").toInt()
