@@ -30,12 +30,12 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     fun testHtmlParsing() {
         val htmlParsing = fixture.copyFileToProject("HtmlParsing.kt")
         fixture.copyDirectoryToProject("simple_html", "html");
-        val main = fixture.copyFileToProject("main_annotated.kt", "main.kt");
+        val main = fixture.copyFileToProject("main1.kt", "main.kt");
         runInEdtAndWait {
             fixture.openFileInEditor(htmlParsing)
             fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
             fixture.openFileInEditor(main)
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) };
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf<HighlightInfo>(), { it }) }; // TODO expect error
         }
     }
 
