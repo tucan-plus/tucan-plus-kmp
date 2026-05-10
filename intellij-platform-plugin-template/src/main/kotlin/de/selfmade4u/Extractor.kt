@@ -150,11 +150,25 @@ object Extractor {
                         htmlElement = checkExpression(annotations, expr, htmlElement as XmlElement)
                     }
                     println("ABC $htmlElement")
+                    do {
+                        htmlElement = htmlElement.nextSibling
+                    } while (htmlElement is PsiWhiteSpace)
+                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_TAG_END)
                     while (htmlElement is PsiWhiteSpace || htmlElement is XmlText && htmlElement.text.trim()
                             .isEmpty()
                     ) {
                         htmlElement = htmlElement.nextSibling
                     }
+                    content?.let { content ->
+                        val expr = content.valueArguments.single()
+                            .getArgumentExpression()!! as KtLambdaExpression
+                        htmlElement = checkExpression(annotations, expr, htmlElement as XmlElement)
+                    }
+                    // closing tag
+                    do {
+                        htmlElement = htmlElement.nextSibling
+                    } while (htmlElement is PsiWhiteSpace)
+                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_TAG_END)
                 }
                 /*else {
                     // receiverExpression "html"
@@ -173,12 +187,6 @@ object Extractor {
                                 val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName()
                                     .asString()
                                 when (fqName) {
-                                    "de.selfmade4u.tucanpluskmp.attributes" -> {
-                                        println("TODO handle attributes")
-                                    }
-                                    "de.selfmade4u.tucanpluskmp.content" -> {
-                                        println("TODO handle content")
-                                    }
                                     "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head", "de.selfmade4u.tucanpluskmp.title", "de.selfmade4u.tucanpluskmp.meta" -> {
                                         val tag = receiverExpression.text
 
@@ -293,7 +301,7 @@ object Extractor {
                                         var next: PsiElement = htmlElement
                                         do {
                                             next = next.nextSibling
-                                        } while (next is PsiWhiteSpace || (next is XmlToken && next.tokenType == XmlTokenType.XML_TAG_END) || (next is XmlText && next.text.trim()
+                                        } while (next is PsiWhiteSpace || (next is XmlText && next.text.trim()
                                                 .isEmpty())
                                         )
                                         return next as XmlElement
