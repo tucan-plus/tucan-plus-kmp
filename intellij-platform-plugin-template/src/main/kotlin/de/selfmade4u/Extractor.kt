@@ -95,11 +95,27 @@ object Extractor {
                 val selectorExpression = expression.selectorExpression
                 println("selector ${receiverExpression::class}")
                 println("receiver ${selectorExpression!!::class}")
-                // TODO receiverExpression could be another dotqualifiedexpression
                 if (receiverExpression is KtDotQualifiedExpression && selectorExpression is KtCallExpression) {
-                    annotations[expression] = AnnotationResult("double chained call ${expression::class}")
+                    val name = receiverExpression.receiverExpression as KtNameReferenceExpression
+                    val attributes = receiverExpression.selectorExpression as KtCallExpression
+                    val content = selectorExpression
+                    println("name $name attributes ${attributes.text} content ${content.text}")
+                    //annotations[expression] = AnnotationResult("double chained call ${expression::class}")
                     return htmlElement
                 } else if (receiverExpression is KtNameReferenceExpression && selectorExpression is KtCallExpression) {
+                    val name = receiverExpression
+                    val whatIsCalled = (selectorExpression.calleeExpression as KtNameReferenceExpression).getReferencedName()
+                    when (whatIsCalled) {
+                        "attributes" -> {
+
+                        }
+                        "content" -> {
+
+                        }
+                        else -> {
+                            println("unknown call $whatIsCalled")
+                        }
+                    }
                     // receiverExpression "html"
                     // selectorExpression .content {}
                     analyze(receiverExpression) {
