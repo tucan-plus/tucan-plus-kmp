@@ -107,16 +107,19 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
         // menu id changes depending on language
         val response = parseBase(sessionId, menuLocalizer, menuId, {
             if (peek() != null) {
-                style {
+                style.attributes {
                     attribute("type", "text/css")
+                }.content {
                     extractData()
                 }
-                style {
+                style.attributes {
                     attribute("type", "text/css")
+                }.content {
                     extractData()
                 }
-                style {
+                style.attributes {
                     attribute("type", "text/css")
+                }.content {
                     extractData()
                 }
             } else {
@@ -124,60 +127,66 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
             }
         }) { localizer, pageType ->
             if (pageType == "access_denied") {
-                script {
+                script.attributes {
                     attribute("type", "text/javascript")
                 }
-                h1 { text("Zugang verweigert") }
+                h1.content { text("Zugang verweigert") }
                 return@parseBase ParserResponse.SessionTimeout()
             }
             if (pageType == "timeout") {
-                script {
+                script.attributes {
                     attribute("type", "text/javascript")
                 }
-                h1 { text("Timeout!") }
-                p {
-                    b {
+                h1.content { text("Timeout!") }
+                p.content {
+                    b.content {
                         text("Es wurde seit den letzten 30 Minuten keine Abfrage mehr abgesetzt.")
-                        br {}
+                        br.content {}
                         text("Bitte melden Sie sich erneut an.")
                     }
                 }
                 return@parseBase ParserResponse.SessionTimeout()
             }
             check(pageType == "course_results")
-            script {
+            script.attributes {
                 attribute("type", "text/javascript")
                 // empty
             }
-            h1 { extractText() }
-            div {
+            h1.content { extractText() }
+            div.attributes {
                 attribute("class", "tb")
+            }.content {
 
-                form {
+                form.attributes {
                     attribute("id", "semesterchange")
                     attribute("action", "/scripts/mgrqispi.dll")
                     attribute("method", "post")
                     attribute("class", "pageElementTop")
+                }.content {
 
-                    div {
-                        div {
+                    div.content {
+                        div.attributes {
                             attribute("class", "tbhead")
                         }
 
-                        div {
+                        div.attributes {
                             attribute("class", "tbsubhead")
+                        }.content {
                             text(localizer.choose_semester)
                         }
 
-                        div {
+                        div.attributes {
                             attribute("class", "formRow")
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("class", "inputFieldLabel long")
-                                label {
+                            }.content {
+                                label.attributes {
                                     attribute("for", "semester")
+                                }.content {
                                     text("Semester:")
                                 }
-                                select {
+                                select.attributes {
                                     attribute("id", "semester")
                                     attribute("name", "semester")
                                     attribute(
@@ -185,6 +194,7 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                                         "reloadpage.createUrlAndReload('/scripts/mgrqispi.dll','CampusNet','COURSERESULTS','$sessionId','$menuId','-N'+this.value);"
                                     )
                                     attribute("class", "tabledata")
+                                }.content {
 
                                     // we can predict the value so we could use this at some places do directly get correct value
                                     // maybe do everywhere for consistency
@@ -193,7 +203,7 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                                         val selected: Boolean
                                         val semester: Semester
                                         val year: Int
-                                        option {
+                                        option.attributes {
                                             value = attributeValue("value").trimStart('0').toLong()
                                             selected = if (peekAttribute()?.key == "selected") {
                                                 attribute("selected", "selected")
@@ -201,6 +211,7 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                                             } else {
                                                 false
                                             }
+                                        }.content {
                                             val semesterName =
                                                 extractText() // SoSe 2025; WiSe 2024/25
                                             if (semesterName.startsWith(("SoSe "))) {
@@ -229,7 +240,7 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                                     }
                                 }
 
-                                input {
+                                input.attributes {
                                     attribute("name", "Refresh")
                                     attribute("type", "submit")
                                     attribute("value", localizer.refresh)
@@ -238,31 +249,31 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                             }
                         }
 
-                        input {
+                        input.attributes {
                             attribute("name", "APPNAME"); attribute(
                             "type",
                             "hidden"
                         ); attribute("value", "CampusNet")
                         }
-                        input {
+                        input.attributes {
                             attribute("name", "PRGNAME"); attribute(
                             "type",
                             "hidden"
                         ); attribute("value", "COURSERESULTS")
                         }
-                        input {
+                        input.attributes {
                             attribute("name", "ARGUMENTS"); attribute(
                             "type",
                             "hidden"
                         ); attribute("value", "sessionno,menuno,semester")
                         }
-                        input {
+                        input.attributes {
                             attribute("name", "sessionno"); attribute("type", "hidden"); attribute(
                             "value",
                             sessionId
                         )
                         }
-                        input {
+                        input.attributes {
                             attribute("name", "menuno"); attribute("type", "hidden"); attribute(
                             "value",
                             menuId
@@ -271,24 +282,25 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                     }
                 }
 
-                table {
+                table.attributes {
                     attribute("class", "nb list")
+                }.content {
 
-                    thead {
-                        tr {
-                            td { attribute("class", "tbsubhead"); text(localizer.module_results_no) }
-                            td { attribute("class", "tbsubhead"); text(localizer.module_results_course_name)}
-                            td { attribute("class", "tbsubhead"); text(localizer.module_results_final_grade) }
-                            td { attribute("class", "tbsubhead"); text(localizer.module_results_credits) }
-                            td { attribute("class", "tbsubhead"); text(localizer.module_results_status) }
-                            td {
+                    thead.content {
+                        tr.content {
+                            td.attributes { attribute("class", "tbsubhead"); }.content { text(localizer.module_results_no) }
+                            td.attributes { attribute("class", "tbsubhead"); }.content { text(localizer.module_results_course_name)}
+                            td.attributes { attribute("class", "tbsubhead"); }.content {  text(localizer.module_results_final_grade) }
+                            td.attributes { attribute("class", "tbsubhead");  }.content { text(localizer.module_results_credits) }
+                            td.attributes { attribute("class", "tbsubhead");  }.content { text(localizer.module_results_status) }
+                            td.attributes {
                                 attribute("class", "tbsubhead")
                                 attribute("colspan", "2")
                             }
                         }
                     }
 
-                    tbody {
+                    tbody.content {
                         while (peek()?.firstChild()?.normalName() == "td"
                         ) {
                             val moduleId: String
@@ -297,12 +309,13 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                             val moduleCredits: Int
                             val resultdetailsUrl: TucanUrl.RESULTDETAILS?
                             val gradeoverviewUrl: TucanUrl.GRADEOVERVIEWModule?
-                            tr {
-                                td { attribute("class", "tbdata"); moduleId = extractText() }
-                                moduleName = td { attribute("class", "tbdata"); extractText() }
-                                td {
+                            tr.content {
+                                td.attributes { attribute("class", "tbdata"); }.content { moduleId = extractText() }
+                                td.attributes { attribute("class", "tbdata"); }.content { moduleName = extractText() }
+                                td.attributes {
                                     attribute("class", "tbdata_numeric")
                                     attribute("style", "vertical-align:top;")
+                                }.content {
                                     if (peek() != null) {
                                         val moduleGradeText = extractText()
                                         moduleGrade =
@@ -314,52 +327,64 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                                         moduleGrade = ModuleGrade.NOCH_NICHT_GESETZT
                                     }
                                 }
-                                td {
-                                    attribute("class", "tbdata_numeric"); moduleCredits =
-                                    extractText().replace(",0", "").toInt()
+                                td.attributes {
+                                    attribute("class", "tbdata_numeric");
+                                }.content {
+                                    moduleCredits = extractText().replace(",0", "").toInt()
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
+                                }.content {
                                     if (peek() != null) {
                                         extractText()
                                     }
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
                                     attribute("style", "vertical-align:top;")
+                                }.content {
                                     if (peek() != null) {
-                                        a {
+                                        a.attributes {
                                             attributeValue("id")
-                                            resultdetailsUrl = TucanUrl.RESULTDETAILS.fromString(attributeValue(
-                                                "href",
-                                            ))
+                                            resultdetailsUrl = TucanUrl.RESULTDETAILS.fromString(
+                                                attributeValue(
+                                                    "href",
+                                                )
+                                            )
+                                        }.content {
                                             text(localizer.module_results_exams)
                                         }
-                                        script {
+                                        script.attributes {
                                             attribute("type", "text/javascript")
+                                        }.content {
                                             extractData()
                                         }
                                     } else {
                                         resultdetailsUrl = null
                                     }
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
+                                }.content {
                                     if (peek() != null) {
-                                        a {
+                                        a.attributes {
                                             attributeValue("id")
-                                            gradeoverviewUrl = TucanUrl.GRADEOVERVIEWModule.fromString(attributeValue(
-                                                "href",
-                                            ))
+                                            gradeoverviewUrl = TucanUrl.GRADEOVERVIEWModule.fromString(
+                                                attributeValue(
+                                                    "href",
+                                                )
+                                            )
                                             attribute("class", "link")
                                             attribute(
                                                 "title",
                                                 localizer.module_results_grade_statistics
                                             )
-                                            b { text("Ø") }
+                                        }.content {
+                                            b.content { text("Ø") }
                                         }
-                                        script {
+                                        script.attributes {
                                             attribute("type", "text/javascript")
+                                        }.content {
                                             extractData()
                                         }
                                     } else {
@@ -378,17 +403,19 @@ object ModuleResultsConnector : Connector<String?, ModuleResultsConnector.Module
                             modules.add(module)
                         }
 
-                        tr {
-                            th {
+                        tr.content {
+                            th.attributes {
                                 attribute("colspan", "2")
+                            }.content {
                                 text(localizer.module_results_semester_gpa)
                             }
-                            th {
+                            th.attributes {
                                 attribute("class", "tbdata")
+                            }.content {
                                 extractText()
                             }
-                            th { extractText() }
-                            th {
+                            th.content { extractText() }
+                            th.attributes {
                                 attribute("class", "tbdata")
                                 attribute("colspan", "4")
                             }
