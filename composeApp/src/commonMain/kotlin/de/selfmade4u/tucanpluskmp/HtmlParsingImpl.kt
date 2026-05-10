@@ -124,12 +124,13 @@ class GenericTagBuilder<T : HtmlTag, out S : BaseContentScope>(
         return this
     }
 
-    override fun executeContent(init: S.() -> Unit) {
+    override fun <R> executeContent(init: S.() -> R): R {
         if (!attributesExecuted) {
             check(attributes.isEmpty()) { "${next.normalName()} unparsed attributes: ${attributes[0]}" }
         }
-        scopeInstance.init()
+        val result = scopeInstance.init()
         check(childIterator.isEmpty()) { "unparsed children in ${next.normalName()}: $childIterator" }
+        return result
     }
 }
 

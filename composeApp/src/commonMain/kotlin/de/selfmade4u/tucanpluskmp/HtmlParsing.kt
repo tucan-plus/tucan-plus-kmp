@@ -112,7 +112,7 @@ interface TagBuilder<T : HtmlTag, out S : BaseContentScope> : TagContentBuilder<
 }
 
 interface TagContentBuilder<T : HtmlTag, out S : BaseContentScope> {
-    fun executeContent(init: S.() -> Unit)
+    fun <R> executeContent(init: S.() -> R): R
 }
 
 @OptIn(ExperimentalContracts::class)
@@ -122,9 +122,9 @@ fun <T : HtmlTag, S : BaseContentScope> TagBuilder<T, S>.attributes(init: HtmlAt
 }
 
 @OptIn(ExperimentalContracts::class)
-fun <T : HtmlTag, S : BaseContentScope> TagContentBuilder<T, S>.content(init: S.() -> Unit) {
+fun <T : HtmlTag, S : BaseContentScope, R> TagContentBuilder<T, S>.content(init: S.() -> R): R {
     contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
-    executeContent(init)
+    return executeContent(init)
 }
 
 // --- Concrete Builder Definitions ---
