@@ -146,9 +146,9 @@ object Extractor {
                         htmlElement = checkExpression(annotations, expr, htmlElement as XmlElement)
                     }
                     println("ABC $htmlElement")
-                    do {
+                    while (htmlElement is PsiWhiteSpace) {
                         htmlElement = htmlElement.nextSibling
-                    } while (htmlElement is PsiWhiteSpace)
+                    }
                     check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_TAG_END)
                     while (htmlElement is PsiWhiteSpace || htmlElement is XmlText && htmlElement.text.trim()
                             .isEmpty()
