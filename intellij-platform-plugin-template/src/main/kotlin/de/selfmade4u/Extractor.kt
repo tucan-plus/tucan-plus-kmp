@@ -65,7 +65,7 @@ object Extractor {
     }
 
     /**
-     * Pass the kotlin expression that should parse the passed html element. Returns a pair of which xml element should be parsed next (as nothing may have been parsed) and which kotlin expression should do that.
+     * Pass the kotlin expression that should parse the passed html element. Returns a pair of which xml element should be parsed next (as nothing may have been parsed).
      */
     fun checkExpression(
         annotations: MutableMap<PsiElement, AnnotationResult>,
@@ -83,10 +83,6 @@ object Extractor {
                 var htmlTag: XmlElement = htmlElement
                 for (statement in expression.statements) {
                     htmlTag = checkExpression(annotations, statement, htmlTag)
-                    while (htmlTag is XmlToken && htmlTag.tokenType == XmlTokenType.XML_TAG_END) {
-                        htmlTag = htmlTag.nextSibling as XmlElement
-                    }
-                    // skip xml tag end here?
                 }
                 return htmlTag
             }
