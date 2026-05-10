@@ -1,6 +1,7 @@
 package de.selfmade4u
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.pom.java.LanguageLevel
@@ -34,6 +35,8 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         runInEdtAndWait {
             fixture.openFileInEditor(main)
             var quickFixes = fixture.getAllQuickFixes("main.kt")
+            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf(HighlightInfo.newHighlightInfo(
+                HighlightInfoType.ERROR).range(0, 42).create()!!), { it }) };
             println(fixture.doHighlighting(HighlightSeverity.ERROR).first())
             check(fixture.doHighlighting(HighlightSeverity.ERROR).first().findRegisteredQuickFix { _, _ -> true } != null)
             fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())

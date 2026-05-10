@@ -151,6 +151,8 @@ object Extractor {
                     }
                     // if this fails we're probably missing some attribute parsing
                     check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_TAG_END)
+                    htmlElement = htmlElement.nextSibling
+
                     while (htmlElement is PsiWhiteSpace || htmlElement is XmlText && htmlElement.text.trim()
                             .isEmpty()
                     ) {
@@ -165,7 +167,12 @@ object Extractor {
                     while (htmlElement is PsiWhiteSpace) {
                         htmlElement = htmlElement.nextSibling
                     }
-                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_TAG_END)
+                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_END_TAG_START, { htmlElement.tokenType })
+                    println("def $htmlElement")
+
+                } else {
+                    annotations[expression] = AnnotationResult("fail 3")
+                    return htmlElement
                 }
                 /*else {
                     // receiverExpression "html"
