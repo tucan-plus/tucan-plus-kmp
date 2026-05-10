@@ -95,27 +95,39 @@ object Extractor {
                 val selectorExpression = expression.selectorExpression
                 println("selector ${receiverExpression::class}")
                 println("receiver ${selectorExpression!!::class}")
+                val name: KtNameReferenceExpression
+                val attributes: KtCallExpression?
+                val content: KtCallExpression?
                 if (receiverExpression is KtDotQualifiedExpression && selectorExpression is KtCallExpression) {
-                    val name = receiverExpression.receiverExpression as KtNameReferenceExpression
-                    val attributes = receiverExpression.selectorExpression as KtCallExpression
-                    val content = selectorExpression
-                    println("name $name attributes ${attributes.text} content ${content.text}")
-                    //annotations[expression] = AnnotationResult("double chained call ${expression::class}")
-                    return htmlElement
+                    name = receiverExpression.receiverExpression as KtNameReferenceExpression
+                    attributes = receiverExpression.selectorExpression as KtCallExpression
+                    content = selectorExpression
                 } else if (receiverExpression is KtNameReferenceExpression && selectorExpression is KtCallExpression) {
-                    val name = receiverExpression
-                    val whatIsCalled = (selectorExpression.calleeExpression as KtNameReferenceExpression).getReferencedName()
+                    name = receiverExpression
+                    val whatIsCalled =
+                        (selectorExpression.calleeExpression as KtNameReferenceExpression).getReferencedName()
                     when (whatIsCalled) {
                         "attributes" -> {
-
+                            attributes = selectorExpression
+                            content = null
                         }
+
                         "content" -> {
-
+                            attributes = null
+                            content = selectorExpression
                         }
+
                         else -> {
-                            println("unknown call $whatIsCalled")
+                            annotations[expression] = AnnotationResult("unknown call $whatIsCalled")
+                            return htmlElement
                         }
                     }
+                } else {
+                    annotations[expression] = AnnotationResult("Unknown chained call ${expression::class}")
+                    return htmlElement
+                }
+                println("name $name attributes ${attributes?.text} content ${content?.text}")
+                /*else {
                     // receiverExpression "html"
                     // selectorExpression .content {}
                     analyze(receiverExpression) {
@@ -235,11 +247,8 @@ object Extractor {
                                 return htmlElement
                             }
                         }
-                    }
-                } else {
-                    annotations[expression] = AnnotationResult("Unknown chained call ${expression::class}")
-                    return htmlElement
-                }
+                    }*/
+
                 println(expression.selectorExpression)
                 println(expression.receiverExpression)
                 return htmlElement
