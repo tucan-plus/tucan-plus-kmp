@@ -54,118 +54,120 @@ object Common {
             attribute("systemId", "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")
             attribute("pubsyskey", "PUBLIC")
         }
+        val localizer: Localizer
         return html.attributes {
             attribute("xmlns", "http://www.w3.org/1999/xhtml")
             val language = attributeValue("xml:lang")
-            val localizer = when (language) {
+            localizer = when (language) {
                 "de" -> GermanLocalizer
                 "en" -> EnglishLocalizer
                 else -> throw IllegalStateException()
             }
             attribute("lang", localizer.language)
         }.content {
-            head {
-                title {
+            head.content {
+                title.content {
                     text("Technische Universität Darmstadt")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "X-UA-Compatible")
                     attribute("content", "IE=edge")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "cache-control")
                     attribute("content", "no-cache")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "expires")
                     attribute("content", "-1")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "pragma")
                     attribute("content", "no-cache")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "Content-Type")
                     attribute("content", "text/html; charset=utf-8")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "Content-Script-Type")
                     attribute("content", "text/javascript")
                 }
-                meta {
+                meta.attributes {
                     attribute("name", "referrer")
                     attribute("content", "origin")
                 }
-                meta {
+                meta.attributes {
                     attribute("name", "keywords")
                     attribute(
                         "content",
                         "Datenlotsen,Datenlotsen Informationssysteme GmbH,CampusNet,Campus Management"
                     )
                 }
-                link {
+                link.attributes {
                     attribute("rel", "shortcut icon")
                     attribute("type", "image/x-icon")
                     attribute("href", "/gfx/tuda/icons/favicon.ico")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/jquery.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/checkDate.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/edittext.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/skripts.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/x.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("type", "text/javascript")
+                }.content {
                     extractData()
                 }
-                link {
+                link.attributes {
                     attribute("id", "defLayout")
                     attribute("href", "/css/_default/def_layout.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                     attribute("media", "screen")
                 }
-                link {
+                link.attributes {
                     attribute("id", "defMenu")
                     attribute("href", "/css/_default/def_menu.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                     attribute("media", "screen")
                 }
-                link {
+                link.attributes {
                     attribute("id", "defStyles")
                     attribute("href", "/css/_default/def_styles.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                 }
-                link {
+                link.attributes {
                     attribute("id", "pagePrint")
                     attribute("href", "/css/_default/def_print.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                     attribute("media", "print")
                 }
-                link {
+                link.attributes {
                     attribute("id", "pageStyle")
                     attribute("href", "/css/styles.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                 }
-                link {
+                link.attributes {
                     attribute("id", "pageColors")
                     attribute("href", "/css/colors.css")
                     attribute("rel", "stylesheet")
@@ -174,57 +176,68 @@ object Common {
                 }
                 headInit()
             }
-            body {
+            body.attributes {
                 val pageType = attributeValue("class")
                 if (pageType == "timeout" || pageType == "access_denied") {
                     sessionId = "000000000000001"
                     menuId = "000000"
                 }
+            }.content {
 
-                div {
+                div.attributes {
                     attribute("id", "Cn-system-desc")
                 }
 
-                script {
+                script.attributes {
                     attribute("type", "text/javascript")
+                }.content {
                     val _unused = extractData()
                 }
 
-                div {
+                div.attributes {
                     attribute("id", "acc_pageDescription")
                     attribute("class", "hidden")
-                    a {
+                }.content {
+                    a.attributes {
                         attribute("name", "keypadDescription")
                         attribute("class", "hidden")
+                    }.content {
                         text("keypadDescription")
                     }
                     text(localizer.javascript_message)
-                    a {
+                    a.attributes {
                         attribute("href", "#mainNavi"); attribute(
                         "accesskey",
                         "1"
-                    ); text("1 Hauptmenü")
+                    );
+                    }.content {
+                        text("1 Hauptmenü")
                     }
-                    a {
+                    a.attributes {
                         attribute("href", "#mainContent"); attribute(
                         "accesskey",
                         "2"
-                    ); text("2 Inhalt")
+                    );
+                    }.content {
+                        text("2 Inhalt")
                     }
-                    a {
+                    a.attributes {
                         attribute("href", "#keypadDescription"); attribute(
                         "accesskey",
                         "3"
-                    ); text("3 Zurück zu dieser Anleitung")
+                    ); }.content { text("3 Zurück zu dieser Anleitung")
                     }
                 }
 
-                val result = div {
+                val result = div.attributes {
                     attribute("id", "pageContainer")
                     attribute("class", "pageElementTop")
+                }.content {
 
-                    div {
-                        attribute("class", "invAnchor"); a {
+                    div.attributes {
+                        attribute("class", "invAnchor")
+                    }.content {
+                        a.attributes {
                         attribute(
                             "name",
                             "top"
@@ -232,64 +245,77 @@ object Common {
                     }
                     }
 
-                    div {
+                    div.attributes {
                         attribute("id", "pageHead")
                         attribute("class", "pageElementTop")
+                    }.content {
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadTop")
                             attribute("class", "pageElementTop")
-                            a {
+                        }.content {
+                            a.attributes {
                                 attribute(
                                     "href",
                                     "?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$menuId,-Aimprint"
                                 ); attribute(
                                 "class",
                                 "img img_arrowImprint pageElementLeft"
-                            ); text(
+                            );
+                            }.content {
+                                text(
                                 localizer.imprint
                             )
                             }
-                            a {
+                            a.attributes {
                                 attribute(
                                     "href",
                                     "?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$menuId,-Acontact"
                                 ); attribute(
                                 "class",
                                 "img img_arrowContact pageElementLeft"
-                            ); text(
+                            );
+                            }.content {
+                                text(
                                 localizer.contact
                             )
                             }
-                            a {
+                            a.attributes {
                                 attribute("href", "#"); attribute(
                                 "onclick",
                                 "window.print();"
                             ); attribute(
                                 "class",
                                 "img img_arrowPrint pageElementLeft"
-                            ); text(localizer.print)
+                            );
+                            }.content {
+                                text(localizer.print)
                             }
-                            a {
+                            a.attributes {
                                 attribute("href", "#bottom"); attribute(
                                 "class",
                                 "img img_arrowDown pageElementRight"
-                            ); text(localizer.move_to_bottom)
+                            );
+                            }.content {
+                                text(localizer.move_to_bottom)
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadCenter")
                             attribute("class", "pageElementTop")
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageHeadLeft")
                                 attribute("class", "pageElementLeft")
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute(
                                         "href",
                                         "http://www.tu-darmstadt.de"
                                     ); attribute("title", "extern http://www.tu-darmstadt.de")
-                                    img {
+                                }.content {
+                                    img.attributes {
                                         attribute("id", "imagePageHeadLeft"); attribute(
                                         "src",
                                         "/gfx/tuda/logo.gif"
@@ -297,7 +323,7 @@ object Common {
                                     }
                                 }
                             }
-                            div {
+                            div.attributes {
                                 attribute("id", "pageHeadRight"); attribute(
                                 "class",
                                 "pageElementRight"
@@ -305,53 +331,64 @@ object Common {
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadBottom_1")
                             attribute("class", "pageElementTop")
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageHeadControlsLeft")
                                 attribute("class", "pageElementLeft")
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute("class", "img pageHeadLink"); attribute(
                                     "href",
                                     "#"
                                 ); attribute("id", "extraNav_link1"); attribute(
                                     "target",
                                     "_blank"
-                                ); text("Homepage")
+                                );
+                                }.content {
+                                    text("Homepage")
                                 }
-                                a {
+                                a .attributes {
                                     attribute("class", "img pageHeadLink"); attribute(
                                     "href",
                                     "#"
                                 ); attribute("id", "extraNav_link2"); attribute(
                                     "target",
                                     "_blank"
-                                ); text("standardLink undef")
+                                );
+                                }.content {
+                                    text("standardLink undef")
                                 }
                             }
-                            div {
+                            div.attributes {
                                 attribute("id", "pageHeadControlsRight")
                                 attribute("class", "pageElementRight")
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute("class", "img"); attribute(
                                     "href",
                                     "#"
                                 ); attribute("id", "extraNav_link3"); attribute(
                                     "target",
                                     "_blank"
-                                ); text("standardLink undef")
+                                );
+                                }.content {
+                                    text("standardLink undef")
                                 }
-                                a {
+                                a.attributes {
                                     attribute("class", "img"); attribute(
                                     "href",
                                     "#"
                                 ); attribute("id", "extraNav_link4"); attribute(
                                     "target",
                                     "_blank"
-                                ); text("standardLink undef")
+                                );
+                                }.content {
+                                    text("standardLink undef")
                                 }
-                                a {
+                                a.attributes {
                                     attribute("class", "img"); attribute(
                                     "href",
                                     "#"
@@ -363,18 +400,19 @@ object Common {
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadBottom_2"); attribute(
                             "class",
                             "pageElementTop"
                         )
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageHeadBottom_2sub_1"); attribute(
                                 "class",
                                 "pageElementTop"
                             )
                             }
-                            div {
+                            div.attributes {
                                 attribute("id", "pageHeadBottom_2sub_2"); attribute(
                                 "class",
                                 "pageElementTop"
@@ -382,11 +420,13 @@ object Common {
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageTopNavi"); attribute("class", "pageElementTop")
-                            a { attribute("name", "mainNavi"); attribute("class", "hidden"); }
-                            ul {
+                        }.content {
+                            a.attributes { attribute("name", "mainNavi"); attribute("class", "hidden"); }
+                            ul.attributes {
                                 attribute("class", "nav depth_1 linkItemContainer")
+                            }.content {
 
                                 if (peek()?.attr("class")?.trim() == "intern depth_1 linkItem") {
                                     parseLoggedOutNavigation(menuLocalizer, localizer, sessionId)
@@ -396,16 +436,18 @@ object Common {
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadBottom_3"); attribute(
                             "class",
                             "pageElementTop"
                         )
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageHeadSwitchLang"); attribute(
                                 "class",
                                 "pageElementRight"
                             )
+                            }.content {
                                 a {
                                     attribute(
                                         "href",
