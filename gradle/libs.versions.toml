@@ -16,10 +16,10 @@ junit = "4.13.2"
 junitJupiter = "6.0.3"
 junitKtx = "1.3.0"
 kotest = "6.1.11"
-kotlinx-coroutines = "1.10.2"
+kotlinx-coroutines = "1.11.0"
 kotlinxBrowser = "0.5.0"
 kotlinxSerializationJson = "1.11.0"
-ktor = "3.4.2"
+ktor = "3.4.3"
 navigation3Browser = "0.3.1"
 okio = "3.17.0"
 ksoup = "0.2.6"
@@ -29,15 +29,15 @@ orchestrator = "1.6.1"
 slf4jSimple = "2.0.17"
 workRuntimeKtx = "2.11.2"
 material3 = "1.10.0-alpha05" # compatibility with compose multiplatform (see https://github.com/JetBrains/compose-multiplatform/releases) and LoadingIndicator support
-compose-multiplatform-adaptive = "1.3.0-alpha06" # no stable version released yet, must be in sync with https://github.com/JetBrains/compose-multiplatform/releases
-multiplatform-nav3-ui = "1.0.0-alpha06" # no stable version released yet, must be in sync with https://github.com/JetBrains/compose-multiplatform/releases
-datastore = "1.3.0-alpha07" # js/wasm target
-composeHotReload = "1.1.0-beta02" # fix certificate error
-room = "3.0.0-alpha03" # js/wasm target
-sqlite = "2.7.0-alpha03" # js/wasm target
-koin = "4.2.0"
+compose-multiplatform-adaptive = "1.3.0-alpha07" # no stable version released yet, must be in sync with https://github.com/JetBrains/compose-multiplatform/releases
+multiplatform-nav3-ui = "1.1.1" # no stable version released yet, must be in sync with https://github.com/JetBrains/compose-multiplatform/releases
+datastore = "1.3.0-alpha09" # js/wasm target
+composeHotReload = "1.1.1" # fix certificate error
+room = "3.0.0-alpha04" # js/wasm target
+sqlite = "2.7.0-alpha04" # js/wasm target
+koin = "4.2.1"
 koin-plugin = "0.6.2"
-intellijPlatform = "2.14.0"
+intellijPlatform = "2.16.0"
 kotlin = "2.3.21"
 
 [libraries]
@@ -135,8 +135,6 @@ serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidx-room = { id = "androidx.room3", version.ref = "room" }
 koin-compiler = { id = "io.insert-koin.compiler.plugin", version.ref = "koin-plugin" }
-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 intellijPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intellijPlatform" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
