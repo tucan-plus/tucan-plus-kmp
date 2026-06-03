@@ -12,8 +12,7 @@ import androidx.compose.ui.window.ComposeViewport
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
-import androidx.datastore.core.okio.WebStorage
-import androidx.datastore.core.okio.WebStorageType
+import androidx.datastore.core.okio.WebLocalStorage
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
@@ -104,10 +103,9 @@ fun main() {
 
  fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
     storage =
-        WebStorage(
+        WebLocalStorage(
             serializer = SettingsSerializer,
             name = "tucanplus-config",
-            storageType = WebStorageType.LOCAL
         ),
     migrations = listOf(),
 )
