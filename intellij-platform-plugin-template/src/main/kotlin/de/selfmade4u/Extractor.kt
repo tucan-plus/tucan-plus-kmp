@@ -6,9 +6,6 @@ import com.intellij.modcommand.ActionContext
 import com.intellij.modcommand.ModPsiUpdater
 import com.intellij.modcommand.Presentation
 import com.intellij.modcommand.PsiUpdateModCommandAction
-import com.intellij.openapi.application.Application
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
@@ -29,6 +26,7 @@ import org.jetbrains.kotlin.analysis.api.resolution.symbol
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 // https://github.com/JetBrains/kotlin/blob/master/analysis/docs/contribution-guide/api-development.md
@@ -265,7 +263,9 @@ object Extractor {
                                                 }"
                                             )
                                         }
-                                        return htmlElement.nextInterestingSibling
+                                        val afterAttribute = htmlElement.getNextSiblingIgnoringWhitespace()
+                                        println("afterAttribute $afterAttribute")
+                                        return afterAttribute as? XmlAttribute
                                     } else {
                                         annotations[selectorExpression] =
                                             AnnotationResult("expected attribute but found ${htmlElement::class}")
