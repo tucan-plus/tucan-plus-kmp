@@ -121,9 +121,16 @@ object Extractor {
             }
 
             is KtBlockExpression -> {
-                var htmlTag: XmlElement? = htmlElement
+                var htmlTag: XmlElement = htmlElement
                 for (statement in expression.statements) {
-                    htmlTag = checkExpression(annotations, statement, htmlTag!!)
+                    val htmlTagTmp = checkExpression(annotations, statement, htmlTag)
+                    if (htmlTagTmp == null) {
+                        if (expression.statements.last() != statement) {
+                            annotations[statement] = AnnotationResult("Superfluous calls after this call")
+                        }
+                        return null
+                    }
+                    htmlTag = htmlTagTmp
                 }
                 return htmlTag
             }
