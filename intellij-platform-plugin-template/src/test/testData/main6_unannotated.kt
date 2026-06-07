@@ -12,10 +12,10 @@ object Test {
             attribute("lang", "de")
         }.content {
             head.content {
-                title.content {}
-                meta.attributes {
-                    attribute("http-equiv", "X-UA-Compatible")
+                title.content {
+                    extractText()
                 }
+                meta.attributes {}
             }
         }
     }

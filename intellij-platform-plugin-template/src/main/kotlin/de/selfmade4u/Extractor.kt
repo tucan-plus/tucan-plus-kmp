@@ -216,8 +216,13 @@ object Extractor {
                             }
                         }
                         is HtmlRawTextImpl, is XmlText -> {
+                            val expr = content!!.valueArguments.single()
+                                .getArgumentExpression()!! as KtLambdaExpression
                             annotations[expression] = AnnotationResult(
-                                "Here text would need to be parsed"
+                                "Here text would need to be parsed",MyQuickFixAddToEndOfBlock(
+                                    expr.bodyExpression!!,
+                                    "extractText()"
+                                )
                             )
                         }
                         null -> {

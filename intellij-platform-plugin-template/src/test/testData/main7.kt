@@ -15,6 +15,10 @@ object Test {
                 title.content {
                     extractText()
                 }
+                meta.attributes {
+                    attribute("http-equiv", "X-UA-Compatible")
+                    attribute("content", "IE=edge")
+                }
             }
         }
     }

@@ -12,8 +12,9 @@ object Test {
             attribute("lang", "de")
         }.content {
             <error descr="Here more content parsing is needed">head.content {
-            <error descr="Here text would need to be parsed">title.content {}</error>
-            meta.<error descr="Unparsed attribute">attributes {}</error>
+            title.content {
+                extractText()
+            }
         }</error>
         }</error>
     }
