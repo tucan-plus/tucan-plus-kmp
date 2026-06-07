@@ -38,9 +38,16 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 // https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/docs/fir-ide/architecture/code-insights.md
 
-private val XmlTag.nextInterestingSibling: XmlElement = {
-
-}
+private val XmlElement.nextInterestingSibling: XmlElement?
+    get() {
+        var next: PsiElement? = this
+        do {
+            next = next?.nextSibling
+        } while (next is PsiWhiteSpace || next is XmlText && next.text.trim()
+                .isEmpty()
+        )
+        return next as XmlElement?
+    }
 
 // https://docs.google.com/document/d/1-2_cNjq-Mc28j0eCX1TEuMM-k6UXKvfPTutvIBafIJA/edit?pli=1&tab=t.0#heading=h.z5lwn79yvfdm
 // https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/code-insight/api/src/org/jetbrains/kotlin/idea/codeinsight/api/applicable/intentions/KotlinPsiUpdateModCommandAction.kt#L12
@@ -90,7 +97,7 @@ object Extractor {
         annotations: MutableMap<PsiElement, AnnotationResult>,
         expression: KtExpression,
         htmlElement: XmlElement
-    ): XmlElement {
+    ): XmlElement? {
         //println("statement ${statement.text}")
         // https://kotlin.github.io/analysis-api/fundamentals.html#kalifetimeowner
         when (expression) {
@@ -99,9 +106,9 @@ object Extractor {
             }
 
             is KtBlockExpression -> {
-                var htmlTag: XmlElement = htmlElement
+                var htmlTag: XmlElement? = htmlElement
                 for (statement in expression.statements) {
-                    htmlTag = checkExpression(annotations, statement, htmlTag)
+                    htmlTag = checkExpression(annotations, statement, htmlTag!!)
                 }
                 return htmlTag
             }
@@ -187,7 +194,6 @@ object Extractor {
                     }
                 } else {
                     annotations[expression] = AnnotationResult("fail 3")
-                    return htmlElement
                 }
                 return htmlElement.nextInterestingSibling
             }
@@ -222,13 +228,7 @@ object Extractor {
                                                 }"
                                             )
                                         }
-                                        var next: PsiElement = htmlElement
-                                        do {
-                                            next = next.nextSibling
-                                        } while (next is PsiWhiteSpace || (next is XmlText && next.text.trim()
-                                                .isEmpty())
-                                        )
-                                        return next as XmlElement
+                                        return htmlElement.nextInterestingSibling
                                     } else {
                                         annotations[selectorExpression] =
                                             AnnotationResult("expected attribute but found ${htmlElement::class}")
@@ -238,18 +238,7 @@ object Extractor {
 
                                 "de.selfmade4u.tucanpluskmp.BaseContentScope.extractText" -> {
                                     if (htmlElement is HtmlRawTextImpl || htmlElement is XmlText) {
-                                        var next: PsiElement = htmlElement
-                                        do {
-                                            if (next.nextSibling == null) {
-                                                // return so caller can close element? this is technically wrong as we seem to want to return which element we want to parse next not which one we just parsed? maybe change that?
-                                                return next as XmlElement
-                                            } else {
-                                                next = next.nextSibling
-                                            }
-                                        } while (next is PsiWhiteSpace || (next is XmlText && next.text.trim()
-                                                .isEmpty())
-                                        )
-                                        return next as XmlElement
+                                        return htmlElement.nextInterestingSibling
                                     } else {
                                         annotations[selectorExpression] =
                                             AnnotationResult("expected text but found ${htmlElement::class}")
@@ -286,10 +275,10 @@ object Extractor {
             }
 
             is KtStringTemplateExpression -> {
-                var htmlElement: XmlElement = htmlElement
+                var htmlElement: XmlElement? = htmlElement
                 for (entry in expression.entries) {
                     entry.expression?.let {
-                        htmlElement = checkExpression(annotations, it, htmlElement)
+                        htmlElement = checkExpression(annotations, it, htmlElement!!)
                     }
                 }
                 return htmlElement
