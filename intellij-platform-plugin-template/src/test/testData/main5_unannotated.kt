@@ -13,10 +13,7 @@ object Test {
         }.content {
             head.content {
                 title.content {}
-                meta.attributes {
-                    attribute("http-equiv", "X-UA-Compatible")
-                    attribute("content", "IE=edge")
-                }
+                meta.attributes {}
             }
         }
     }

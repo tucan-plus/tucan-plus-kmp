@@ -77,8 +77,8 @@ class MyQuickFixAddToEndOfBlock(element: KtBlockExpression, val expression: Stri
     }
 
     override fun invoke(context: ActionContext, element: KtBlockExpression, updater: ModPsiUpdater) {
+        element.addBefore(KtPsiFactory(context.project).createNewLine(), element.rBrace)
         element.addBefore(KtPsiFactory(context.project).createExpression(expression), element.rBrace)
-        element.add(KtPsiFactory(context.project).createNewLine())
     }
 }
 
@@ -192,12 +192,21 @@ object Extractor {
                             if (content != null) {
                                 val expr = content.valueArguments.single()
                                     .getArgumentExpression()!! as KtLambdaExpression
-                                annotations[expression] = AnnotationResult(
-                                    "Here more content parsing is needed", MyQuickFixAddToEndOfBlock(
-                                        expr.bodyExpression!!,
-                                        "${(currentChild).name}.content {}"
+                                if (currentChild.attributes.isEmpty()) {
+                                    annotations[expression] = AnnotationResult(
+                                        "Here more content parsing is needed", MyQuickFixAddToEndOfBlock(
+                                            expr.bodyExpression!!,
+                                            "${(currentChild).name}.content {}"
+                                        )
                                     )
-                                )
+                                } else {
+                                    annotations[expression] = AnnotationResult(
+                                        "Here more content parsing is needed", MyQuickFixAddToEndOfBlock(
+                                            expr.bodyExpression!!,
+                                            "${(currentChild).name}.attributes {}"
+                                        )
+                                    )
+                                }
                             } else {
                                 annotations[expression] = AnnotationResult(
                                     "Here more content parsing is needed", MyQuickFixAddContentCall(attributes!!)
