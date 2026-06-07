@@ -164,7 +164,7 @@ object Extractor {
                 if (htmlElement is XmlTag && htmlElement.name == tag) {
                     val tagElement = htmlElement
                     println("matched html tag")
-                    var currentAttribute: XmlElement? = htmlElement.attributes.first()
+                    var currentAttribute: XmlElement? = htmlElement.attributes.firstOrNull()
                     attributes?.let { attributes ->
                         val expr = attributes.valueArguments.single()
                             .getArgumentExpression()!! as KtLambdaExpression
@@ -198,7 +198,7 @@ object Extractor {
                                 )
                             }
                         }
-                        is XmlText -> {
+                        is HtmlRawTextImpl -> {
                             annotations[expression] = AnnotationResult(
                                 "Here text would need to be parsed"
                             )
