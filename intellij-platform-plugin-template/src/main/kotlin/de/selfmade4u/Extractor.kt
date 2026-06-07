@@ -167,9 +167,15 @@ object Extractor {
                     while (htmlElement is PsiWhiteSpace) {
                         htmlElement = htmlElement.nextSibling
                     }
-                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_END_TAG_START, { htmlElement.tokenType })
-                    println("def $htmlElement")
-
+                    when (htmlElement.tokenType) {
+                        XmlTokenType.XML_END_TAG_START -> {
+                            println("def $htmlElement")
+                        }
+                        else -> {
+                            annotations[htmlElement] = AnnotationResult("Unparsed element")
+                            annotations[expression] = AnnotationResult("Here more content parsing is needed")
+                        }
+                    }
                 } else {
                     annotations[expression] = AnnotationResult("fail 3")
                     return htmlElement

@@ -4,12 +4,16 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.testFramework.ExpectedHighlightingData
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
+import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import com.intellij.testFramework.runInEdtAndWait
+import org.jetbrains.kotlin.idea.base.highlighting.dsl.DslStyleUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -30,36 +34,27 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     @Test
     fun testHtmlParsingQuickFix() {
         fixture.copyFileToProject("HtmlParsing.kt")
-        fixture.copyDirectoryToProject("simple_html", "html");
+        fixture.copyDirectoryToProject("simple_html", "html")
         val main = fixture.copyFileToProject("main1.kt", "main.kt")
-        runInEdtAndWait {
-            fixture.openFileInEditor(main)
-            var quickFixes = fixture.getAllQuickFixes("main.kt")
-            fixture.doHighlighting(HighlightSeverity.ERROR).let { assert(it == listOf(HighlightInfo.newHighlightInfo(
-                HighlightInfoType.ERROR).range(0, 42).create()!!), { it }) };
-            println(fixture.doHighlighting(HighlightSeverity.ERROR).first())
-            check(fixture.doHighlighting(HighlightSeverity.ERROR).first().findRegisteredQuickFix { _, _ -> true } != null)
-            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            fixture.checkResultByFile("main2.kt")
-            var main = fixture.copyFileToProject("main2.kt", "main.kt")
-            fixture.openFileInEditor(main)
-            quickFixes = fixture.getAllQuickFixes()
-            println(fixture.doHighlighting(HighlightSeverity.ERROR).first())
-            check(fixture.doHighlighting(HighlightSeverity.ERROR).first().findRegisteredQuickFix { _, _ -> true } != null)
-            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            fixture.checkResultByFile("main3.kt")
-            main = fixture.copyFileToProject("main3.kt", "main.kt")
-            fixture.openFileInEditor(main)
-            quickFixes = fixture.getAllQuickFixes()
-            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            quickFixes = fixture.getAllQuickFixes()
-            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            quickFixes = fixture.getAllQuickFixes()
-            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            quickFixes = fixture.getAllQuickFixes()
-            fixture.checkPreviewAndLaunchAction(quickFixes.single().asIntention())
-            fixture.checkResultByFile("main3.kt")
+        checkHighlighting(main)
+    }
 
+    private fun checkHighlighting(main: VirtualFile) {
+        runInEdtAndWait {
+            // https://github.com/JetBrains/intellij-community/blob/037ff732d0aecb30622e490f3aff5eb46c79691b/plugins/kotlin/gradle/gradle-java/tests.shared/test/org/jetbrains/kotlin/gradle/K2GradleCodeInsightTestCase.kt#L63
+            fixture.openFileInEditor(main)
+            checkNotNull(fixture.editor) { "Fixture is not configured. Call something like configureByFile() or configureByText()" }
+            val data = ExpectedHighlightingData(
+                fixture.editor.getDocument(), true, true, false, false
+            )
+            // manually register DSL_TYPE_SEVERITY to ignore it
+            val severity = DslStyleUtils.typeById(1).getSeverity(null)
+            data.registerHighlightingType(
+                severity.name,
+                ExpectedHighlightingData.ExpectedHighlightingSet(severity, false, false)
+            )
+            data.init()
+            (fixture as CodeInsightTestFixtureImpl).collectAndCheckHighlighting(data)
         }
     }
 
