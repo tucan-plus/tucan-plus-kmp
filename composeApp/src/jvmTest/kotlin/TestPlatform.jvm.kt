@@ -3,13 +3,17 @@ package de.selfmade4u.tucanpluskmp
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
+import androidx.datastore.core.DataStore
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.test.TestResult
+import okio.FileSystem
 import org.koin.compose.KoinApplication
 import org.koin.core.context.stopKoin
+import org.koin.core.module.Module
 import org.koin.dsl.includes
 import org.koin.dsl.koinConfiguration
+import org.koin.dsl.module
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 
@@ -29,7 +33,17 @@ actual fun runMyComposeUiTest(
         KoinApplication(
             configuration = koinConfiguration {
                 modules(
-                    platformModule,
+                    module {
+                        single<AppDatabase> {
+                            getTestDatabase()
+                        }
+                        single<DataStore<Settings?>> {
+                            InMemoryDataStore
+                        }
+                        single<Notifier> {
+                            retrieveNotifier()
+                        }
+                    }
                 )
             }
         ) {
@@ -38,3 +52,5 @@ actual fun runMyComposeUiTest(
     }
     block()
 }
+
+actual val platformFileSystem = FileSystem.SYSTEM

@@ -115,7 +115,7 @@ actual fun LoginHandler(backStack: NavBackStack<NavKey>, url: String) {
             Files.deleteIfExists(socketPath);
             val serverChannel = ServerSocketChannel.open(StandardProtocolFamily.UNIX)
             serverChannel.bind(address)
-            println("before open")
+            println("before open $url")
             uriHandler.openUri(url)
             println("waiting")
             val channel = serverChannel.accept()

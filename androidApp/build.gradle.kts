@@ -18,7 +18,7 @@ android {
     namespace = "de.selfmade4u.tucanpluskmp"
     compileSdk {
         version = release(libs.versions.android.compileSdk.get().toInt()) {
-            minorApiLevel = 1
+            //minorApiLevel = 1
         }
     }
 

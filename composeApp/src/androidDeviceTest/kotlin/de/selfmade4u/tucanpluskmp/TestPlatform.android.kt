@@ -7,6 +7,7 @@ import androidx.compose.ui.test.runAndroidComposeUiTest
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.test.TestResult
+import okio.FileSystem
 import org.koin.mp.KoinPlatform
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -27,3 +28,6 @@ actual fun runMyComposeUiTest(
     testTimeout: Duration,
     block: suspend ComposeUiTest.() -> Unit,
 ): TestResult = runAndroidComposeUiTest<MainActivity>(effectContext, runTestContext, testTimeout, block)
+
+actual val platformFileSystem: FileSystem
+    get() = FileSystem.SYSTEM

@@ -1,5 +1,6 @@
 package de.selfmade4u.tucanpluskmp.connector
 
+import androidx.datastore.core.DataStore
 import de.selfmade4u.tucanpluskmp.Body
 import de.selfmade4u.tucanpluskmp.EnglishLocalizer
 import de.selfmade4u.tucanpluskmp.GermanLocalizer
@@ -7,163 +8,171 @@ import de.selfmade4u.tucanpluskmp.Head
 import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Response
 import de.selfmade4u.tucanpluskmp.Root
+import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TextAndId
-import de.selfmade4u.tucanpluskmp.a
-import de.selfmade4u.tucanpluskmp.b
-import de.selfmade4u.tucanpluskmp.body
-import de.selfmade4u.tucanpluskmp.div
-import de.selfmade4u.tucanpluskmp.doctype
-import de.selfmade4u.tucanpluskmp.fieldset
-import de.selfmade4u.tucanpluskmp.form
-import de.selfmade4u.tucanpluskmp.head
-import de.selfmade4u.tucanpluskmp.html
-import de.selfmade4u.tucanpluskmp.img
-import de.selfmade4u.tucanpluskmp.input
-import de.selfmade4u.tucanpluskmp.label
-import de.selfmade4u.tucanpluskmp.legend
-import de.selfmade4u.tucanpluskmp.li
-import de.selfmade4u.tucanpluskmp.link
-import de.selfmade4u.tucanpluskmp.meta
-import de.selfmade4u.tucanpluskmp.peek
-import de.selfmade4u.tucanpluskmp.script
-import de.selfmade4u.tucanpluskmp.span
-import de.selfmade4u.tucanpluskmp.title
-import de.selfmade4u.tucanpluskmp.ul
+import de.selfmade4u.tucanpluskmp.connector.ModuleResultsConnector.ModuleResultsResponse
+import de.selfmade4u.tucanpluskmp.connector.MyExamsConnector.MyExamsResponse
+import de.selfmade4u.tucanpluskmp.*
+import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
+interface Connector<I, O> {
+
+    suspend fun getUncached(
+        credentialSettingsDataStore: DataStore<Settings?>,
+        input: I
+    ): AuthenticatedResponse<O>
+
+    suspend fun parseHttpResponse(
+        menuId: String,
+        sessionId: String,
+        menuLocalizer: Localizer,
+        response: HttpResponse
+    ): ParserResponse<O>
+
+    fun Root.parse(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<O>
+
+    /** Return pages that can be parsed by this connector while trying to make as little assumptions as possible. This is used to implement the datenspende and create the parser using AI. */
+    fun extractRelevantPages(credentialSettingsDataStore: DataStore<Settings?>): Flow<I>
+}
+
 object Common {
     fun <T> Root.parseBase(
         sessionId: String,
         menuLocalizer: Localizer,
         menuId: String,
-        headInit: Head.() -> Unit,
-        inner: Body.(localizer: Localizer, pageType: String) -> T
+        headInit: HeadContentScope.() -> Unit,
+        inner: BodyContentScope.(localizer: Localizer, pageType: String) -> T
     ): T {
         var sessionId = sessionId
         var menuId = menuId
-        doctype {
+        doctype.attributes {
             attribute("#doctype", "html")
             attribute("name", "html")
             attribute("publicId", "-//W3C//DTD XHTML 1.0 Strict//EN")
             attribute("systemId", "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd")
             attribute("pubsyskey", "PUBLIC")
         }
-        return html {
+        val localizer: Localizer
+        return html.attributes {
             attribute("xmlns", "http://www.w3.org/1999/xhtml")
             val language = attributeValue("xml:lang")
-            val localizer = when (language) {
+            localizer = when (language) {
                 "de" -> GermanLocalizer
                 "en" -> EnglishLocalizer
                 else -> throw IllegalStateException()
             }
             attribute("lang", localizer.language)
-            head {
-                title {
+        }.content {
+            head.content {
+                title.content {
                     text("Technische Universität Darmstadt")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "X-UA-Compatible")
                     attribute("content", "IE=edge")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "cache-control")
                     attribute("content", "no-cache")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "expires")
                     attribute("content", "-1")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "pragma")
                     attribute("content", "no-cache")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "Content-Type")
                     attribute("content", "text/html; charset=utf-8")
                 }
-                meta {
+                meta.attributes {
                     attribute("http-equiv", "Content-Script-Type")
                     attribute("content", "text/javascript")
                 }
-                meta {
+                meta.attributes {
                     attribute("name", "referrer")
                     attribute("content", "origin")
                 }
-                meta {
+                meta.attributes {
                     attribute("name", "keywords")
                     attribute(
                         "content",
                         "Datenlotsen,Datenlotsen Informationssysteme GmbH,CampusNet,Campus Management"
                     )
                 }
-                link {
+                link.attributes {
                     attribute("rel", "shortcut icon")
                     attribute("type", "image/x-icon")
                     attribute("href", "/gfx/tuda/icons/favicon.ico")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/jquery.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/checkDate.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/edittext.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/skripts.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("src", "/js/x.js")
                     attribute("type", "text/javascript")
                 }
-                script {
+                script.attributes {
                     attribute("type", "text/javascript")
+                }.content {
                     extractData()
                 }
-                link {
+                link.attributes {
                     attribute("id", "defLayout")
                     attribute("href", "/css/_default/def_layout.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                     attribute("media", "screen")
                 }
-                link {
+                link.attributes {
                     attribute("id", "defMenu")
                     attribute("href", "/css/_default/def_menu.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                     attribute("media", "screen")
                 }
-                link {
+                link.attributes {
                     attribute("id", "defStyles")
                     attribute("href", "/css/_default/def_styles.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                 }
-                link {
+                link.attributes {
                     attribute("id", "pagePrint")
                     attribute("href", "/css/_default/def_print.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                     attribute("media", "print")
                 }
-                link {
+                link.attributes {
                     attribute("id", "pageStyle")
                     attribute("href", "/css/styles.css")
                     attribute("rel", "stylesheet")
                     attribute("type", "text/css")
                 }
-                link {
+                link.attributes {
                     attribute("id", "pageColors")
                     attribute("href", "/css/colors.css")
                     attribute("rel", "stylesheet")
@@ -172,122 +181,149 @@ object Common {
                 }
                 headInit()
             }
-            body {
-                val pageType = attributeValue("class")
+            val pageType: String
+            body.attributes {
+                pageType = attributeValue("class")
                 if (pageType == "timeout" || pageType == "access_denied") {
                     sessionId = "000000000000001"
                     menuId = "000000"
                 }
+            }.content {
 
-                div {
+                div.attributes {
                     attribute("id", "Cn-system-desc")
                 }
 
-                script {
+                script.attributes {
                     attribute("type", "text/javascript")
+                }.content {
                     val _unused = extractData()
                 }
 
-                div {
+                div.attributes {
                     attribute("id", "acc_pageDescription")
                     attribute("class", "hidden")
-                    a {
+                }.content {
+                    a.attributes {
                         attribute("name", "keypadDescription")
                         attribute("class", "hidden")
+                    }.content {
                         text("keypadDescription")
                     }
                     text(localizer.javascript_message)
-                    a {
+                    a.attributes {
                         attribute("href", "#mainNavi"); attribute(
                         "accesskey",
                         "1"
-                    ); text("1 Hauptmenü")
+                    );
+                    }.content {
+                        text("1 Hauptmenü")
                     }
-                    a {
+                    a.attributes {
                         attribute("href", "#mainContent"); attribute(
                         "accesskey",
                         "2"
-                    ); text("2 Inhalt")
+                    );
+                    }.content {
+                        text("2 Inhalt")
                     }
-                    a {
+                    a.attributes {
                         attribute("href", "#keypadDescription"); attribute(
                         "accesskey",
                         "3"
-                    ); text("3 Zurück zu dieser Anleitung")
+                    );
+                    }.content {
+                        text("3 Zurück zu dieser Anleitung")
                     }
                 }
 
-                val result = div {
+                val result = div.attributes {
                     attribute("id", "pageContainer")
                     attribute("class", "pageElementTop")
+                }.content {
 
-                    div {
-                        attribute("class", "invAnchor"); a {
-                        attribute(
-                            "name",
-                            "top"
-                        ); attribute("class", "invAnchor")
-                    }
+                    div.attributes {
+                        attribute("class", "invAnchor")
+                    }.content {
+                        a.attributes {
+                            attribute(
+                                "name",
+                                "top"
+                            ); attribute("class", "invAnchor")
+                        }
                     }
 
-                    div {
+                    div.attributes {
                         attribute("id", "pageHead")
                         attribute("class", "pageElementTop")
+                    }.content {
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadTop")
                             attribute("class", "pageElementTop")
-                            a {
+                        }.content {
+                            a.attributes {
                                 attribute(
                                     "href",
                                     "?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$menuId,-Aimprint"
                                 ); attribute(
                                 "class",
                                 "img img_arrowImprint pageElementLeft"
-                            ); text(
-                                localizer.imprint
-                            )
+                            );
+                            }.content {
+                                text(
+                                    localizer.imprint
+                                )
                             }
-                            a {
+                            a.attributes {
                                 attribute(
                                     "href",
                                     "?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$menuId,-Acontact"
                                 ); attribute(
                                 "class",
                                 "img img_arrowContact pageElementLeft"
-                            ); text(
-                                localizer.contact
-                            )
+                            );
+                            }.content {
+                                text(
+                                    localizer.contact
+                                )
                             }
-                            a {
+                            a.attributes {
                                 attribute("href", "#"); attribute(
                                 "onclick",
                                 "window.print();"
                             ); attribute(
                                 "class",
                                 "img img_arrowPrint pageElementLeft"
-                            ); text(localizer.print)
+                            );
+                            }.content {
+                                text(localizer.print)
                             }
-                            a {
+                            a.attributes {
                                 attribute("href", "#bottom"); attribute(
                                 "class",
                                 "img img_arrowDown pageElementRight"
-                            ); text(localizer.move_to_bottom)
+                            );
+                            }.content {
+                                text(localizer.move_to_bottom)
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadCenter")
                             attribute("class", "pageElementTop")
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageHeadLeft")
                                 attribute("class", "pageElementLeft")
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute(
                                         "href",
                                         "http://www.tu-darmstadt.de"
                                     ); attribute("title", "extern http://www.tu-darmstadt.de")
-                                    img {
+                                }.content {
+                                    img.attributes {
                                         attribute("id", "imagePageHeadLeft"); attribute(
                                         "src",
                                         "/gfx/tuda/logo.gif"
@@ -295,7 +331,7 @@ object Common {
                                     }
                                 }
                             }
-                            div {
+                            div.attributes {
                                 attribute("id", "pageHeadRight"); attribute(
                                 "class",
                                 "pageElementRight"
@@ -303,53 +339,64 @@ object Common {
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadBottom_1")
                             attribute("class", "pageElementTop")
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageHeadControlsLeft")
                                 attribute("class", "pageElementLeft")
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute("class", "img pageHeadLink"); attribute(
                                     "href",
                                     "#"
                                 ); attribute("id", "extraNav_link1"); attribute(
                                     "target",
                                     "_blank"
-                                ); text("Homepage")
+                                );
+                                }.content {
+                                    text("Homepage")
                                 }
-                                a {
+                                a.attributes {
                                     attribute("class", "img pageHeadLink"); attribute(
                                     "href",
                                     "#"
                                 ); attribute("id", "extraNav_link2"); attribute(
                                     "target",
                                     "_blank"
-                                ); text("standardLink undef")
+                                );
+                                }.content {
+                                    text("standardLink undef")
                                 }
                             }
-                            div {
+                            div.attributes {
                                 attribute("id", "pageHeadControlsRight")
                                 attribute("class", "pageElementRight")
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute("class", "img"); attribute(
                                     "href",
                                     "#"
                                 ); attribute("id", "extraNav_link3"); attribute(
                                     "target",
                                     "_blank"
-                                ); text("standardLink undef")
+                                );
+                                }.content {
+                                    text("standardLink undef")
                                 }
-                                a {
+                                a.attributes {
                                     attribute("class", "img"); attribute(
                                     "href",
                                     "#"
                                 ); attribute("id", "extraNav_link4"); attribute(
                                     "target",
                                     "_blank"
-                                ); text("standardLink undef")
+                                );
+                                }.content {
+                                    text("standardLink undef")
                                 }
-                                a {
+                                a.attributes {
                                     attribute("class", "img"); attribute(
                                     "href",
                                     "#"
@@ -361,18 +408,19 @@ object Common {
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadBottom_2"); attribute(
                             "class",
                             "pageElementTop"
                         )
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageHeadBottom_2sub_1"); attribute(
                                 "class",
                                 "pageElementTop"
                             )
                             }
-                            div {
+                            div.attributes {
                                 attribute("id", "pageHeadBottom_2sub_2"); attribute(
                                 "class",
                                 "pageElementTop"
@@ -380,11 +428,13 @@ object Common {
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageTopNavi"); attribute("class", "pageElementTop")
-                            a { attribute("name", "mainNavi"); attribute("class", "hidden"); }
-                            ul {
+                        }.content {
+                            a.attributes { attribute("name", "mainNavi"); attribute("class", "hidden"); }
+                            ul.attributes {
                                 attribute("class", "nav depth_1 linkItemContainer")
+                            }.content {
 
                                 if (peek()?.attr("class")?.trim() == "intern depth_1 linkItem") {
                                     parseLoggedOutNavigation(menuLocalizer, localizer, sessionId)
@@ -394,17 +444,19 @@ object Common {
                             }
                         }
 
-                        div {
+                        div.attributes {
                             attribute("id", "pageHeadBottom_3"); attribute(
                             "class",
                             "pageElementTop"
                         )
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageHeadSwitchLang"); attribute(
                                 "class",
                                 "pageElementRight"
                             )
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute(
                                         "href",
                                         "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=CHANGELANGUAGE&ARGUMENTS=-N${if (sessionId == "000000000000001") "000000000000002" else sessionId},-N${localizer.other_language_id}"
@@ -414,11 +466,13 @@ object Common {
                                 ); attribute(
                                     "title",
                                     localizer.other_language
-                                ); text(localizer.other_language)
+                                );
+                                }.content {
+                                    text(localizer.other_language)
                                 }
 
                                 if (sessionId != "000000000000001") {
-                                    a {
+                                    a.attributes {
                                         attribute(
                                             "href",
                                             "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=LOGOUT&ARGUMENTS=-N$sessionId,-N001"
@@ -426,20 +480,26 @@ object Common {
                                         attribute("id", "logoutButton")
                                         attribute("class", "img img_arrowLogout logout")
                                         attribute("title", localizer.logout)
+                                    }.content {
                                         text(localizer.logout)
                                     }
                                 }
                             }
 
                             if (sessionId == "000000000000001") {
-                                div {
+                                div.attributes {
                                     attribute("id", "cn_loginForm")
-                                    div {
-                                        a {
+                                }.content {
+                                    div.content {
+                                        a.attributes {
                                             attribute("id", "logIn_btn")
                                             attribute("class", "img img_arrowSubmit")
                                             attribute("title", "Anmelden")
-                                            attribute("href", "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=ClassicWeb&amp;scope=openid%20DSF%20email&amp;response_mode=query&amp;response_type=code&amp;ui_locales=de&amp;redirect_uri=https%3a%2f%2fwww.tucan.tu-darmstadt.de%2Fscripts%2Fmgrqispi.dll%3FAPPNAME%3DCampusNet%26PRGNAME%3DLOGINCHECK%26ARGUMENTS%3D-N000000000000001%2Cids_mode%26ids_mode%3DY")
+                                            attribute(
+                                                "href",
+                                                "https://dsf.tucan.tu-darmstadt.de/IdentityServer/connect/authorize?client_id=ClassicWeb&amp;scope=openid%20DSF%20email&amp;response_mode=query&amp;response_type=code&amp;ui_locales=de&amp;redirect_uri=https%3a%2f%2fwww.tucan.tu-darmstadt.de%2Fscripts%2Fmgrqispi.dll%3FAPPNAME%3DCampusNet%26PRGNAME%3DLOGINCHECK%26ARGUMENTS%3D-N000000000000001%2Cids_mode%26ids_mode%3DY"
+                                            )
+                                        }.content {
                                             text("Anmelden")
                                         }
                                     }
@@ -448,70 +508,82 @@ object Common {
                         }
                     }
 
-                    val result = div {
+                    val result = div.attributes {
                         attribute("id", "pageContentContainer"); attribute(
                         "class",
                         "pageElementTop"
                     )
-                        div {
+                    }.content {
+                        div.attributes {
                             attribute("id", "pageLeft"); attribute(
                             "class",
                             "pageElementLeft"
-                        ); div { attribute("id", "pageLeftTop") }
+                        );
+                        }.content {
+                            div.attributes { attribute("id", "pageLeftTop") }
                         }
-                        val result = div {
+                        val result = div.attributes {
                             attribute("id", "pageContent"); attribute(
                             "class",
                             "pageElementLeft"
                         )
-                            div { attribute("id", "featureBanner") }
-                            a {
+                        }.content {
+                            div.attributes { attribute("id", "featureBanner") }
+                            a.attributes {
                                 attribute("name", "mainContent"); attribute(
                                 "class",
                                 "hidden"
                             )
                             }
-                            div {
+                            div.attributes {
                                 attribute("id", "pageContentTop"); attribute(
                                 "class",
                                 "pageElementTop"
                             )
+                            }.content {
                                 if (sessionId != "000000000000001") {
-                                    div {
+                                    div.attributes {
                                         attribute("id", "loginData")
-                                        span {
+                                    }.content {
+                                        span.attributes {
                                             attribute("class", "loginDataLoggedAs")
-                                            b {
+                                        }.content {
+                                            b.content {
                                                 text(localizer.youre_logged_in_as)
-                                                span { attribute("class", "colon"); text(":") }
+                                                span.attributes { attribute("class", "colon"); }.content { text(":") }
                                             }
                                         }
-                                        span {
+                                        span.attributes {
                                             attribute("class", "loginDataName")
                                             attribute("id", "loginDataName")
-                                            b {
+                                        }.content {
+                                            b.content {
                                                 text("Name")
-                                                span { attribute("class", "colon"); text(":") }
+                                                span.attributes { attribute("class", "colon"); }.content { text(":") }
                                             }
                                             extractText()
                                         }
-                                        span {
+                                        span.attributes {
                                             attribute("class", "loginDataDate")
-                                            b {
+                                        }.content {
+                                            b.content {
                                                 text(localizer.on)
-                                                span {
+                                                span.attributes {
                                                     attribute("class", "colon")
+                                                }.content {
                                                     text(":")
                                                 }
                                             }
                                             extractText()
                                         }
-                                        span {
+                                        span.attributes {
                                             attribute("class", "loginDataTime")
-                                            b {
+                                        }.content {
+                                            b.content {
                                                 text(localizer.at)
-                                                span {
+                                                span.attributes {
                                                     attribute("class", "colon time_colon")
+                                                }.content {
                                                     text(":")
                                                 }
                                             }
@@ -520,60 +592,71 @@ object Common {
                                     }
                                 }
                             }
-                            div {
+                            div.attributes {
                                 attribute("id", "contentSpacer_IE"); attribute(
                                 "class",
                                 "pageElementTop"
                             )
+                            }.content {
                                 inner(localizer, pageType)
                             }
                         }
                         result
                     }
 
-                    div {
+                    div.attributes {
                         attribute("id", "pageFoot"); attribute("class", "pageElementTop")
-                        div {
+                    }.content {
+                        div.attributes {
                             attribute("id", "pageFootControls"); attribute(
                             "class",
                             "pageElementTop"
                         )
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("id", "pageFootControlsLeft")
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute(
                                         "href",
                                         "?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$menuId,-Aimprint"
                                     ); attribute(
                                     "class",
                                     "img img_arrowImprint pageElementLeft"
-                                ); attribute("id", "pageFootControl_imp"); text(localizer.imprint)
+                                ); attribute("id", "pageFootControl_imp");
+                                }.content {
+                                    text(localizer.imprint)
                                 }
-                                a {
+                                a.attributes {
                                     attribute(
                                         "href",
                                         "?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$menuId,-Acontact"
                                     ); attribute(
                                     "class",
                                     "img img_arrowContact pageElementLeft"
-                                ); attribute("id", "pageFootControl_con"); text(localizer.contact)
+                                ); attribute("id", "pageFootControl_con");
+                                }.content {
+                                    text(localizer.contact)
                                 }
-                                a {
+                                a.attributes {
                                     attribute("href", "#"); attribute(
                                     "onclick",
                                     "window.print();"
                                 ); attribute(
                                     "class",
                                     "img img_arrowPrint pageElementLeft"
-                                ); attribute("id", "pageFootControl_pri"); text(localizer.print)
+                                ); attribute("id", "pageFootControl_pri");
+                                }.content {
+                                    text(localizer.print)
                                 }
                             }
-                            div {
+                            div.attributes {
                                 attribute(
                                     "id",
                                     "pageFootControlsRight"
                                 )
-                                a {
+                            }.content {
+                                a.attributes {
                                     attribute("href", "#top")
                                     attribute(
                                         "class",
@@ -587,10 +670,11 @@ object Common {
                     result
                 }
 
-                div { attribute("id", "IEdiv"); }
-                div {
+                div.attributes { attribute("id", "IEdiv"); }
+                div.attributes {
                     attribute("class", "invAnchor")
-                    a {
+                }.content {
+                    a.attributes {
                         attribute(
                             "name",
                             "bottom"
@@ -602,7 +686,7 @@ object Common {
         }
     }
 
-    fun Body.parseLoggedInNavigation(menuLocalizer: Localizer, contentLocalizer: Localizer, sessionId: String) {
+    fun BodyContentScope.parseLoggedInNavigation(menuLocalizer: Localizer, contentLocalizer: Localizer, sessionId: String) {
         parseLiWithChildren(
             menuLocalizer.my_tucan.text,
             "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=MLSSTART&ARGUMENTS=-N$sessionId,-N${menuLocalizer.my_tucan.id6()},",
@@ -618,7 +702,13 @@ object Common {
             menuLocalizer.vorlesungsverzeichnis.text,
             menuLocalizer.vorlesungsverzeichnis.id
         ) {
-            parseVV(menuLocalizer, sessionId, menuLocalizer.course_search.id, menuLocalizer.room_search.id, menuLocalizer.archive.id)
+            parseVV(
+                menuLocalizer,
+                sessionId,
+                menuLocalizer.course_search.id,
+                menuLocalizer.room_search.id,
+                menuLocalizer.archive.id
+            )
         }
 
         parseLiWithChildren(
@@ -656,7 +746,10 @@ object Common {
                 menuLocalizer.my_examination_schedule.id,
                 depth = 2
             ) {
-                parseLi(menuLocalizer.my_examination_schedule_important_notes, depth = 3) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$id6,-A${menuLocalizer.my_examination_schedule_important_notes_html}" }
+                parseLi(
+                    menuLocalizer.my_examination_schedule_important_notes,
+                    depth = 3
+                ) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$id6,-A${menuLocalizer.my_examination_schedule_important_notes_html}" }
             }
             parseLiWithChildren(
                 menuLocalizer.semester_results.text,
@@ -664,8 +757,14 @@ object Common {
                 menuLocalizer.semester_results.id,
                 depth = 2,
             ) {
-                parseLi(menuLocalizer.module_results, depth = 3) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=-N$sessionId,-N$id6," }
-                parseLi(menuLocalizer.examination_results, depth = 3) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXAMRESULTS&ARGUMENTS=-N$sessionId,-N$id6," }
+                parseLi(
+                    menuLocalizer.module_results,
+                    depth = 3
+                ) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=COURSERESULTS&ARGUMENTS=-N$sessionId,-N$id6," }
+                parseLi(
+                    menuLocalizer.examination_results,
+                    depth = 3
+                ) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXAMRESULTS&ARGUMENTS=-N$sessionId,-N$id6," }
             }
             parseLi(menuLocalizer.performance_record) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=STUDENT_RESULT&ARGUMENTS=-N$sessionId,-N$id6,-N0,-N000000000000000,-N000000000000000,-N000000000000000,-N0,-N000000000000000" }
         }
@@ -678,7 +777,7 @@ object Common {
             parseLi(menuLocalizer.personal_data) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=PERSADDRESS&ARGUMENTS=-N$sessionId,-N$id6,-A" }
             parseLi(menuLocalizer.my_documents) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=CREATEDOCUMENT&ARGUMENTS=-N$sessionId,-N$id6," }
             parseLiHref(menuLocalizer.forms.text, menuLocalizer.forms.id)
-            parseLi(menuLocalizer.hold_info,) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=HOLDINFO&ARGUMENTS=-N$sessionId,-N$id6," }
+            parseLi(menuLocalizer.hold_info) { id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=HOLDINFO&ARGUMENTS=-N$sessionId,-N$id6," }
         }
 
         parseLiWithChildren(
@@ -686,46 +785,49 @@ object Common {
             "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N${menuLocalizer.application.id6()},-A${menuLocalizer.application_html}",
             menuLocalizer.application.id
         ) {
-            parseLi(menuLocalizer.application_welcome) {
-                    id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$id6,-A${menuLocalizer.application_html}"
+            parseLi(menuLocalizer.application_welcome) { id6 ->
+                "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$id6,-A${menuLocalizer.application_html}"
             }
             parseLiHref(
                 menuLocalizer.my_application.text,
                 menuLocalizer.my_application.id
             )
-            parseLi(menuLocalizer.application_my_documents) {
-                    id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=CREATEDOCUMENT&ARGUMENTS=-N$sessionId,-N$id6,"
+            parseLi(menuLocalizer.application_my_documents) { id6 ->
+                "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=CREATEDOCUMENT&ARGUMENTS=-N$sessionId,-N$id6,"
             }
         }
 
         parseLi(
             menuLocalizer.help,
             depth = 1
-        ) {
-                id6 -> "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$id6,-A${menuLocalizer.help_html}"
+        ) { id6 ->
+            "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N$id6,-A${menuLocalizer.help_html}"
         }
     }
 
-    fun Body.parseLoggedOutNavigation(menuLocalizer: Localizer, contentLocalizer: Localizer, sessionId: String) {
-        li {
+    fun BodyContentScope.parseLoggedOutNavigation(menuLocalizer: Localizer, contentLocalizer: Localizer, sessionId: String) {
+        li.attributes {
             attribute("class", "intern depth_1 linkItem")
             attribute("title", "Startseite")
             attribute("id", "link000344")
-            a {
+        }.content {
+            a.attributes {
                 attribute("class", "depth_1 link000344 navLink")
                 attribute(
                     "href",
                     "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N000344,-Awelcome"
                 )
+            }.content {
                 text("Startseite")
             }
         }
 
-        li {
+        li.attributes {
             attribute("class", "tree depth_1 linkItem branchLinkItem")
             attribute("title", "Vorlesungsverzeichnis (VV)")
             attribute("id", "link000334")
-            a {
+        }.content {
+            a.attributes {
                 attribute(
                     "class",
                     "depth_1 link000334 navLink branchLink"
@@ -734,21 +836,24 @@ object Common {
                 val vvUrl = attributeValue(
                     "href",
                 )
+            }.content {
                 text("Vorlesungsverzeichnis (VV)")
             }
 
-            ul {
+            ul.attributes {
                 attribute("class", "nav depth_2 linkItemContainer")
+            }.content {
 
                 parseVV(menuLocalizer, sessionId, 335, 385, 463)
             }
         }
 
-        li {
+        li.attributes {
             attribute("class", "tree depth_1 linkItem branchLinkItem")
             attribute("title", "TUCaN-Account")
             attribute("id", "link000410")
-            a {
+        }.content {
+            a.attributes {
                 attribute(
                     "class",
                     "depth_1 link000410 navLink branchLink"
@@ -757,11 +862,13 @@ object Common {
                     "href",
                     "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N000410,-Atucan%5Faccount%2Ehtml"
                 )
+            }.content {
                 text("TUCaN-Account")
             }
 
-            ul {
+            ul.attributes {
                 attribute("class", "nav depth_2 linkItemContainer")
+            }.content {
 
                 parseLi(
                     "Account anlegen",
@@ -785,7 +892,13 @@ object Common {
         )
     }
 
-    private fun Body.parseVV(localizer: Localizer, sessionId: String, course_search_id: Int, room_search_id: Int, archive_id: Int) {
+    private fun BodyContentScope.parseVV(
+        localizer: Localizer,
+        sessionId: String,
+        course_search_id: Int,
+        room_search_id: Int,
+        archive_id: Int
+    ) {
         parseLiHref(
             localizer.course_search.text,
             course_search_id
@@ -799,26 +912,29 @@ object Common {
         while (peek()?.attr("class")
                 ?.trim() == "intern depth_2 linkItem"
         ) {
-            li {
+            li.attributes {
                 attribute("class", "intern depth_2 linkItem")
                 attributeValue("title")
                 attributeValue("id")
-                a {
+            }.content {
+                a.attributes {
                     attributeValue("class")
                     attributeValue("href")
+                }.content {
                     extractText()
                 }
             }
         }
 
-        li {
+        li.attributes {
             attribute(
                 "class",
                 "tree depth_2 linkItem branchLinkItem"
             )
             attribute("title", localizer.archive.text)
             attribute("id", "link000$archive_id")
-            a {
+        }.content {
+            a.attributes {
                 attribute(
                     "class",
                     "depth_2 link000$archive_id navLink branchLink"
@@ -827,30 +943,34 @@ object Common {
                     "href",
                     "/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=EXTERNALPAGES&ARGUMENTS=-N$sessionId,-N000$archive_id,-Avvarchivstart%2Ehtml"
                 )
+            }.content {
                 text(localizer.archive.text)
             }
 
-            ul {
+            ul.attributes {
                 attribute(
                     "class",
                     "nav depth_3 linkItemContainer"
                 )
+            }.content {
 
                 while (peek() != null) {
-                    li {
+                    li.attributes {
                         attribute(
                             "class",
                             "intern depth_3 linkItem"
                         )
                         attributeValue("title")
                         attributeValue("id")
-                        a {
+                    }.content {
+                        a.attributes {
                             attributeValue(
                                 "class",
                             )
                             attributeValue(
                                 "href",
                             )
+                        }.content {
                             extractText()
                         }
                     }
@@ -859,62 +979,70 @@ object Common {
         }
     }
 
-    private fun Body.parseLi(name: String, url: String, id: Int, depth: Int = 2) {
+    private fun BodyContentScope.parseLi(name: String, url: String, id: Int, depth: Int = 2) {
         val link = "link${id.toString().padStart(6, '0')}"
-        return li {
+        return li.attributes {
             attribute("class", "intern depth_$depth linkItem")
             attribute("title", name)
             attribute("id", link)
-            a {
+        }.content {
+            a.attributes {
                 attribute("class", "depth_$depth $link navLink")
                 attribute("href", url)
+            }.content {
                 text(name)
             }
         }
     }
 
-    private fun Body.parseLi(name: TextAndId, depth: Int = 2, url: (id6: String) -> String) {
+    private fun BodyContentScope.parseLi(name: TextAndId, depth: Int = 2, url: (id6: String) -> String) {
         parseLi(name.text, url(name.id6()), name.id, depth)
     }
 
-    private fun Body.parseLiHref(name: String, id: Int, depth: Int = 2): String {
+    private fun BodyContentScope.parseLiHref(name: String, id: Int, depth: Int = 2): String {
         val link = "link${id.toString().padStart(6, '0')}"
-        return li {
+        return li.attributes {
             attribute("class", "intern depth_$depth linkItem")
             attribute("title", name)
             attribute("id", link)
-            a {
+        }.content {
+            val href: String
+            a.attributes {
                 attribute("class", "depth_$depth $link navLink")
-                val href = attributeValue(
+                 href = attributeValue(
                     "href"
                 )
+            }.content {
                 text(name)
                 href
             }
         }
     }
 
-    private fun Body.parseLiWithChildrenHref(
+    private fun BodyContentScope.parseLiWithChildrenHref(
         name: String,
         id: Int,
         depth: Int = 1,
-        init: Body.() -> Unit
+        init: BodyContentScope.() -> Unit
     ): String {
         val link = "link${id.toString().padStart(6, '0')}"
-        return li {
+        return li.attributes {
             attribute("class", "tree depth_$depth linkItem branchLinkItem")
             attribute("title", name)
             attribute("id", link)
-            val href = a {
+        }.content {
+            val href: String
+            a.attributes {
                 attribute("class", "depth_$depth $link navLink branchLink")
-                val href = attributeValue(
+                href = attributeValue(
                     "href",
                 )
+            }.content {
                 text(name)
-                href
             }
-            ul {
+            ul.attributes {
                 attribute("class", "nav depth_${depth + 1} linkItemContainer")
+            }.content {
                 init()
             }
             href
@@ -922,28 +1050,31 @@ object Common {
     }
 
 
-    private fun Body.parseLiWithChildren(
+    private fun BodyContentScope.parseLiWithChildren(
         name: String,
         url: String,
         id: Int,
         depth: Int = 1,
-        init: Body.() -> Unit
+        init: BodyContentScope.() -> Unit
     ) {
         val link = "link${id.toString().padStart(6, '0')}"
-        li {
+        li.attributes {
             attribute("class", "tree depth_$depth linkItem branchLinkItem")
             attribute("title", name)
             attribute("id", link)
-            a {
+        }.content {
+            a.attributes {
                 attribute("class", "depth_$depth $link navLink branchLink")
                 attribute(
                     "href",
                     url
                 )
+            }.content {
                 text(name)
             }
-            ul {
+            ul.attributes {
                 attribute("class", "nav depth_${depth + 1} linkItemContainer")
+            }.content {
                 init()
             }
         }
@@ -962,10 +1093,10 @@ object Common {
         }
         // 15186000
         // wise 2025
-        return 15176000 + ((year - 2025)*2 + offset) * 10000
+        return 15176000 + ((year - 2025) * 2 + offset) * 10000
     }
 
-     fun Response.parseCommonHeaders() {
+    fun Response.parseCommonHeaders() {
         status(HttpStatusCode.OK)
         header(
             "content-security-policy",

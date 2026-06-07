@@ -1,5 +1,5 @@
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.jvm)
+    alias(libs.plugins.kotlin)
     alias(libs.plugins.serialization)
     alias(libs.plugins.ktor)
     application

@@ -22,7 +22,7 @@ actual fun fromWorker(worker: Worker): WebWorkerSQLiteDriver {
     return WebWorkerSQLiteDriver(worker)
 }
 
-@OptIn(ExperimentalWasmJsInterop::class)
+@ExperimentalWasmJsInterop
 actual suspend fun getSessionCookie(): String {
     return getSessionCookieInternal().await()
 }

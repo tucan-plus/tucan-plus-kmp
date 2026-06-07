@@ -12,8 +12,7 @@ import androidx.compose.ui.window.ComposeViewport
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
-import androidx.datastore.core.okio.WebStorage
-import androidx.datastore.core.okio.WebStorageType
+import androidx.datastore.core.okio.WebLocalStorage
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.room3.Room
@@ -43,7 +42,7 @@ expect fun fromWorker(worker: Worker): WebWorkerSQLiteDriver
 expect suspend fun getSessionCookie(): String
 
 @Composable
-actual fun LoginHandler(backStack: NavBackStack<NavKey>) {
+actual fun LoginHandler(backStack: NavBackStack<NavKey>, url: String) {
     println("wasm login handler")
     LaunchedEffect(Unit) {
         val url =
@@ -77,11 +76,11 @@ fun createDatabase(): AppDatabase {
         .build()
 }
 
-@OptIn(ExperimentalWasmJsInterop::class)
-fun createWorker() =
-    Worker(js("""new URL("sqlite-web-worker/worker.js", import.meta.url)"""))
+@ExperimentalWasmJsInterop
+fun createWorker(): Worker =
+    js("""new Worker(new URL("sqlite-web-worker/worker.js", import.meta.url))""")
 
-@OptIn(ExperimentalWasmJsInterop::class)
+@ExperimentalWasmJsInterop
 fun getSessionCookieInternal(): Promise<JsString> = js(
     """chrome.cookies.get({
   url: "https://www.tucan.tu-darmstadt.de/scripts",
@@ -97,18 +96,16 @@ fun main() {
     } else {
         null
     }
-    val database = createDatabase();
     ComposeViewport {
-        App(uri, database)
+        App(uri)
     }
 }
 
-actual fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
+ fun createDataStore(): DataStore<Settings?> = DataStoreFactory.create(
     storage =
-        WebStorage(
+        WebLocalStorage(
             serializer = SettingsSerializer,
             name = "tucanplus-config",
-            storageType = WebStorageType.LOCAL
         ),
     migrations = listOf(),
 )

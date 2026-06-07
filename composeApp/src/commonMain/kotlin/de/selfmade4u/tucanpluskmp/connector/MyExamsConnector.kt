@@ -6,73 +6,55 @@ import de.selfmade4u.tucanpluskmp.Localizer
 import de.selfmade4u.tucanpluskmp.Root
 import de.selfmade4u.tucanpluskmp.Settings
 import de.selfmade4u.tucanpluskmp.TucanUrl
-import de.selfmade4u.tucanpluskmp.a
-import de.selfmade4u.tucanpluskmp.b
-import de.selfmade4u.tucanpluskmp.br
 import de.selfmade4u.tucanpluskmp.connector.Common.parseBase
 import de.selfmade4u.tucanpluskmp.connector.Common.parseCommonHeaders
 import de.selfmade4u.tucanpluskmp.data.MyExams
-import de.selfmade4u.tucanpluskmp.div
-import de.selfmade4u.tucanpluskmp.form
-import de.selfmade4u.tucanpluskmp.h1
-import de.selfmade4u.tucanpluskmp.input
-import de.selfmade4u.tucanpluskmp.label
-import de.selfmade4u.tucanpluskmp.option
-import de.selfmade4u.tucanpluskmp.p
-import de.selfmade4u.tucanpluskmp.peek
-import de.selfmade4u.tucanpluskmp.peekAttribute
 import de.selfmade4u.tucanpluskmp.response
-import de.selfmade4u.tucanpluskmp.script
-import de.selfmade4u.tucanpluskmp.select
 import de.selfmade4u.tucanpluskmp.shouldIgnore
-import de.selfmade4u.tucanpluskmp.style
-import de.selfmade4u.tucanpluskmp.table
-import de.selfmade4u.tucanpluskmp.tbody
-import de.selfmade4u.tucanpluskmp.td
-import de.selfmade4u.tucanpluskmp.th
-import de.selfmade4u.tucanpluskmp.thead
-import de.selfmade4u.tucanpluskmp.tr
 import io.ktor.client.statement.HttpResponse
+import kotlinx.coroutines.flow.Flow
+import de.selfmade4u.tucanpluskmp.*
 
 // loop semester by semester because otherwise we can't really associate entries with their semester. maybe just not support the "all"?
-object MyExamsConnector {
+object MyExamsConnector : Connector<String?, MyExamsConnector.MyExamsResponse> {
 
     data class MyExamsResponse(var selectedSemester: Semesterauswahl, var semesters: List<Semesterauswahl>, var exams: List<MyExams.MyExam>)
 
-
-    suspend fun getUncached(
+    override suspend fun getUncached(
         credentialSettingsDataStore: DataStore<Settings?>,
-        semester: String?
+        input: String?
     ): AuthenticatedResponse<MyExamsResponse> {
         return fetchAuthenticatedWithReauthentication(
             credentialSettingsDataStore,
-            { sessionId -> "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=MYEXAMS&ARGUMENTS=-N$sessionId,-N000318,${if (semester != null) { "-N$semester" } else { "" }}" },
-            parser = { sessionId, menuLocalizer, response -> parse("000318", sessionId, menuLocalizer, response) }
+            { sessionId -> "https://www.tucan.tu-darmstadt.de/scripts/mgrqispi.dll?APPNAME=CampusNet&PRGNAME=MYEXAMS&ARGUMENTS=-N$sessionId,-N000318,${if (input != null) { "-N$input" } else { "" }}" },
+            parser = { sessionId, menuLocalizer, response -> parseHttpResponse("000318", sessionId, menuLocalizer, response) }
         )
     }
 
-    suspend fun parse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<MyExamsResponse> {
+    override suspend fun parseHttpResponse(menuId: String, sessionId: String, menuLocalizer: Localizer, response: HttpResponse): ParserResponse<MyExamsResponse> {
         return response(response) {
             parseCommonHeaders()
             root {
-                parseResults(menuId, sessionId, menuLocalizer)
+                parse(menuId, sessionId, menuLocalizer)
             }
         }
     }
 
-    fun Root.parseResults(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<MyExamsResponse> {
+    override fun Root.parse(menuId: String, sessionId: String, menuLocalizer: Localizer): ParserResponse<MyExamsResponse> {
         val exams = mutableListOf<MyExams.MyExam>()
         val semesters = mutableListOf<Semesterauswahl>()
         var selectedSemester: Semesterauswahl? = null
         // menu id changes depending on language
         val response = parseBase(sessionId, menuLocalizer, menuId, {
             if (peek() != null) {
-                style {
+                style.attributes {
                     attribute("type", "text/css")
+                }.content {
                     extractData()
                 }
-                style {
+                style.attributes {
                     attribute("type", "text/css")
+                }.content {
                     extractData()
                 }
             } else {
@@ -80,55 +62,62 @@ object MyExamsConnector {
             }
         }) { localizer: Localizer, pageType ->
             if (pageType == "timeout") {
-                script {
+                script.attributes {
                     attribute("type", "text/javascript")
                     // empty
                 }
-                h1 { text("Timeout!") }
-                p {
-                    b {
+                h1.content { text("Timeout!") }
+                p.content {
+                    b.content {
                         text("Es wurde seit den letzten 30 Minuten keine Abfrage mehr abgesetzt.")
-                        br {}
+                        br.content {}
                         text("Bitte melden Sie sich erneut an.")
                     }
                 }
                 return@parseBase ParserResponse.SessionTimeout()
             }
             check(pageType == "myexams") { pageType }
-            script {
+            script.attributes {
                 attribute("type", "text/javascript")
                 // empty
             }
-            h1 { extractText() }
-            div {
+            h1.content { extractText() }
+            div.attributes {
                 attribute("class", "tb")
+            }.content {
 
-                form {
+                form.attributes {
                     attribute("id", "semesterchange")
                     attribute("action", "/scripts/mgrqispi.dll")
                     attribute("method", "post")
                     attribute("class", "pageElementTop")
+                }.content {
 
-                    div {
-                        div {
+                    div.content {
+                        div.attributes {
                             attribute("class", "tbhead")
+                        }.content {
                             text(localizer.exams)
                         }
 
-                        div {
+                        div.attributes {
                             attribute("class", "tbsubhead")
+                        }.content {
                             text(localizer.choose_semester)
                         }
 
-                        div {
+                        div.attributes {
                             attribute("class", "formRow")
-                            div {
+                        }.content {
+                            div.attributes {
                                 attribute("class", "inputFieldLabel long")
-                                label {
+                            }.content {
+                                label.attributes {
                                     attribute("for", "semester")
+                                }.content {
                                     text(localizer.course_module_semester)
                                 }
-                                select {
+                                select.attributes {
                                     attribute("id", "semester")
                                     attribute("name", "semester")
                                     attribute(
@@ -136,6 +125,7 @@ object MyExamsConnector {
                                         "reloadpage.createUrlAndReload('/scripts/mgrqispi.dll','CampusNet','MYEXAMS','$sessionId','$menuId','-N'+this.value);"
                                     )
                                     attribute("class", "tabledata")
+                                }.content {
 
                                     // we can predict the value so we could use this at some places do directly get correct value
                                     // maybe do everywhere for consistency
@@ -144,7 +134,7 @@ object MyExamsConnector {
                                         val selected: Boolean
                                         val semester: Semester
                                         val year: Int
-                                        option {
+                                        option.attributes {
                                             value = attributeValue("value").trimStart('0').toLong()
                                             selected = if (peekAttribute()?.key == "selected") {
                                                 attribute("selected", "selected")
@@ -152,10 +142,11 @@ object MyExamsConnector {
                                             } else {
                                                 false
                                             }
+                                        }.content {
                                             val semesterName =
                                                 extractText() // SoSe 2025; WiSe 2024/25
                                             if (semesterName == localizer.all) {
-                                                return@option;
+                                                return@content;
                                             }
                                             if (semesterName.startsWith(("SoSe "))) {
                                                 year = semesterName.removePrefix("SoSe ").toInt()
@@ -183,7 +174,7 @@ object MyExamsConnector {
                                     }
                                 }
 
-                                input {
+                                input.attributes {
                                     attribute("name", "Refresh")
                                     attribute("type", "submit")
                                     attribute("value", localizer.refresh)
@@ -192,31 +183,31 @@ object MyExamsConnector {
                             }
                         }
 
-                        input {
+                        input.attributes {
                             attribute("name", "APPNAME"); attribute(
                             "type",
                             "hidden"
                         ); attribute("value", "CampusNet")
                         }
-                        input {
+                        input.attributes {
                             attribute("name", "PRGNAME"); attribute(
                             "type",
                             "hidden"
                         ); attribute("value", "MYEXAMS")
                         }
-                        input {
+                        input.attributes {
                             attribute("name", "ARGUMENTS"); attribute(
                             "type",
                             "hidden"
                         ); attribute("value", "sessionno,menuno,semester")
                         }
-                        input {
+                        input.attributes {
                             attribute("name", "sessionno"); attribute("type", "hidden"); attribute(
                             "value",
                             sessionId
                         )
                         }
-                        input {
+                        input.attributes {
                             attribute("name", "menuno"); attribute("type", "hidden"); attribute(
                             "value",
                             menuId
@@ -225,107 +216,124 @@ object MyExamsConnector {
                     }
                 }
 
-                table {
+                table.attributes {
                     attribute("class", "nb list")
+                }.content {
 
-                    thead {
-                        tr {
+                    thead.content {
+                        tr.attributes {
                             attribute("class", "tbcontrol");
-                            td {
+                        }.content {
+                            td.attributes {
                                 attribute("colspan", "5")
-                                a {
-                                    attribute("href", "/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXAMREGISTRATION&amp;ARGUMENTS=-N$sessionId,-N000318,-N${selectedSemester!!.id.toString().padStart(15, '0')}")
+                            }.content {
+                                a.attributes {
+                                    attribute(
+                                        "href",
+                                        "/scripts/mgrqispi.dll?APPNAME=CampusNet&amp;PRGNAME=EXAMREGISTRATION&amp;ARGUMENTS=-N$sessionId,-N000318,-N${
+                                            selectedSemester!!.id.toString().padStart(15, '0')
+                                        }"
+                                    )
                                     attribute("class", "arrow")
+                                }.content {
                                     text(localizer.exam_registration)
                                 }
                             }
                         }
-                        tr {
-                            th { attribute("scope", "col"); attribute("id", localizer.module_results_no); text(localizer.module_results_no) }
-                            th { attribute("scope", "col"); attribute("id", "Course_event_module"); text(localizer.my_exams_course_or_module)}
-                            th { attribute("scope", "col"); attribute("id", "Name"); text(localizer.my_exams_name) }
-                            th { attribute("scope", "col"); attribute("id", "Date"); text(localizer.my_exams_date) }
-                            th {
+                        tr.content {
+                            th.attributes { attribute("scope", "col"); attribute("id", localizer.module_results_no); }.content { text(localizer.module_results_no) }
+                            th.attributes { attribute("scope", "col"); attribute("id", "Course_event_module"); }.content { text(localizer.my_exams_course_or_module)}
+                            th.attributes { attribute("scope", "col"); attribute("id", "Name"); }.content { text(localizer.my_exams_name) }
+                            th.attributes { attribute("scope", "col"); attribute("id", "Date"); }.content { text(localizer.my_exams_date) }
+                            th.content {
                             }
                         }
                     }
 
-                    tbody {
-                        while (peek()?.childNodes()?.filterNot(::shouldIgnore)?.first()
-                                ?.normalName() == "td"
-                        ) {
+                    tbody.content {
+                        while (peek()?.firstChild()?.normalName() == "td") {
                             val id: String
                             val name: String
                             val coursedetailsOrModuleDetails: TucanUrl.CourseOrModuleDetails
                             val examType: String
                             val date: String
-                            tr {
-                                td {
+                            tr.content {
+                                td.attributes {
                                     attribute("class", "tbdata");
+                                }.content {
                                     // id
                                     id = extractText()
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata");
-                                    a {
+                                }.content {
+                                    a.attributes {
                                         attribute("class", "link");
                                         if (peekAttribute()?.key == "name") {
                                             attribute("name", "eventLink");
                                         }
-                                        coursedetailsOrModuleDetails = TucanUrl.CourseOrModuleDetails.fromString(attributeValue("href"));
+                                        coursedetailsOrModuleDetails =
+                                            TucanUrl.CourseOrModuleDetails.fromString(attributeValue("href"));
+                                    }.content {
                                         // module title
                                         name = extractText()
                                     }
                                     if (peek() != null) {
-                                        br { }
+                                        br.content { }
                                         if (peek() is TextNode) {
                                             // list of courses
                                             extractText()
                                         } else {
                                             // thesis
-                                            b {
+                                            b.content {
                                                 text(localizer.thesis_subject)
                                             }
                                             val title = extractText()
-                                            br {}
+                                            br.content {}
                                             val handedIn = extractText()
-                                            br {}
+                                            br.content {}
                                         }
                                     }
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
-                                    a {
+                                }.content {
+                                    a.attributes {
                                         attribute("class", "link");
                                         // examdetails
                                         attributeValue("href");
+                                    }.content {
                                         /// type of exam
                                         examType = extractText()
                                     }
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
+                                }.content {
                                     if (peek() is TextNode) {
                                         date = extractText()
                                     } else {
-                                        a {
+                                        a.attributes {
                                             attribute("class", "link");
                                             // courseprep date link
                                             attributeValue("href");
+                                        }.content {
                                             // date text
                                             date = extractText()
                                         }
                                     }
                                 }
-                                td {
+                                td.attributes {
                                     attribute("class", "tbdata")
+                                }.content {
                                     if (peek() is TextNode) {
                                         extractText()
                                     } else {
-                                        a {
+                                        a.attributes {
                                             // EXAMUNREG link
                                             attributeValue("href");
                                             attribute("class", "img img_arrowLeftRed");
+                                        }.content {
                                             text(localizer.unregister)
                                         }
                                     }
@@ -348,5 +356,9 @@ object MyExamsConnector {
             return@parseBase ParserResponse.Success(MyExamsResponse(selectedSemester!!, semesters, exams))
         }
         return response
+    }
+
+    override fun extractRelevantPages(credentialSettingsDataStore: DataStore<Settings?>): Flow<String?> {
+        TODO("Not yet implemented")
     }
 }

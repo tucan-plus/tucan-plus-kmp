@@ -1,5 +1,3 @@
-import java.net.URI
-
 rootProject.name = "tucanpluskmp"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
@@ -31,7 +29,7 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    //id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 include(":composeApp")
