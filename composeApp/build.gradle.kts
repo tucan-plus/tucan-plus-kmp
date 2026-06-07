@@ -203,7 +203,6 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
-            implementation("org.jetbrains.kotlin:kotlin-compiler:2.4.0-Beta1")
         }
         jvmTest.dependencies {
             implementation(compose.desktop.currentOs)
