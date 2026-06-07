@@ -44,8 +44,19 @@ private val XmlElement.nextInterestingSibling: XmlElement?
         do {
             next = next?.nextSibling
         } while (next is PsiWhiteSpace || next is XmlText && next.text.trim()
-                .isEmpty()
+                .isEmpty() || next is XmlToken || next is XmlAttribute
         )
+        return next as XmlElement?
+    }
+
+private val XmlElement.firstInterestingChild: XmlElement?
+    get() {
+        var next: PsiElement? = this.firstChild
+         while (next is PsiWhiteSpace || next is XmlText && next.text.trim()
+                .isEmpty() || next is XmlToken || next is XmlAttribute
+        ) {
+             next = next.nextSibling
+         }
         return next as XmlElement?
     }
 
@@ -162,7 +173,8 @@ object Extractor {
                     if (currentAttribute != null) {
                         annotations[htmlElement] = AnnotationResult("Unparsed attribute")
                     }
-                    var currentChild = tagElement.firstChild
+                    var currentChild = tagElement.firstInterestingChild
+                    println("currentchild $currentChild")
                     content?.let { content ->
                         val expr = content.valueArguments.single()
                             .getArgumentExpression()!! as KtLambdaExpression
@@ -190,6 +202,9 @@ object Extractor {
                             annotations[expression] = AnnotationResult(
                                 "Here text would need to be parsed"
                             )
+                        }
+                        else -> {
+                            check(false)
                         }
                     }
                 } else {
