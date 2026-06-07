@@ -11,7 +11,11 @@ object Test {
             attribute("xml:lang", "de")
             attribute("lang", "de")
         }.content {
-            <error descr="Here more content parsing is needed">head.content {}</error>
+            <error descr="Here more content parsing is needed">head.content {
+            title.content {
+                extractText()
+            }
+        }</error>
         }</error>
     }
 }

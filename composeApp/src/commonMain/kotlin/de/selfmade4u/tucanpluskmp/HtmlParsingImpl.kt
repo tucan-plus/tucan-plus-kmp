@@ -167,7 +167,9 @@ class BodyImpl(node: Node, nodeList: MutableList<Node>, attributes: MutableList<
     override val legend get() = initBuilder("legend", ::BodyImpl, ::LegendBuilderImpl)
     override val label get() = initBuilder("label", ::BodyImpl, ::LabelBuilderImpl)
     override val h1 get() = initBuilder("h1", ::BodyImpl, ::H1BuilderImpl)
+    override val h2 get() = initBuilder("h2", ::BodyImpl, ::H2BuilderImpl)
     override val p get() = initBuilder("p", ::BodyImpl, ::PBuilderImpl)
+    override val strong get() = initBuilder("strong", ::BodyImpl, ::StrongBuilderImpl)
     override val ul get() = initBuilder("ul", ::BodyImpl, ::UlBuilderImpl)
     override val li get() = initBuilder("li", ::BodyImpl, ::LiBuilderImpl)
     override val header get() = initBuilder("header", ::BodyImpl, ::HeaderBuilderImpl)
@@ -211,7 +213,9 @@ class ImgBuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : ImgBuilder,
 class LegendBuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : LegendBuilder, TagBuilder<Body, BodyContentScope> by d
 class LabelBuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : LabelBuilder, TagBuilder<Body, BodyContentScope> by d
 class H1BuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : H1Builder, TagBuilder<Body, BodyContentScope> by d
+class H2BuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : H2Builder, TagBuilder<Body, BodyContentScope> by d
 class PBuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : PBuilder, TagBuilder<Body, BodyContentScope> by d
+class StrongBuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : StrongBuilder, TagBuilder<Body, BodyContentScope> by d
 class UlBuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : UlBuilder, TagBuilder<Body, BodyContentScope> by d
 class LiBuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : LiBuilder, TagBuilder<Body, BodyContentScope> by d
 class HeaderBuilderImpl(d: GenericTagBuilder<Body, BodyContentScope>) : HeaderBuilder, TagBuilder<Body, BodyContentScope> by d
