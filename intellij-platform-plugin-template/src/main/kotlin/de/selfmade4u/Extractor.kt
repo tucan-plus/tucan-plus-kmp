@@ -6,12 +6,17 @@ import com.intellij.modcommand.ActionContext
 import com.intellij.modcommand.ModPsiUpdater
 import com.intellij.modcommand.Presentation
 import com.intellij.modcommand.PsiUpdateModCommandAction
+import com.intellij.openapi.application.Application
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
+import com.intellij.openapi.vfs.findDirectory
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
-import com.intellij.psi.html.HtmlTag
 import com.intellij.psi.impl.source.html.HtmlRawTextImpl
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
@@ -95,6 +100,7 @@ class MyQuickFixAddContentCall(element: KtCallExpression) : PsiUpdateModCommandA
 
 
 object Extractor {
+    private val LOG = logger<Extractor>()
 
     fun getStringLiteral(expression: KtStringTemplateExpression): String {
         check(!expression.hasInterpolation())
@@ -326,13 +332,16 @@ object Extractor {
         val annotations = mutableMapOf<PsiElement, AnnotationResult>()
         val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
         val path = getStringLiteral(valueArg.stringTemplateExpression!!)
-        val htmls = project.guessProjectDir()!!.findFileByRelativePath(path)!!
+        thisLogger().warn("project dir ${project.guessProjectDir()} path $path");
+        thisLogger().warn("htmls ${project.guessProjectDir()!!.findDirectory(path)}")
+        val htmls = project.guessProjectDir()!!.findDirectory(path)!! // TODO FIXME error handling
 
         val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
         //println("abc ${ktNamedFunction.text}")
         val block = ktNamedFunction.bodyBlockExpression!!
 
         val files = htmls.children
+        thisLogger().warn("htmls2 ${files.map { (it.findPsiFile(project) as XmlFile).rootTag }}")
         val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
 
         println("$htmlFiles")
@@ -345,22 +354,29 @@ object Extractor {
     fun process(project: Project, annotationContext: PsiElement?, holder: AnnotationHolder?) {
         val annotations = KotlinAnnotationsIndex["HtmlFromResources", project, project.projectScope()];
         //println("annotations $annotations")
-        for (annotationEntry in annotations) {
+        for (annotationEntry in annotations) { // oh does the loop fail if one of them fails?
             // https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/util/CachedValue.java
 
-            val annotations = CachedValuesManager.getManager(project).getCachedValue(annotationEntry) {
-                myFun(
-                    project,
-                    annotationEntry
-                )
-            }
-            if (annotationContext != null && holder != null) {
-                annotations[annotationContext]?.let { info ->
-                    holder.newAnnotation(HighlightSeverity.ERROR, info.message)
-                        .range(annotationContext)
-                        .apply { info.quickFix?.let { withFix(it) } }
-                        .create()
+            //ApplicationManager.getApplication().logError()
+
+            try {
+                val annotations =
+                    CachedValuesManager.getManager(project).getCachedValue(annotationEntry) {
+                        myFun(
+                            project,
+                            annotationEntry
+                        )
+                    }
+                if (annotationContext != null && holder != null) {
+                    annotations[annotationContext]?.let { info ->
+                        holder.newAnnotation(HighlightSeverity.ERROR, info.message)
+                            .range(annotationContext)
+                            .apply { info.quickFix?.let { withFix(it) } }
+                            .create()
+                    }
                 }
+            } catch (error: Throwable) {
+                LOG.error(error)
             }
         }
     }
