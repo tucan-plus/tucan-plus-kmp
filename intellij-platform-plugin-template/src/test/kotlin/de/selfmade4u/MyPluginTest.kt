@@ -43,6 +43,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             verifyHighlighting("main1.kt")
             verifyQuickFix("main1_unannotated.kt", "main2_unannotated.kt")
             verifyHighlighting("main2.kt")
+            verifyQuickFix("main2_unannotated.kt", "main3_unannotated.kt")
         }
     }
 

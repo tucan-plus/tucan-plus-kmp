@@ -193,7 +193,7 @@ object Extractor {
                                 annotations[expression] = AnnotationResult(
                                     "Here more content parsing is needed", MyQuickFixAddToEndOfBlock(
                                         expr.bodyExpression!!,
-                                        "${(htmlElement).name} {}"
+                                        "${(htmlElement).name}.content {}"
                                     )
                                 )
                             } else {
