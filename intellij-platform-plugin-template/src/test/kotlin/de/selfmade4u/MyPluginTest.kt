@@ -35,24 +35,18 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     fun testHtmlParsingQuickFix() {
         fixture.copyFileToProject("HtmlParsing.kt")
         fixture.copyDirectoryToProject("simple_html", "html")
-        val main = fixture.copyFileToProject("main1.kt", "main.kt")
-        checkHighlighting(main)
+        checkHighlighting(fixture.copyFileToProject("main1.kt", "main.kt"))
+        checkHighlighting(fixture.copyFileToProject("main2.kt", "main.kt"))
     }
 
     private fun checkHighlighting(main: VirtualFile) {
         runInEdtAndWait {
             // https://github.com/JetBrains/intellij-community/blob/037ff732d0aecb30622e490f3aff5eb46c79691b/plugins/kotlin/gradle/gradle-java/tests.shared/test/org/jetbrains/kotlin/gradle/K2GradleCodeInsightTestCase.kt#L63
             fixture.openFileInEditor(main)
-            checkNotNull(fixture.editor) { "Fixture is not configured. Call something like configureByFile() or configureByText()" }
-            val data = ExpectedHighlightingData(
-                fixture.editor.getDocument(), true, true, false, false
-            )
+            val data = ExpectedHighlightingData(fixture.editor.document, true, true, false, false)
             // manually register DSL_TYPE_SEVERITY to ignore it
             val severity = DslStyleUtils.typeById(1).getSeverity(null)
-            data.registerHighlightingType(
-                severity.name,
-                ExpectedHighlightingData.ExpectedHighlightingSet(severity, false, false)
-            )
+            data.registerHighlightingType(severity.name, ExpectedHighlightingData.ExpectedHighlightingSet(severity, false, false))
             data.init()
             (fixture as CodeInsightTestFixtureImpl).collectAndCheckHighlighting(data)
         }
