@@ -179,7 +179,7 @@ object Extractor {
                     if (currentAttribute != null) {
                         annotations[attributes!!] = AnnotationResult("Unparsed attribute",
                             MyQuickFixAddToEndOfBlock((attributes.valueArguments.single()
-                                .getArgumentExpression()!! as KtLambdaExpression).bodyExpression!!, "extractAttribute()")) // TODO quickfix
+                                .getArgumentExpression()!! as KtLambdaExpression).bodyExpression!!, "attribute(\"${(currentAttribute as XmlAttribute).name}\", \"${currentAttribute.value}\")"))
                     }
                     var currentChild = tagElement.firstInterestingChild
                     content?.let { content ->
