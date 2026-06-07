@@ -41,17 +41,17 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             fixture.copyFileToProject("HtmlParsing.kt")
             fixture.copyDirectoryToProject("simple_html", "html")
             verifyHighlighting("main1.kt")
-            verifyQuickFix("main1_unannotated.kt")
+            verifyQuickFix("main1_unannotated.kt", "main2_unannotated.kt")
             verifyHighlighting("main2.kt")
         }
     }
 
-    private fun verifyQuickFix(filePath: String) {
+    private fun verifyQuickFix(filePath: String, output: String) {
         val main = fixture.copyFileToProject(filePath, "main.kt")
         fixture.openFileInEditor(main)
         fixture.checkPreviewAndLaunchAction(fixture.getAllQuickFixes("main.kt").single().asIntention())
         println(fixture.editor.document.text)
-        fixture.checkResultByFile("main2.kt")
+        fixture.checkResultByFile(output)
         WriteAction.run<Throwable> {
             main.deleteRecursively()
         }

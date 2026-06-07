@@ -10,10 +10,6 @@ object Test {
             attribute("xmlns", "http://www.w3.org/1999/xhtml")
             attribute("xml:lang", "de")
             attribute("lang", "de")
-        }.content {
-            head.content {
-                title.content {}
-            }
-        }
+        }.content {}
     }
 }
