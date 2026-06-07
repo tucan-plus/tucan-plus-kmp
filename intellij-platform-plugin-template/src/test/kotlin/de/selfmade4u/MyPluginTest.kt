@@ -40,10 +40,10 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         withContext(Dispatchers.EDT) {
             fixture.copyFileToProject("HtmlParsing.kt")
             fixture.copyDirectoryToProject("simple_html", "html")
-            verifyHighlighting("main1.kt")
-            verifyQuickFix("main1_unannotated.kt", "main2_unannotated.kt")
-            verifyHighlighting("main2.kt")
-            verifyQuickFix("main2_unannotated.kt", "main3_unannotated.kt")
+            for (i in 1..3) {
+                verifyHighlighting("main$i.kt")
+                verifyQuickFix("main${i}_unannotated.kt", "main${i + 1}_unannotated.kt")
+            }
         }
     }
 
