@@ -54,9 +54,9 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     }
 
     private fun verifyQuickFix(filePath: String, output: String) {
-        val main = fixture.copyFileToProject(filePath, "main.kt")
+        val main = fixture.copyFileToProject(filePath)
         fixture.openFileInEditor(main)
-        fixture.checkPreviewAndLaunchAction(fixture.getAllQuickFixes("main.kt").last().asIntention())
+        fixture.checkPreviewAndLaunchAction(fixture.getAllQuickFixes(filePath).last().asIntention())
         println(fixture.editor.document.text)
         fixture.checkResultByFile(output)
         WriteAction.run<Throwable> {
@@ -66,7 +66,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
 
     private fun verifyHighlighting(filePath: String) {
         // https://github.com/JetBrains/intellij-community/blob/037ff732d0aecb30622e490f3aff5eb46c79691b/plugins/kotlin/gradle/gradle-java/tests.shared/test/org/jetbrains/kotlin/gradle/K2GradleCodeInsightTestCase.kt#L63
-        val main = fixture.copyFileToProject(filePath, "main.kt")
+        val main = fixture.copyFileToProject(filePath)
         fixture.openFileInEditor(main)
         val data = ExpectedHighlightingData(fixture.editor.document, true, true, false, false)
         // manually register DSL_TYPE_SEVERITY to ignore it
