@@ -37,7 +37,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     companion object {
         @JvmStatic
         fun range(): IntStream {
-            return IntStream.range(1, 6)
+            return IntStream.range(1, 7)
         }
     }
 
