@@ -13,7 +13,7 @@ object Test {
         }.content {
             <error descr="Here more content parsing is needed">head.content {
             <error descr="Here text would need to be parsed">title.content {}</error>
-            meta.attributes {}
+            <error descr="Unparsed attribute">meta.attributes {}</error>
         }</error>
         }</error>
     }
