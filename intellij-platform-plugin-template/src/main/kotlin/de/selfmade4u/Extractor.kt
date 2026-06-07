@@ -11,6 +11,7 @@ import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.html.HtmlTag
 import com.intellij.psi.impl.source.html.HtmlRawTextImpl
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
@@ -36,6 +37,10 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 // then we can try to generate autofixes in all directions
 
 // https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/docs/fir-ide/architecture/code-insights.md
+
+private val XmlTag.nextInterestingSibling: XmlElement = {
+
+}
 
 // https://docs.google.com/document/d/1-2_cNjq-Mc28j0eCX1TEuMM-k6UXKvfPTutvIBafIJA/edit?pli=1&tab=t.0#heading=h.z5lwn79yvfdm
 // https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/code-insight/api/src/org/jetbrains/kotlin/idea/codeinsight/api/applicable/intentions/KotlinPsiUpdateModCommandAction.kt#L12
@@ -139,52 +144,24 @@ object Extractor {
                 println("name ${name.text} attributes ${attributes?.text} content ${content?.text}")
                 val tag = name.getReferencedName()
                 if (htmlElement is XmlTag && htmlElement.name == tag) {
+                    val tagElement = htmlElement
                     println("matched html tag")
-                    var htmlElement: PsiElement = htmlElement.firstChild
-                    while (htmlElement is PsiWhiteSpace) {
-                        htmlElement = htmlElement.nextSibling
-                    }
-                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_START_TAG_START)
-                    do {
-                        htmlElement = htmlElement.nextSibling
-                    } while (htmlElement is PsiWhiteSpace)
-                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_NAME)
-                    do {
-                        htmlElement = htmlElement.nextSibling
-                    } while (htmlElement is PsiWhiteSpace || (htmlElement is XmlText && htmlElement.text.trim()
-                            .isEmpty())
-                    )
+                    var currentAttribute: XmlElement? = htmlElement.attributes.first()
                     attributes?.let { attributes ->
                         val expr = attributes.valueArguments.single()
                             .getArgumentExpression()!! as KtLambdaExpression
-                        htmlElement = checkExpression(annotations, expr, htmlElement as XmlElement)
+                        currentAttribute = checkExpression(annotations, expr, currentAttribute!!)
                     }
-                    println("ABC $htmlElement")
-                    while (htmlElement is PsiWhiteSpace) {
-                        htmlElement = htmlElement.nextSibling
+                    if (currentAttribute != null) {
+                        annotations[htmlElement] = AnnotationResult("Unparsed attribute")
                     }
-                    // if this fails we're probably missing some attribute parsing
-                    check((htmlElement as XmlToken).tokenType == XmlTokenType.XML_TAG_END)
-                    htmlElement = htmlElement.nextSibling
-
-                    while (htmlElement is PsiWhiteSpace || htmlElement is XmlText && htmlElement.text.trim()
-                            .isEmpty()
-                    ) {
-                        htmlElement = htmlElement.nextSibling
-                    }
+                    var currentChild = tagElement.firstChild
                     content?.let { content ->
                         val expr = content.valueArguments.single()
                             .getArgumentExpression()!! as KtLambdaExpression
-                        htmlElement = checkExpression(annotations, expr, htmlElement as XmlElement)
+                        currentChild = checkExpression(annotations, expr, currentChild as XmlElement)
                     }
-                    // closing tag
-                    while (htmlElement is PsiWhiteSpace) {
-                        htmlElement = htmlElement.nextSibling
-                    }
-                    when (htmlElement) {
-                        is XmlToken if htmlElement.tokenType == XmlTokenType.XML_END_TAG_START -> {
-                            println("def $htmlElement")
-                        }
+                    when (currentChild) {
                         is XmlTag -> {
                             annotations[htmlElement] = AnnotationResult("Unparsed element")
                             if (content != null) {
@@ -193,7 +170,7 @@ object Extractor {
                                 annotations[expression] = AnnotationResult(
                                     "Here more content parsing is needed", MyQuickFixAddToEndOfBlock(
                                         expr.bodyExpression!!,
-                                        "${(htmlElement).name}.content {}"
+                                        "${(currentChild).name}.content {}"
                                     )
                                 )
                             } else {
@@ -202,107 +179,17 @@ object Extractor {
                                 )
                             }
                         }
+                        is XmlText -> {
+                            annotations[expression] = AnnotationResult(
+                                "Here text would need to be parsed"
+                            )
+                        }
                     }
                 } else {
                     annotations[expression] = AnnotationResult("fail 3")
                     return htmlElement
                 }
-                /*else {
-                    // receiverExpression "html"
-                    // selectorExpression .content {}
-                    analyze(receiverExpression) {
-                        // de/selfmade4u/tucanpluskmp/HtmlBuilder
-                        println(receiverExpression.expressionType)
-                    }
-                    analyze(selectorExpression) {
-                        val resolveToCall: KaCallInfo? =
-                            selectorExpression.resolveToCall() // sealed class, can get a Ka(Function)Call
-                        when (resolveToCall) {
-                            is KaSuccessCallInfo -> {
-                                val psi = (resolveToCall.call as KaFunctionCall<*>).symbol.psi
-
-                                val fqName = (resolveToCall.call as KaFunctionCall<*>).symbol.callableId!!.asSingleFqName()
-                                    .asString()
-                                when (fqName) {
-                                    "de.selfmade4u.tucanpluskmp.html", "de.selfmade4u.tucanpluskmp.head", "de.selfmade4u.tucanpluskmp.title", "de.selfmade4u.tucanpluskmp.meta" -> {
-                                        val tag = receiverExpression.text
-
-                                            when (htmlElement) {
-                                                is XmlToken if htmlElement.tokenType == XmlTokenType.XML_TAG_END -> {
-                                                    println("found closing tag")
-                                                    htmlElement = htmlElement.nextSibling
-                                                }
-
-                                                is XmlTag -> {
-                                                    annotations[expr.rightCurlyBrace!! as PsiElement] = AnnotationResult(
-                                                        "Fix the parsing here 1",
-                                                        MyQuickFix(
-                                                            expr.bodyExpression as KtExpression,
-                                                            "${(htmlElement).name} {}"
-                                                        )
-                                                    )
-                                                }
-
-                                                is XmlText -> {
-                                                    annotations[expr.rightCurlyBrace!! as PsiElement] =
-                                                        AnnotationResult(
-                                                            "Fix the parsing here 2",
-                                                            MyQuickFix(
-                                                                expr.bodyExpression as KtExpression,
-                                                                "extractText()"
-                                                            )
-                                                        )
-                                                }
-
-                                                is HtmlRawTextImpl -> {
-                                                    annotations[expr.rightCurlyBrace!! as PsiElement] =
-                                                        AnnotationResult(
-                                                            "Fix the parsing here 3",
-                                                            MyQuickFix(
-                                                                expr.bodyExpression as KtExpression,
-                                                                "extractText()"
-                                                            )
-                                                        )
-                                                }
-
-                                                else -> {
-                                                    annotations[expr.rightCurlyBrace!! as PsiElement] =
-                                                        AnnotationResult("Failed to parse the rest but can't autofix $htmlElement ${htmlElement.text}")
-                                                    annotations[htmlElement] = AnnotationResult("Remaining part to parse")
-                                                }
-                                            }
-                                            return htmlElement as XmlElement
-                                        } else {
-                                            annotations[selectorExpression] =
-                                                AnnotationResult("expected <$tag> but found ${htmlElement::class}")
-                                            return htmlElement
-                                        }
-                                    }
-                                    else -> {
-                                        TODO(fqName)
-                                        val implementation = psi as? KtFunction
-
-                                        if (implementation != null) {
-                                            annotations[expression] =
-                                                AnnotationResult("TOOD implementation $fqName needs analysis")
-                                        } else {
-                                            annotations[expression] = AnnotationResult("TODO unknown called method $fqName")
-                                        }
-                                        return htmlElement
-                                    }
-                                }
-                            }
-
-                            else -> {
-                                annotations[expression] = AnnotationResult("failed to resolve")
-                                return htmlElement
-                            }
-                        }
-                    }*/
-
-                println(expression.selectorExpression)
-                println(expression.receiverExpression)
-                return htmlElement
+                return htmlElement.nextInterestingSibling
             }
             is KtCallExpression -> {
                 val selectorExpression = expression
