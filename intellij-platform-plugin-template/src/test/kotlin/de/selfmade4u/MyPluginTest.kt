@@ -3,7 +3,6 @@ package de.selfmade4u
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.EDT
 import com.intellij.openapi.application.WriteAction
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.ExpectedHighlightingData
 import com.intellij.testFramework.IdeaTestUtil
@@ -11,8 +10,6 @@ import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
-import com.intellij.testFramework.runInEdtAndWait
-import com.intellij.testFramework.utils.editor.reloadFromDisk
 import com.intellij.testFramework.utils.vfs.deleteRecursively
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -20,6 +17,9 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.kotlin.idea.base.highlighting.dsl.DslStyleUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import java.util.stream.IntStream
 
 // https://github.com/JetBrains/intellij-community/blob/master/plugins/kotlin/test-framework/test/org/jetbrains/kotlin/idea/test/kmp/KMPNativeLinuxProjectDescriptor.kt
 // https://github.com/JetBrains/intellij-community/blob/4192b57a80be69fb8901c5bbc3adf393285c432d/plugins/kotlin/test-framework/test/org/jetbrains/kotlin/idea/test/KotlinLightProjectDescriptor.java#L19
@@ -34,16 +34,22 @@ import org.junit.jupiter.api.Test
 // https://github.com/JetBrains/intellij-community/tree/master/platform/testFramework/junit5/test/showcase
 class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDescriptor({ IdeaTestUtil.getMockJdk(LanguageLevel.HIGHEST) }, listOf("org.jetbrains.kotlin:kotlin-stdlib:2.4.0-Beta2"))) {
 
-    // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
-    @Test
-    fun testHtmlParsingQuickFix() = runBlocking {
+    companion object {
+        @JvmStatic
+        fun range(): IntStream {
+            return IntStream.range(1, 4)
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("range")
+    fun testWithRangeMethodSource(i: Int) = runBlocking {
         withContext(Dispatchers.EDT) {
             fixture.copyFileToProject("HtmlParsing.kt")
             fixture.copyDirectoryToProject("simple_html", "html")
-            for (i in 1..3) {
+                System.err.println(i)
                 verifyHighlighting("main$i.kt")
                 verifyQuickFix("main${i}_unannotated.kt", "main${i + 1}_unannotated.kt")
-            }
         }
     }
 
@@ -87,4 +93,5 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             "AWT-Wayland"
         )
     }
+
 }

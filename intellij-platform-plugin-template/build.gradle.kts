@@ -22,6 +22,7 @@ dependencies {
     // Import the BOM to align all junit-jupiter/platform versions
     testImplementation(platform("org.junit:junit-bom:5.14.4"))
 
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter")
