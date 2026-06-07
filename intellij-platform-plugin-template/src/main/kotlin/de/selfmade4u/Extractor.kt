@@ -130,6 +130,7 @@ object Extractor {
                 return htmlTag
             }
             is KtDotQualifiedExpression -> {
+                // we should be able to detect attributes and content at once so either we've fully parsed or not
                 val receiverExpression = expression.receiverExpression
                 val selectorExpression = expression.selectorExpression
                 println("selector ${receiverExpression::class}")
@@ -169,15 +170,18 @@ object Extractor {
                 val tag = name.getReferencedName()
                 if (htmlElement is XmlTag && htmlElement.name == tag) {
                     val tagElement = htmlElement
-                    println("matched html tag")
+                    println("matched $tag tag")
                     var currentAttribute: XmlElement? = htmlElement.attributes.firstOrNull()
                     attributes?.let { attributes ->
                         val expr = attributes.valueArguments.single()
                             .getArgumentExpression()!! as KtLambdaExpression
                         currentAttribute = checkExpression(annotations, expr, currentAttribute!!)
                     }
+                    println("currentAttribute $currentAttribute")
                     if (currentAttribute != null) {
-                        annotations[htmlElement] = AnnotationResult("Unparsed attribute")
+                        annotations[attributes!!] = AnnotationResult("Unparsed attribute",
+                            MyQuickFixAddToEndOfBlock((attributes.valueArguments.single()
+                                .getArgumentExpression()!! as KtLambdaExpression).bodyExpression!!, "extractAttribute()")) // TODO quickfix
                     }
                     var currentChild = tagElement.firstInterestingChild
                     content?.let { content ->
