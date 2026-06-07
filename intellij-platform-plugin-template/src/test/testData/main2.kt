@@ -6,12 +6,12 @@ object Test {
         val a = 42;
         var sessionIdTmp = sessionId
         var menuIdTmp = menuId
-        html.attributes {
+        <error descr="Here more content parsing is needed">html.attributes {
             attribute("xmlns", "http://www.w3.org/1999/xhtml")
             attribute("xml:lang", "de")
             attribute("lang", "de")
         }.content {
             <error descr="Here more content parsing is needed">head.content {}</error>
-        }
+        }</error>
     }
 }
