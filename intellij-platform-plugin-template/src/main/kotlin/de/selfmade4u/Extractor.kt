@@ -48,7 +48,7 @@ private val XmlElement.nextInterestingSibling: XmlElement?
         var next: PsiElement? = this
         do {
             next = next?.nextSibling
-        } while (next is PsiWhiteSpace || next is XmlText && next.text.trim()
+        } while (next is PsiWhiteSpace || next is XmlText && next.value.trim()
                 .isEmpty() || next is XmlToken
         )
         return next as XmlElement?
@@ -57,7 +57,7 @@ private val XmlElement.nextInterestingSibling: XmlElement?
 private val XmlElement.firstInterestingChild: XmlElement?
     get() {
         var next: PsiElement? = this.firstChild
-         while (next is PsiWhiteSpace || next is XmlText && next.text.trim()
+         while (next is PsiWhiteSpace || next is XmlText && next.value.trim()
                 .isEmpty() || next is XmlToken || next is XmlAttribute
         ) {
              next = next.nextSibling
