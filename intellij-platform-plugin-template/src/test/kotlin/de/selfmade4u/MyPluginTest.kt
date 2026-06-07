@@ -75,7 +75,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
                     .lastOrNull { it.asModCommandAction()?.javaClass?.packageName == "de.selfmade4u" }
                     ?: break
                 fixture.checkPreviewAndLaunchAction(action)
-                println(fixture.editor.document.text)
+                //println(fixture.editor.document.text)
             }
             WriteAction.run<Throwable> {
                 main.deleteRecursively()

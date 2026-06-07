@@ -138,8 +138,8 @@ object Extractor {
                 // we should be able to detect attributes and content at once so either we've fully parsed or not
                 val receiverExpression = expression.receiverExpression
                 val selectorExpression = expression.selectorExpression
-                println("selector ${receiverExpression::class}")
-                println("receiver ${selectorExpression!!::class}")
+                //println("selector ${receiverExpression::class}")
+                //println("receiver ${selectorExpression!!::class}")
                 val name: KtNameReferenceExpression
                 val attributes: KtCallExpression?
                 val content: KtCallExpression?
@@ -171,18 +171,18 @@ object Extractor {
                     annotations[expression] = AnnotationResult("Unknown chained call ${expression::class}")
                     return htmlElement
                 }
-                println("name ${name.text} attributes ${attributes?.text} content ${content?.text}")
+                //println("name ${name.text} attributes ${attributes?.text} content ${content?.text}")
                 val tag = name.getReferencedName()
                 if (htmlElement is XmlTag && htmlElement.name == tag) {
                     val tagElement = htmlElement
-                    println("matched $tag tag")
+                    //println("matched $tag tag")
                     var currentAttribute: XmlElement? = htmlElement.attributes.firstOrNull()
                     attributes?.let { attributes ->
                         val expr = attributes.valueArguments.single()
                             .getArgumentExpression()!! as KtLambdaExpression
                         currentAttribute = checkExpression(annotations, expr, currentAttribute!!)
                     }
-                    println("currentAttribute $currentAttribute")
+                    //println("currentAttribute $currentAttribute")
                     if (currentAttribute != null) {
                         annotations[attributes!!] = AnnotationResult("Unparsed attribute",
                             MyQuickFixAddToEndOfBlock((attributes.valueArguments.single()
@@ -194,7 +194,7 @@ object Extractor {
                             .getArgumentExpression()!! as KtLambdaExpression
                         currentChild = checkExpression(annotations, expr, currentChild as XmlElement)
                     }
-                    println("currentchild $currentChild")
+                    //println("currentchild $currentChild")
                     when (currentChild) {
                         is XmlTag -> {
                             annotations[htmlElement] = AnnotationResult("Unparsed element")
@@ -265,7 +265,7 @@ object Extractor {
                             when (fqName) {
                                 "de.selfmade4u.tucanpluskmp.HtmlAttributeScope.attribute" -> {
                                     if (htmlElement is XmlAttribute) {
-                                        println("matched attribute")
+                                        //println("matched attribute")
                                         check(selectorExpression.valueArguments.size == 2)
                                         val (first, second) = selectorExpression.valueArguments
                                         if (htmlElement.name != getStringLiteral(first.stringTemplateExpression!!)) {
@@ -283,7 +283,7 @@ object Extractor {
                                             )
                                         }
                                         val afterAttribute = htmlElement.getNextSiblingIgnoringWhitespace()
-                                        println("afterAttribute $afterAttribute")
+                                        //println("afterAttribute $afterAttribute")
                                         return afterAttribute as? XmlAttribute
                                     } else {
                                         annotations[selectorExpression] =
@@ -379,7 +379,7 @@ object Extractor {
         thisLogger().warn("htmls2 ${files.map { (it.findPsiFile(project) as XmlFile).rootTag }}")
         val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
 
-        println("$htmlFiles")
+        //println("$htmlFiles")
         for (htmlFile in htmlFiles) {
             val parsedUntil = checkExpression(annotations, block, htmlFile)
         }
