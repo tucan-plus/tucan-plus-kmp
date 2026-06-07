@@ -37,7 +37,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     companion object {
         @JvmStatic
         fun range(): IntStream {
-            return IntStream.range(1, 4)
+            return IntStream.range(1, 5)
         }
     }
 
@@ -56,7 +56,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     private fun verifyQuickFix(filePath: String, output: String) {
         val main = fixture.copyFileToProject(filePath, "main.kt")
         fixture.openFileInEditor(main)
-        fixture.checkPreviewAndLaunchAction(fixture.getAllQuickFixes("main.kt").single().asIntention())
+        fixture.checkPreviewAndLaunchAction(fixture.getAllQuickFixes("main.kt").last().asIntention())
         println(fixture.editor.document.text)
         fixture.checkResultByFile(output)
         WriteAction.run<Throwable> {
