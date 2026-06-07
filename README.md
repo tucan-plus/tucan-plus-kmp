@@ -12,6 +12,12 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM
 * [/iosApp](./iosApp/iosApp) contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform,
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
+
+Install MCP Server plugin in Android Studio.
+```bash
+llama-server -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q3_K_M     --temp 0.6     --top-p 0.95     --top-k 20     --presence-penalty 0.0     --min-p 0.00     --spec-type draft-mtp --spec-draft-n-max 2 -c 262144
+llama-server -hf unsloth/NVIDIA-Nemotron-3-Nano-Omni-30B-A3B-Reasoning-GGUF:UD-Q4_K_XL --temp 0.6 --top-p 0.96 -c 256000
+
 ### Build and Run Android Application
 
 To build and run the development version of the Android app, use the run configuration from the run widget

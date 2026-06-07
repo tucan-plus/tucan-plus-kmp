@@ -106,8 +106,8 @@ data class ModuleResultsEntity(@PrimaryKey(autoGenerate = true) var id: Long, va
 data class ModuleResults(
     @Embedded val moduleResultsEntity: ModuleResultsEntity,
     @Relation(
-        parentColumn = "id",
-        entityColumn = "moduleResultsId"
+        parentColumns = ["id"],
+        entityColumns = ["moduleResultsId"]
     )
     val moduleResults: List<ModuleResultEntity>
 )
