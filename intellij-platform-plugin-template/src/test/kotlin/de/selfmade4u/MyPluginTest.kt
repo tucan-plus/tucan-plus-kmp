@@ -62,6 +62,26 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         }
     }
 
+    @Test
+    fun testLarge() = runBlocking {
+        withContext(Dispatchers.EDT) {
+            fixture.copyFileToProject("HtmlParsing.kt")
+            fixture.copyDirectoryToProject("simple_html", "html")
+            val path = "main${(range().reduce { l, r -> r }).asInt}_unannotated.kt"
+            val main = fixture.copyFileToProject(path)
+            fixture.openFileInEditor(main)
+            for (i in 0..100) {
+                fixture.checkPreviewAndLaunchAction(
+                    fixture.getAllQuickFixes().last().asIntention()
+                )
+                println(fixture.editor.document.text)
+            }
+            WriteAction.run<Throwable> {
+                main.deleteRecursively()
+            }
+        }
+    }
+
     private fun verifyQuickFix(filePath: String, output: String) {
         val main = fixture.copyFileToProject(filePath)
         fixture.openFileInEditor(main)

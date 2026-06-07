@@ -203,7 +203,7 @@ object Extractor {
                                     )
                                 } else {
                                     annotations[expression] = AnnotationResult(
-                                        "Here more content parsing is needed", MyQuickFixAddToEndOfBlock(
+                                        "Here more attribute parsing is needed", MyQuickFixAddToEndOfBlock(
                                             expr.bodyExpression!!,
                                             "${(currentChild).name}.attributes {}"
                                         )
@@ -216,14 +216,21 @@ object Extractor {
                             }
                         }
                         is HtmlRawTextImpl, is XmlText -> {
-                            val expr = content!!.valueArguments.single()
-                                .getArgumentExpression()!! as KtLambdaExpression
-                            annotations[expression] = AnnotationResult(
-                                "Here text would need to be parsed",MyQuickFixAddToEndOfBlock(
-                                    expr.bodyExpression!!,
-                                    "extractText()"
+                            if (content != null) {
+                                val expr = content.valueArguments.single()
+                                    .getArgumentExpression()!! as KtLambdaExpression
+                                annotations[expression] = AnnotationResult(
+                                    "Here text would need to be parsed", MyQuickFixAddToEndOfBlock(
+                                        expr.bodyExpression!!,
+                                        "extractText()"
+                                    )
                                 )
-                            )
+                            } else {
+                                annotations[expression] = AnnotationResult(
+                                    "Here more content parsing is needed",
+                                    MyQuickFixAddContentCall(attributes!!)
+                                )
+                            }
                         }
                         null -> {
                             // done parsing
