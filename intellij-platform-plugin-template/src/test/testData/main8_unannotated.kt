@@ -6,19 +6,20 @@ object Test {
         val a = 42;
         var sessionIdTmp = sessionId
         var menuIdTmp = menuId
-        <error descr="Here more content parsing is needed">html.attributes {
+        html.attributes {
             attribute("xmlns", "http://www.w3.org/1999/xhtml")
             attribute("xml:lang", "de")
             attribute("lang", "de")
         }.content {
-            <error descr="Here more content parsing is needed">head.content {
-            title.content {
-                extractText()
+            head.content {
+                title.content {
+                    extractText()
+                }
+                meta.attributes {
+                    attribute("http-equiv", "X-UA-Compatible")
+                    attribute("content", "IE=edge")
+                }
             }
-            meta.<error descr="Unparsed attribute">attributes {
-                attribute("http-equiv", "X-UA-Compatible")
-            }</error>
-        }</error>
-        }</error>
+        }
     }
 }

@@ -37,7 +37,7 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
     companion object {
         @JvmStatic
         fun range(): IntStream {
-            return IntStream.range(1, 7)
+            return IntStream.range(1, 8)
         }
     }
 
@@ -47,9 +47,18 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
         withContext(Dispatchers.EDT) {
             fixture.copyFileToProject("HtmlParsing.kt")
             fixture.copyDirectoryToProject("simple_html", "html")
-                System.err.println(i)
-                verifyHighlighting("main$i.kt")
-                verifyQuickFix("main${i}_unannotated.kt", "main${i + 1}_unannotated.kt")
+            System.err.println(i)
+            verifyHighlighting("main$i.kt")
+            verifyQuickFix("main${i}_unannotated.kt", "main${i + 1}_unannotated.kt")
+        }
+    }
+
+    @Test
+    fun testLast() = runBlocking {
+        withContext(Dispatchers.EDT) {
+            fixture.copyFileToProject("HtmlParsing.kt")
+            fixture.copyDirectoryToProject("simple_html", "html")
+            verifyHighlighting("main${(range().reduce { l, r -> r }).asInt}.kt")
         }
     }
 

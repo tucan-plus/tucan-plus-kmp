@@ -17,6 +17,7 @@ object Test {
             }
             meta.<error descr="Unparsed attribute">attributes {
                 attribute("http-equiv", "X-UA-Compatible")
+                attribute("content", "IE=edge")
             }</error>
         }</error>
         }</error>
