@@ -72,7 +72,9 @@ interface BodyContentScope : BaseContentScope {
     val legend: LegendBuilder
     val label: LabelBuilder
     val h1: H1Builder
+    val h2: H2Builder
     val p: PBuilder
+    val strong: StrongBuilder
     val ul: UlBuilder
     val li: LiBuilder
     val header: HeaderBuilder
@@ -149,7 +151,9 @@ interface ImgBuilder : TagBuilder<Body, BodyContentScope>
 interface LegendBuilder : TagBuilder<Body, BodyContentScope>
 interface LabelBuilder : TagBuilder<Body, BodyContentScope>
 interface H1Builder : TagBuilder<Body, BodyContentScope>
+interface H2Builder : TagBuilder<Body, BodyContentScope>
 interface PBuilder : TagBuilder<Body, BodyContentScope>
+interface StrongBuilder : TagBuilder<Body, BodyContentScope>
 interface UlBuilder : TagBuilder<Body, BodyContentScope>
 interface LiBuilder : TagBuilder<Body, BodyContentScope>
 interface HeaderBuilder : TagBuilder<Body, BodyContentScope>
