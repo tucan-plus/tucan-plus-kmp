@@ -218,6 +218,9 @@ object Extractor {
                                 "Here text would need to be parsed"
                             )
                         }
+                        null -> {
+                            // done parsing
+                        }
                         else -> {
                             check(false)
                         }
