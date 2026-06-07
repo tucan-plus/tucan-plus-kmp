@@ -174,12 +174,12 @@ object Extractor {
                         annotations[htmlElement] = AnnotationResult("Unparsed attribute")
                     }
                     var currentChild = tagElement.firstInterestingChild
-                    println("currentchild $currentChild")
                     content?.let { content ->
                         val expr = content.valueArguments.single()
                             .getArgumentExpression()!! as KtLambdaExpression
                         currentChild = checkExpression(annotations, expr, currentChild as XmlElement)
                     }
+                    println("currentchild $currentChild")
                     when (currentChild) {
                         is XmlTag -> {
                             annotations[htmlElement] = AnnotationResult("Unparsed element")
@@ -198,7 +198,7 @@ object Extractor {
                                 )
                             }
                         }
-                        is HtmlRawTextImpl -> {
+                        is HtmlRawTextImpl, is XmlText -> {
                             annotations[expression] = AnnotationResult(
                                 "Here text would need to be parsed"
                             )
