@@ -44,7 +44,7 @@ private val XmlElement.nextInterestingSibling: XmlElement?
         do {
             next = next?.nextSibling
         } while (next is PsiWhiteSpace || next is XmlText && next.text.trim()
-                .isEmpty() || next is XmlToken || next is XmlAttribute
+                .isEmpty() || next is XmlToken
         )
         return next as XmlElement?
     }
