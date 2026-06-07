@@ -1,9 +1,8 @@
 package de.selfmade4u
 
-import com.intellij.codeInsight.daemon.impl.HighlightInfo
-import com.intellij.codeInsight.daemon.impl.HighlightInfoType
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.EDT
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.ExpectedHighlightingData
@@ -13,6 +12,11 @@ import com.intellij.testFramework.fixtures.DefaultLightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import com.intellij.testFramework.runInEdtAndWait
+import com.intellij.testFramework.utils.editor.reloadFromDisk
+import com.intellij.testFramework.utils.vfs.deleteRecursively
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.jetbrains.kotlin.idea.base.highlighting.dsl.DslStyleUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -32,23 +36,42 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
 
     // https://plugins.jetbrains.com/docs/intellij/code-intentions-preview.html#testing
     @Test
-    fun testHtmlParsingQuickFix() {
-        fixture.copyFileToProject("HtmlParsing.kt")
-        fixture.copyDirectoryToProject("simple_html", "html")
-        checkHighlighting(fixture.copyFileToProject("main1.kt", "main.kt"))
-        checkHighlighting(fixture.copyFileToProject("main2.kt", "main.kt"))
+    fun testHtmlParsingQuickFix() = runBlocking {
+        withContext(Dispatchers.EDT) {
+            fixture.copyFileToProject("HtmlParsing.kt")
+            fixture.copyDirectoryToProject("simple_html", "html")
+            verifyHighlighting("main1.kt")
+            verifyQuickFix("main1.kt")
+            verifyHighlighting("main2.kt")
+        }
     }
 
-    private fun checkHighlighting(main: VirtualFile) {
-        runInEdtAndWait {
-            // https://github.com/JetBrains/intellij-community/blob/037ff732d0aecb30622e490f3aff5eb46c79691b/plugins/kotlin/gradle/gradle-java/tests.shared/test/org/jetbrains/kotlin/gradle/K2GradleCodeInsightTestCase.kt#L63
-            fixture.openFileInEditor(main)
-            val data = ExpectedHighlightingData(fixture.editor.document, true, true, false, false)
-            // manually register DSL_TYPE_SEVERITY to ignore it
-            val severity = DslStyleUtils.typeById(1).getSeverity(null)
-            data.registerHighlightingType(severity.name, ExpectedHighlightingData.ExpectedHighlightingSet(severity, false, false))
-            data.init()
-            (fixture as CodeInsightTestFixtureImpl).collectAndCheckHighlighting(data)
+    private fun verifyQuickFix(filePath: String) {
+        val main = fixture.copyFileToProject(filePath, "main.kt")
+        fixture.openFileInEditor(main)
+        fixture.checkPreviewAndLaunchAction(fixture.getAllQuickFixes("main.kt").single())
+        println(fixture.editor.document.text)
+        fixture.checkResultByFile("main2.kt")
+        WriteAction.run<Throwable> {
+            main.deleteRecursively()
+        }
+    }
+
+    private fun verifyHighlighting(filePath: String) {
+        // https://github.com/JetBrains/intellij-community/blob/037ff732d0aecb30622e490f3aff5eb46c79691b/plugins/kotlin/gradle/gradle-java/tests.shared/test/org/jetbrains/kotlin/gradle/K2GradleCodeInsightTestCase.kt#L63
+        val main = fixture.copyFileToProject(filePath, "main.kt")
+        fixture.openFileInEditor(main)
+        val data = ExpectedHighlightingData(fixture.editor.document, true, true, false, false)
+        // manually register DSL_TYPE_SEVERITY to ignore it
+        val severity = DslStyleUtils.typeById(1).getSeverity(null)
+        data.registerHighlightingType(
+            severity.name,
+            ExpectedHighlightingData.ExpectedHighlightingSet(severity, false, false)
+        )
+        data.init()
+        (fixture as CodeInsightTestFixtureImpl).collectAndCheckHighlighting(data)
+        WriteAction.run<Throwable> {
+            main.deleteRecursively()
         }
     }
 

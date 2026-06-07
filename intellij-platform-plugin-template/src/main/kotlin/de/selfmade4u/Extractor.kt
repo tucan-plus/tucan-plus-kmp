@@ -167,13 +167,16 @@ object Extractor {
                     while (htmlElement is PsiWhiteSpace) {
                         htmlElement = htmlElement.nextSibling
                     }
-                    when (htmlElement.tokenType) {
-                        XmlTokenType.XML_END_TAG_START -> {
+                    when (htmlElement) {
+                        is XmlToken if htmlElement.tokenType == XmlTokenType.XML_END_TAG_START -> {
                             println("def $htmlElement")
                         }
-                        else -> {
+                        is XmlTag -> {
                             annotations[htmlElement] = AnnotationResult("Unparsed element")
-                            annotations[expression] = AnnotationResult("Here more content parsing is needed")
+                            annotations[expression] = AnnotationResult("Here more content parsing is needed",  MyQuickFix(
+                                expression,
+                                "${(htmlElement).name} {}"
+                            ))
                         }
                     }
                 } else {
