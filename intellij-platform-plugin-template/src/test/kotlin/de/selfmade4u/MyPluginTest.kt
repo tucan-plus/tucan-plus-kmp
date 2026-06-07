@@ -70,10 +70,11 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
             val path = "main${(range().reduce { l, r -> r }).asInt}_unannotated.kt"
             val main = fixture.copyFileToProject(path)
             fixture.openFileInEditor(main)
-            for (i in 0..100) {
-                fixture.checkPreviewAndLaunchAction(
-                    fixture.getAllQuickFixes().last().asIntention()
-                )
+            while (true) {
+                val action = fixture.getAvailableQuickFixes()
+                    .lastOrNull { it.asModCommandAction()?.javaClass?.packageName == "de.selfmade4u" }
+                    ?: break
+                fixture.checkPreviewAndLaunchAction(action)
                 println(fixture.editor.document.text)
             }
             WriteAction.run<Throwable> {
