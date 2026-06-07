@@ -15,16 +15,13 @@ import com.intellij.psi.impl.source.html.HtmlRawTextImpl
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.*
-import com.intellij.refactoring.extractMethod.newImpl.ExtractMethodHelper.addSiblingAfter
 import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.components.expressionType
 import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
 import org.jetbrains.kotlin.analysis.api.resolution.KaSuccessCallInfo
 import org.jetbrains.kotlin.analysis.api.resolution.symbol
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
-import org.jetbrains.kotlin.idea.util.CommentSaver.Companion.tokenType
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
@@ -43,19 +40,36 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 // https://docs.google.com/document/d/1-2_cNjq-Mc28j0eCX1TEuMM-k6UXKvfPTutvIBafIJA/edit?pli=1&tab=t.0#heading=h.z5lwn79yvfdm
 // https://github.com/JetBrains/intellij-community/blob/91a83ad51b25c1f4e8c95abed95fe9fac117caac/plugins/kotlin/code-insight/api/src/org/jetbrains/kotlin/idea/codeinsight/api/applicable/intentions/KotlinPsiUpdateModCommandAction.kt#L12
 // expression into which to insert at the end?
-class MyQuickFix(element: KtExpression, val expression: String) : PsiUpdateModCommandAction<KtExpression>(element) {
+class MyQuickFixAddToEndOfBlock(element: KtBlockExpression, val expression: String) : PsiUpdateModCommandAction<KtBlockExpression>(element) {
 
-    override fun getFamilyName(): String = "My Plugin Fixes"
+    override fun getFamilyName(): String = "My Plugin Fixes 1"
 
-    override fun getPresentation(context: ActionContext, element: KtExpression): Presentation {
-        return Presentation.of("Fix the html parsing")
+    override fun getPresentation(context: ActionContext, element: KtBlockExpression): Presentation {
+        return Presentation.of("Fix the html parsing 1")
     }
 
-    override fun invoke(context: ActionContext, element: KtExpression, updater: ModPsiUpdater) {
-        element.add(KtPsiFactory(context.project).createExpression(expression))
+    override fun invoke(context: ActionContext, element: KtBlockExpression, updater: ModPsiUpdater) {
+        element.addBefore(KtPsiFactory(context.project).createExpression(expression), element.rBrace)
         element.add(KtPsiFactory(context.project).createNewLine())
     }
 }
+
+class MyQuickFixAddContentCall(element: KtCallExpression) : PsiUpdateModCommandAction<KtCallExpression>(element) {
+
+    override fun getFamilyName(): String = "My Plugin Fixes 2"
+
+    override fun getPresentation(context: ActionContext, element: KtCallExpression): Presentation {
+        return Presentation.of("Fix the html parsing 2")
+    }
+
+    override fun invoke(context: ActionContext, element: KtCallExpression, updater: ModPsiUpdater) {
+        val new = KtPsiFactory(context.project).buildExpression {
+            appendExpressions(listOf(element, KtPsiFactory(context.project).createExpression("content {}")), ".")
+        }
+        element.replace(new)
+    }
+}
+
 
 object Extractor {
 
@@ -173,10 +187,20 @@ object Extractor {
                         }
                         is XmlTag -> {
                             annotations[htmlElement] = AnnotationResult("Unparsed element")
-                            annotations[expression] = AnnotationResult("Here more content parsing is needed",  MyQuickFix(
-                                expression,
-                                "${(htmlElement).name} {}"
-                            ))
+                            if (content != null) {
+                                val expr = content.valueArguments.single()
+                                    .getArgumentExpression()!! as KtLambdaExpression
+                                annotations[expression] = AnnotationResult(
+                                    "Here more content parsing is needed", MyQuickFixAddToEndOfBlock(
+                                        expr.bodyExpression!!,
+                                        "${(htmlElement).name} {}"
+                                    )
+                                )
+                            } else {
+                                annotations[expression] = AnnotationResult(
+                                    "Here more content parsing is needed", MyQuickFixAddContentCall(attributes!!)
+                                )
+                            }
                         }
                     }
                 } else {
@@ -401,7 +425,7 @@ object Extractor {
         }
     }
 
-    data class AnnotationResult(val message: String, val quickFix: MyQuickFix? = null)
+    data class AnnotationResult(val message: String, val quickFix: PsiUpdateModCommandAction<*>? = null)
 
     // https://github.com/JetBrains/intellij-community/blob/b926099be855e2e1c34d21df1e496f29ecbe7f52/platform/core-impl/src/com/intellij/util/CachedValueStabilityChecker.java#L62
     fun myFun(
