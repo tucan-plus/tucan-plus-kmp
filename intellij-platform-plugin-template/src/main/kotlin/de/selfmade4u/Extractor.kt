@@ -190,9 +190,13 @@ object Extractor {
                     }
                     var currentChild = tagElement.firstInterestingChild
                     content?.let { content ->
+                        if (currentChild == null) {
+                            annotations[content] = AnnotationResult("Superfluous calls after this call")
+                            return htmlElement.nextInterestingSibling
+                        }
                         val expr = content.valueArguments.single()
                             .getArgumentExpression()!! as KtLambdaExpression
-                        currentChild = checkExpression(annotations, expr, currentChild as XmlElement)
+                        currentChild = checkExpression(annotations, expr, currentChild)
                     }
                     //println("currentchild $currentChild")
                     when (currentChild) {

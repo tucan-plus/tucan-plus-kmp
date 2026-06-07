@@ -3,7 +3,7 @@ package de.selfmade4u.tucanpluskmp
 object Test {
     @HtmlFromResources("html")
     fun RootContentScope.someFun(sessionId: String, menuId: String) {
-        val a = 42;
+        val abc = 42;
         var sessionIdTmp = sessionId
         var menuIdTmp = menuId
         <error descr="Here more content parsing is needed">html.attributes {

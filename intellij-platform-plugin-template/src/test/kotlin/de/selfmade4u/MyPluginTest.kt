@@ -77,9 +77,19 @@ class MyPluginTest : LightJavaCodeInsightFixtureTestCase5(DefaultLightProjectDes
                 fixture.checkPreviewAndLaunchAction(action)
                 //println(fixture.editor.document.text)
             }
+            println(fixture.editor.document.text)
             WriteAction.run<Throwable> {
                 main.deleteRecursively()
             }
+        }
+    }
+
+    @Test
+    fun testFinal() = runBlocking {
+        withContext(Dispatchers.EDT) {
+            fixture.copyFileToProject("HtmlParsing.kt")
+            fixture.copyDirectoryToProject("simple_html", "html")
+            verifyHighlighting("main100.kt")
         }
     }
 
