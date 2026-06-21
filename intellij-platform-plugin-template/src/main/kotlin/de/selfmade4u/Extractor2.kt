@@ -4,31 +4,18 @@ import java.util.PriorityQueue
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.modcommand.ActionContext
-import com.intellij.modcommand.ModPsiUpdater
-import com.intellij.modcommand.Presentation
-import com.intellij.modcommand.PsiUpdateModCommandAction
-import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.vfs.findDirectory
 import com.intellij.openapi.vfs.findPsiFile
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiWhiteSpace
-import com.intellij.psi.impl.source.html.HtmlRawTextImpl
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.*
-import org.jetbrains.kotlin.analysis.api.analyze
-import org.jetbrains.kotlin.analysis.api.resolution.KaCallInfo
-import org.jetbrains.kotlin.analysis.api.resolution.KaFunctionCall
-import org.jetbrains.kotlin.analysis.api.resolution.KaSuccessCallInfo
-import org.jetbrains.kotlin.analysis.api.resolution.symbol
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.getNextSiblingIgnoringWhitespace
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.util.mapAll
 
@@ -44,7 +31,7 @@ object Extractor2 {
         ) : MyHtml()
     }
 
-    class ParseAttribute() {
+    class ParseAttribute(val key: String, val value: String) {
 
     }
 
@@ -54,6 +41,7 @@ object Extractor2 {
                 val new = htmls.mapAll { it as MyHtml.Text }
 
                 if (new == null) {
+                    check(false, "Should never happen if not parsing incrementally")
                     return emptyList()
                 }
 
@@ -63,7 +51,24 @@ object Extractor2 {
 
         class ParseElement(val name: String, val attributes: List<ParseAttribute>, val children: List<ParseElement>): ParsingInstruction() {
             override fun produceNextParsingSteps(htmls: List<MyHtml>): List<ParsingInstruction> {
+                val new = htmls.mapAll { it as MyHtml.Element }
 
+                if (new == null) {
+                    check(false, "Should never happen if not parsing incrementally")
+                    return emptyList()
+                }
+
+                // parse existing attributes and then check for remaining ones
+                var htmlAttributes = new.map { it.attributes }
+
+                for (val attribute in attributes) {
+                    htmlAttributes = htmlAttributes.map {
+                        val value = it[attribute[key]]
+                        check(value == attribute.value) {
+
+                        }
+                    }
+                }
             }
         }
         // Additional error types can be added here
