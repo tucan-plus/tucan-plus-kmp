@@ -64,11 +64,11 @@ object Extractor2 {
                 for (val attribute in attributes) {
                     htmlAttributes = htmlAttributes.map {
                         val value = it[attribute[key]]
-                        check(value == attribute.value) {
-
-                        }
+                        check(value == attribute.value)
+                        it.filterNot { i -> i.key == attribute.key && i.value == attribute.value }
                     }
                 }
+                check(htmlAttributes.all { it.isEmpty() }, "TODO add to parsing")
             }
         }
         // Additional error types can be added here
