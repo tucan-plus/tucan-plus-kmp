@@ -24,11 +24,18 @@ object Extractor2 {
     sealed class MyHtml {
         data class Text(val text: String) : MyHtml()
 
-        data class Element(
+        class Element(
             val name: String,
             val attributes: Map<String, String> = emptyMap(),
-            val children: List<MyHtml> = emptyList()
-        ) : MyHtml()
+            val parent: Element?,
+            childrenConstructor: (Element) -> List<MyHtml>,
+        ) : MyHtml() {
+            val children = childrenConstructor(this)
+
+            fun nextSibling(): MyHtml? {
+                return parent!!.children.getOrNull(parent.children.indexOf(this)+1)
+            }
+        }
     }
 
     data class ParseAttribute(val key: String, val value: String) {
@@ -89,7 +96,7 @@ object Extractor2 {
                 // TODO children
 
                 // TODO do we need a nextsibling method?
-                return ParsingReturn(htmls.map { null },listOf(this))
+                return ParsingReturn(new.map { it.nextSibling() },listOf(this))
             }
 
             override fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int> {
@@ -146,23 +153,27 @@ object Extractor2 {
         val htmlTree1 = MyHtml.Element(
             name = "div",
             attributes = mapOf("class" to "container"),
-            children = listOf(
+            parent = null,
+            childrenConstructor = { parent -> listOf(
                 MyHtml.Element(
                     name = "p",
-                    children = listOf(MyHtml.Text("Hello World"))
+                    parent = parent,
+                    childrenConstructor = { parent -> listOf(MyHtml.Text("Hello World")) }
                 )
-            )
+            )}
         )
 
         val htmlTree2 = MyHtml.Element(
             name = "div",
             attributes = mapOf("class" to "somethingelse"),
-            children = listOf(
+            parent = null,
+            childrenConstructor = { parent -> listOf(
                 MyHtml.Element(
                     name = "p",
-                    children = listOf(MyHtml.Text("something else"))
+                    parent = parent,
+                    childrenConstructor = { parent -> listOf(MyHtml.Text("something else")) }
                 )
-            )
+            )}
         )
 
         treesToParser(listOf(htmlTree1, htmlTree2))
