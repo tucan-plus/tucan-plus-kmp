@@ -36,8 +36,15 @@ object Extractor2 {
     }
 
     sealed class ParsingInstruction {
+        data class ParsingReturn<T>(val parseNext: List<MyHtml>, val value: T)
+
+        abstract fun produceNextParsingSteps(htmls: List<MyHtml>): ParsingReturn<List<ParsingInstruction>>
+
+        // could be implemented in terms of the above function but that would likely be very inefficient
+        abstract fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int>
+
         data class ParseText(val text: Regex) : ParsingInstruction() {
-            override fun produceNextParsingSteps(htmls: List<MyHtml>): List<ParsingInstruction> {
+            override fun produceNextParsingSteps(htmls: List<MyHtml>): ParsingReturn<List<ParsingInstruction>> {
                 val new = htmls.mapAll { it as MyHtml.Text }
 
                 if (new == null) {
@@ -48,7 +55,7 @@ object Extractor2 {
                 return listOf(this)
             }
 
-            override fun parsingProgress(htmls: List<MyHtml>): Int {
+            override fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int> {
                 return if (htmls.all { it is MyHtml.Text }) {
                     1
                 } else {
@@ -58,7 +65,7 @@ object Extractor2 {
         }
 
         data class ParseElement(val name: String, val attributes: List<ParseAttribute>, val children: List<ParseElement>): ParsingInstruction() {
-            override fun produceNextParsingSteps(htmls: List<MyHtml>): List<ParsingInstruction> {
+            override fun produceNextParsingSteps(htmls: List<MyHtml>): ParsingReturn<List<ParsingInstruction>> {
                 val new = htmls.mapAll { it as MyHtml.Element }
 
                 if (new == null) {
@@ -83,7 +90,7 @@ object Extractor2 {
                 return listOf(this)
             }
 
-            override fun parsingProgress(htmls: List<MyHtml>): Int {
+            override fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int> {
                 val new = htmls.mapAll { it as MyHtml.Element }
 
                 if (new == null) {
@@ -113,10 +120,6 @@ object Extractor2 {
                 return 42;
             }
         }
-
-        abstract fun produceNextParsingSteps(htmls: List<MyHtml>): List<ParsingInstruction>
-
-        abstract fun parsingProgress(htmls: List<MyHtml>): Int
     }
 
     fun myFun(
@@ -171,13 +174,14 @@ object Extractor2 {
         // do work here
         // for now assume that we always create the parsers from scratch and that the input html files don't change. this should make it much simpler
 
-        val workToDo = PriorityQueue<ParsingInstruction.ParseElement>({ a, b ->
-            a.parsingProgress(htmlTrees).compareTo(b.parsingProgres(htmlTrees))
+        // cache comparison value
+        val workToDo = PriorityQueue<Pair<ParsingInstruction.ParseElement, Int>>({ a, b ->
+            a.second.compareTo(b.second)
         })
-        workToDo.add(ParsingInstruction.ParseElement("div", listOf(), listOf()))
+        workToDo.add(ParsingInstruction.ParseElement("div", listOf(), listOf()).let { Pair(it, it.parsingProgress(htmlTrees).value) })
 
         while (!workToDo.isEmpty()) {
-            val first = workToDo.remove();
+            val first = workToDo.remove().first;
 
             // try adding a new element:
             // for efficiency the states should store where in the html they currently are and where in the html parsing state they currently are
