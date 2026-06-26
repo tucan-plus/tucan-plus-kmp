@@ -5,7 +5,13 @@ import java.util.PriorityQueue
 object Extractor2 {
 
     sealed class MyHtml {
-        data class Text(val text: String) : MyHtml()
+        abstract fun nextSibling(): MyHtml?
+
+        data class Text(val text: String, val parent: Element?) : MyHtml() {
+            override fun nextSibling(): MyHtml? {
+                return parent?.children?.getOrNull(parent.children.indexOf(this)+1)
+            }
+        }
 
         class Element(
             val name: String,
@@ -15,10 +21,11 @@ object Extractor2 {
         ) : MyHtml() {
             val children = childrenConstructor(this)
 
-            fun nextSibling(): MyHtml? {
+            override fun nextSibling(): MyHtml? {
                 return parent?.children?.getOrNull(parent.children.indexOf(this)+1)
             }
         }
+
     }
 
     data class ParseAttribute(val key: String, val value: Regex) {
@@ -43,7 +50,7 @@ object Extractor2 {
                     return ParsingReturn(htmls, emptyList())
                 }
 
-                return ParsingReturn(htmls.map { null }, listOf(this))
+                return ParsingReturn(new.map { it.nextSibling() }, listOf(this))
             }
 
             override fun parsingProgress(htmls: List<MyHtml?>): ParsingReturn<Int> {
