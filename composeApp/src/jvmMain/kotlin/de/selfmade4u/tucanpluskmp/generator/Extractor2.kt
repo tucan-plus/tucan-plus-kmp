@@ -36,7 +36,7 @@ object Extractor2 {
 
         data class ParseText(val text: Regex) : ParsingInstruction() {
             override fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>> {
-                val new = htmls.mapAll { it as MyHtml.Text }
+                val new = htmls.mapAll { it as? MyHtml.Text }
 
                 if (new == null) {
                     check(false, { "Should never happen if not parsing incrementally" })
@@ -67,7 +67,7 @@ object Extractor2 {
             }
 
             override fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>> {
-                val new = htmls.mapAll { it as MyHtml.Element }
+                val new = htmls.mapAll { it as? MyHtml.Element }
 
                 if (new == null) {
                     check(false, { "Should never happen if not parsing incrementally" })
@@ -107,7 +107,7 @@ object Extractor2 {
                     return ParsingReturn(new.map { it.nextSibling() },newChildrenPossibilities.map { newChildren -> this.copy(children = newChildren) })
                 }
 
-                val newChild = newHtmls.mapAll { it as MyHtml.Element }
+                val newChild = newHtmls.mapAll { it as? MyHtml.Element }
 
                 if (newChild != null) {
                     val newChildParser = ParseElement(name = newChild.map { it.name }.toSet().single())
@@ -118,7 +118,7 @@ object Extractor2 {
             }
 
             override fun parsingProgress(htmls: List<MyHtml?>): ParsingReturn<Int> {
-                val new = htmls.mapAll { it as MyHtml.Element }
+                val new = htmls.mapAll { it as? MyHtml.Element }
 
                 if (new == null) {
                     check(false, { "Should never happen if not parsing incrementally" })
@@ -185,6 +185,11 @@ object Extractor2 {
     }
 }
 
-fun <I, O> List<I>.mapAll(function: (I) -> O): List<O>? {
-    TODO("Not yet implemented")
+fun <I, O> List<I>.mapAll(function: (I) -> O?): List<O>? {
+    val result = ArrayList<O>(this.size)
+    for (item in this) {
+        val mapped = function(item) ?: return null
+        result.add(mapped)
+    }
+    return result
 }
