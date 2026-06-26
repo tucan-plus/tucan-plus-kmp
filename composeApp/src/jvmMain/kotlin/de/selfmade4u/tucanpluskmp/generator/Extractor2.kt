@@ -102,8 +102,9 @@ object Extractor2 {
                     steps.value
                 }
                 val newChildrenPossibilities = cartesianProduct(newChildren)
+                println("newChildrenPossibilities ${newChildrenPossibilities.size}")
 
-                if (newChildrenPossibilities.size != 1) {
+                if (newChildrenPossibilities.size > 1) {
                     return ParsingReturn(new.map { it.nextSibling() },newChildrenPossibilities.map { newChildren -> this.copy(children = newChildren) })
                 }
 
@@ -177,6 +178,9 @@ object Extractor2 {
 
             // TODO we only need the progress here so if the steps would return the progress we don't need to calculate it twice
             val nextParsingSteps = first.produceNextParsingSteps(htmlTrees)
+            if (nextParsingSteps.value.isEmpty()) {
+                println("WARNING: loosing $first")
+            }
             for (parsingStep in nextParsingSteps.value) {
                 println("adding $parsingStep")
                 workToDo.add(parsingStep.let { Pair(it, it.parsingProgress(htmlTrees).value) })
