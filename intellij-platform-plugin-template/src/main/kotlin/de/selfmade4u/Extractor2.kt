@@ -41,7 +41,7 @@ object Extractor2 {
                 val new = htmls.mapAll { it as MyHtml.Text }
 
                 if (new == null) {
-                    check(false, "Should never happen if not parsing incrementally")
+                    check(false, { "Should never happen if not parsing incrementally" })
                     return emptyList()
                 }
 
@@ -54,21 +54,23 @@ object Extractor2 {
                 val new = htmls.mapAll { it as MyHtml.Element }
 
                 if (new == null) {
-                    check(false, "Should never happen if not parsing incrementally")
+                    check(false, { "Should never happen if not parsing incrementally" })
                     return emptyList()
                 }
 
                 // parse existing attributes and then check for remaining ones
                 var htmlAttributes = new.map { it.attributes }
 
-                for (val attribute in attributes) {
+                for (attribute in attributes) {
                     htmlAttributes = htmlAttributes.map {
-                        val value = it[attribute[key]]
+                        val value = it[attribute.key]
                         check(value == attribute.value)
                         it.filterNot { i -> i.key == attribute.key && i.value == attribute.value }
                     }
                 }
-                check(htmlAttributes.all { it.isEmpty() }, "TODO add to parsing")
+                check(htmlAttributes.all { it.isEmpty() }, { "TODO add to parsing" })
+
+                return listOf(this)
             }
         }
         // Additional error types can be added here
@@ -155,16 +157,16 @@ object Extractor2 {
                             annotationEntry
                         )
                     }
-                if (annotationContext != null && holder != null) {
+                /*if (annotationContext != null && holder != null) {
                     annotations[annotationContext]?.let { info ->
                         holder.newAnnotation(HighlightSeverity.ERROR, info.message)
                             .range(annotationContext)
                             .apply { info.quickFix?.let { withFix(it) } }
                             .create()
                     }
-                }
+                }*/
             } catch (error: Throwable) {
-                LOG.error(error)
+                //LOG.error(error)
             }
         }
     }
