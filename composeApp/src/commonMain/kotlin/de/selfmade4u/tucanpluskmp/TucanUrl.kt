@@ -1,7 +1,6 @@
 package de.selfmade4u.tucanpluskmp
 
 import androidx.room3.Entity
-import androidx.room3.TypeConverter
 import kotlin.text.get
 
 sealed interface TucanUrl {
