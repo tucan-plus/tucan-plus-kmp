@@ -13,6 +13,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.*
+import com.jetbrains.rd.util.first
 import com.jetbrains.rd.util.restOrNull
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
@@ -103,7 +104,13 @@ object Extractor2 {
                         it.filterNot { i -> i.key == attribute.key && i.value == attribute.value }
                     }
                 }
-                check(htmlAttributes.all { it.isEmpty() }, { "TODO add to parsing" })
+                if (!htmlAttributes.all { it.isEmpty() }) {
+                    val nextAttributeKey = htmlAttributes.first().keys.first()
+
+                    val newAttributeParser = ParseAttribute(nextAttributeKey, htmlAttributes.map { it.getValue(nextAttributeKey) }.toSet().single())
+
+                    return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(attributes = this.attributes + newAttributeParser)))
+                }
 
                 var newHtmls: List<Extractor2.MyHtml?> = htmls
                 val newChildren: List<List<Extractor2.ParsingInstruction>> = children.map { child ->
