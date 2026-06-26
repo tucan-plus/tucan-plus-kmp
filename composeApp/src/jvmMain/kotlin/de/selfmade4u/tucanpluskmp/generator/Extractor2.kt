@@ -92,7 +92,7 @@ object Extractor2 {
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(attributes = this.attributes + newAttributeParser)))
                 }
 
-                var newHtmls: List<MyHtml?> = htmls
+                var newHtmls: List<MyHtml?> = new.map { it.children.firstOrNull() }
                 val newChildren: List<List<ParsingInstruction>> = children.map { child ->
                     // TODO this will get funny if we have state? like if conditionals?
                     val steps = child.produceNextParsingSteps(newHtmls)
@@ -108,12 +108,14 @@ object Extractor2 {
                     return ParsingReturn(new.map { it.nextSibling() },newChildrenPossibilities.map { newChildren -> this.copy(children = newChildren) })
                 }
 
+                println(newHtmls)
                 val newChild = newHtmls.mapAll { it as? MyHtml.Element }
 
                 if (newChild != null) {
                     val newChildParser = ParseElement(name = newChild.map { it.name }.toSet().single())
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(children = this.children + newChildParser)))
                 } else {
+                    println("no new child, returning self")
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this))
                 }
             }
