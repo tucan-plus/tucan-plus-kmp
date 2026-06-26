@@ -5,13 +5,13 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.koin.compiler)
-    id("dev.reformator.stacktracedecoroutinator") version "2.6.2"
+    id("dev.reformator.stacktracedecoroutinator") version "2.6.4"
 }
 
 koinCompiler {
-    userLogs = true
-    debugLogs = true
-    compileSafety = false // broken for separate module?
+    //userLogs = true
+    //debugLogs = true
+    //compileSafety = false // broken for separate module?
 }
 
 android {

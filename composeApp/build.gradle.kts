@@ -14,15 +14,15 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.koin.compiler)
-    id("io.kotest") version "6.1.11"
+    id("io.kotest") version "6.2.1"
     jacoco
     id("de.selfmade4u.jacoco_report_multiple_plugin")
 }
 
 koinCompiler {
-    userLogs = true
-    debugLogs = true
-    compileSafety = false // broken for separate module?
+    //userLogs = true
+    //debugLogs = true
+    //compileSafety = false // broken for separate module?
 }
 
 tasks.withType<Test>().configureEach {
@@ -106,6 +106,8 @@ kotlin {
             instrumentationRunnerArguments["listener"] = "de.selfmade4u.tucanpluskmp.MyRunListener"
             instrumentationRunnerArguments["coverage"] = "false"
         }
+
+        withHostTest {}
     }
 
     /*listOf(
