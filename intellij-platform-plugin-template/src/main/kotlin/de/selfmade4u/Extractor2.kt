@@ -47,6 +47,14 @@ object Extractor2 {
 
                 return listOf(this)
             }
+
+            override fun parsingProgress(htmls: List<MyHtml>): Int {
+                return if (htmls.all { it is MyHtml.Text }) {
+                    1
+                } else {
+                    0
+                }
+            }
         }
 
         data class ParseElement(val name: String, val attributes: List<ParseAttribute>, val children: List<ParseElement>): ParsingInstruction() {
@@ -70,9 +78,40 @@ object Extractor2 {
                 }
                 check(htmlAttributes.all { it.isEmpty() }, { "TODO add to parsing" })
 
+                // TODO children
+
                 return listOf(this)
             }
 
+            override fun parsingProgress(htmls: List<MyHtml>): Int {
+                val new = htmls.mapAll { it as MyHtml.Element }
+
+                if (new == null) {
+                    check(false, { "Should never happen if not parsing incrementally" })
+                    return 0
+                }
+
+                // parse existing attributes and then check for remaining ones
+                var htmlAttributes = new.map { it.attributes }
+
+                for (attribute in attributes) {
+                    htmlAttributes = htmlAttributes.map {
+                        val value = it[attribute.key]
+                        check(value == attribute.value)
+                        it.filterNot { i -> i.key == attribute.key && i.value == attribute.value }
+                    }
+                }
+                if (!htmlAttributes.all { it.isEmpty() }) {
+                    return 1 + attributes.size
+                }
+
+                // TODO children
+                for (child in children) {
+                    // oh no this needs to return the new html elements?
+                    child.parsingProgress(htmls)
+                }
+                return 42;
+            }
         }
 
         abstract fun produceNextParsingSteps(htmls: List<MyHtml>): List<ParsingInstruction>
