@@ -1,5 +1,7 @@
 package de.selfmade4u.tucanpluskmp.generator
 
+import java.util.PriorityQueue
+
 object Extractor2 {
 
     sealed class MyHtml {
@@ -181,4 +183,8 @@ object Extractor2 {
             }
         }
     }
+}
+
+fun <I, O> List<I>.mapAll(function: (I) -> O): List<O>? {
+    TODO("Not yet implemented")
 }

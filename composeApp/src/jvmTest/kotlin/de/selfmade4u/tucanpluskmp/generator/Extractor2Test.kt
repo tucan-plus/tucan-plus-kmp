@@ -1,5 +1,6 @@
-package de.selfmade4u.tucanpluskmp.generator
+package de.selfmade4u.tucanpluskmp.de.selfmade4u.tucanpluskmp.generator
 
+import de.selfmade4u.tucanpluskmp.generator.Extractor2
 import kotlin.test.Test
 
 class Extractor2Test {
