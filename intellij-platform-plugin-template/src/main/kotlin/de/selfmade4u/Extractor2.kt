@@ -31,12 +31,12 @@ object Extractor2 {
         ) : MyHtml()
     }
 
-    class ParseAttribute(val key: String, val value: String) {
+    data class ParseAttribute(val key: String, val value: String) {
 
     }
 
     sealed class ParsingInstruction {
-        class ParseText(val text: Regex) : ParsingInstruction() {
+        data class ParseText(val text: Regex) : ParsingInstruction() {
             override fun produceNextParsingSteps(htmls: List<MyHtml>): List<ParsingInstruction> {
                 val new = htmls.mapAll { it as MyHtml.Text }
 
@@ -49,7 +49,7 @@ object Extractor2 {
             }
         }
 
-        class ParseElement(val name: String, val attributes: List<ParseAttribute>, val children: List<ParseElement>): ParsingInstruction() {
+        data class ParseElement(val name: String, val attributes: List<ParseAttribute>, val children: List<ParseElement>): ParsingInstruction() {
             override fun produceNextParsingSteps(htmls: List<MyHtml>): List<ParsingInstruction> {
                 val new = htmls.mapAll { it as MyHtml.Element }
 
@@ -72,10 +72,12 @@ object Extractor2 {
 
                 return listOf(this)
             }
+
         }
-        // Additional error types can be added here
 
         abstract fun produceNextParsingSteps(htmls: List<MyHtml>): List<ParsingInstruction>
+
+        abstract fun parsingProgress(htmls: List<MyHtml>): Int
     }
 
     fun myFun(
@@ -119,10 +121,20 @@ object Extractor2 {
             )
         )
 
+        treesToParser(listOf(htmlTree1, htmlTree2))
+
+        return CachedValueProvider.Result(annotations, annotationEntry, htmls)
+    }
+
+    fun treesToParser(
+        htmlTrees: List<MyHtml.Element>,
+    ) {
         // do work here
         // for now assume that we always create the parsers from scratch and that the input html files don't change. this should make it much simpler
 
-        val workToDo = PriorityQueue<ParsingInstruction.ParseElement>()
+        val workToDo = PriorityQueue<ParsingInstruction.ParseElement>({ a, b ->
+            a.parsingProgress(htmlTrees).compareTo(b.parsingProgres(htmlTrees))
+        })
         workToDo.add(ParsingInstruction.ParseElement("div", listOf(), listOf()))
 
         while (!workToDo.isEmpty()) {
@@ -135,10 +147,8 @@ object Extractor2 {
 
             // maybe for simplicity first don't do this storing the state.
 
-            val nextParsingSteps = first.produceNextParsingSteps(listOf(htmlTree1, htmlTree2))
+            val nextParsingSteps = first.produceNextParsingSteps(htmlTrees)
         }
-
-        return CachedValueProvider.Result(annotations, annotationEntry, htmls)
     }
 
     fun process(project: Project, annotationContext: PsiElement?, holder: AnnotationHolder?) {
