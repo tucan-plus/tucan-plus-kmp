@@ -36,7 +36,8 @@ object Extractor2 {
     }
 
     sealed class ParsingInstruction {
-        data class ParsingReturn<T>(val parseNext: List<MyHtml>, val value: T)
+        // Elements are null if done parsing
+        data class ParsingReturn<T>(val parseNext: List<MyHtml?>, val value: T)
 
         abstract fun produceNextParsingSteps(htmls: List<MyHtml>): ParsingReturn<List<ParsingInstruction>>
 
@@ -49,17 +50,17 @@ object Extractor2 {
 
                 if (new == null) {
                     check(false, { "Should never happen if not parsing incrementally" })
-                    return emptyList()
+                    return ParsingReturn(htmls, emptyList())
                 }
 
-                return listOf(this)
+                return ParsingReturn(htmls.map { null }, listOf(this))
             }
 
             override fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int> {
                 return if (htmls.all { it is MyHtml.Text }) {
-                    1
+                    ParsingReturn(htmls.map { null },1)
                 } else {
-                    0
+                    ParsingReturn(htmls ,0)
                 }
             }
         }
@@ -70,7 +71,7 @@ object Extractor2 {
 
                 if (new == null) {
                     check(false, { "Should never happen if not parsing incrementally" })
-                    return emptyList()
+                    return ParsingReturn(htmls, emptyList())
                 }
 
                 // parse existing attributes and then check for remaining ones
@@ -87,7 +88,8 @@ object Extractor2 {
 
                 // TODO children
 
-                return listOf(this)
+                // TODO do we need a nextsibling method?
+                return ParsingReturn(htmls.map { null },listOf(this))
             }
 
             override fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int> {
@@ -95,7 +97,7 @@ object Extractor2 {
 
                 if (new == null) {
                     check(false, { "Should never happen if not parsing incrementally" })
-                    return 0
+                    return ParsingReturn(htmls, 0)
                 }
 
                 // parse existing attributes and then check for remaining ones
@@ -109,7 +111,7 @@ object Extractor2 {
                     }
                 }
                 if (!htmlAttributes.all { it.isEmpty() }) {
-                    return 1 + attributes.size
+                    return ParsingReturn(htmls, 1 + attributes.size)
                 }
 
                 // TODO children
@@ -117,7 +119,7 @@ object Extractor2 {
                     // oh no this needs to return the new html elements?
                     child.parsingProgress(htmls)
                 }
-                return 42;
+                return ParsingReturn(htmls, 42);
             }
         }
     }
