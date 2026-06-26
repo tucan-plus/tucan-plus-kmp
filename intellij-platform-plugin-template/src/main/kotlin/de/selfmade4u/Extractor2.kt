@@ -46,13 +46,13 @@ object Extractor2 {
         // Elements are null if done parsing
         data class ParsingReturn<T>(val parseNext: List<MyHtml?>, val value: T)
 
-        abstract fun produceNextParsingSteps(htmls: List<MyHtml>): ParsingReturn<List<ParsingInstruction>>
+        abstract fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>>
 
         // could be implemented in terms of the above function but that would likely be very inefficient
         abstract fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int>
 
         data class ParseText(val text: Regex) : ParsingInstruction() {
-            override fun produceNextParsingSteps(htmls: List<MyHtml>): ParsingReturn<List<ParsingInstruction>> {
+            override fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>> {
                 val new = htmls.mapAll { it as MyHtml.Text }
 
                 if (new == null) {
@@ -73,8 +73,8 @@ object Extractor2 {
         }
 
         data class ParseElement(val name: String, val attributes: List<ParseAttribute>, val children: List<ParseElement>): ParsingInstruction() {
-            override fun produceNextParsingSteps(htmls: List<MyHtml>): ParsingReturn<List<ParsingInstruction>> {
-                val new = htmls.mapAll { it as MyHtml.Element }
+            override fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>> {
+                var new = htmls.mapAll { it as MyHtml.Element }
 
                 if (new == null) {
                     check(false, { "Should never happen if not parsing incrementally" })
@@ -93,9 +93,16 @@ object Extractor2 {
                 }
                 check(htmlAttributes.all { it.isEmpty() }, { "TODO add to parsing" })
 
-                // TODO children
+                var newHtmls: List<Extractor2.MyHtml?> = htmls
+                val newChildren: List<List<Extractor2.ParsingInstruction>> = children.map { child ->
+                    // TODO this will get funny if we have state? like if conditionals?
+                    val steps = child.produceNextParsingSteps(newHtmls)
+                    newHtmls = steps.parseNext
+                    // TODO replace product with this childs multiple options
+                    // TODO maybe early return if more than 1 is returned
+                    steps.value
+                }
 
-                // TODO do we need a nextsibling method?
                 return ParsingReturn(new.map { it.nextSibling() },listOf(this))
             }
 
