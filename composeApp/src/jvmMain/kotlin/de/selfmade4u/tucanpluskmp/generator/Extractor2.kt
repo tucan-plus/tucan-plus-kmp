@@ -192,6 +192,10 @@ object Extractor2 {
 
             // TODO we only need the progress here so if the steps would return the progress we don't need to calculate it twice
             val nextParsingSteps = first.produceNextParsingSteps(htmlTrees)
+            if (nextParsingSteps.parseNext.any { it == null }) {
+                println("DONE $first")
+                return
+            }
             if (nextParsingSteps.value.isEmpty()) {
                 println("WARNING: loosing $first")
             }
