@@ -36,12 +36,12 @@ object Extractor2 {
             val children = childrenConstructor(this)
 
             fun nextSibling(): MyHtml? {
-                return parent!!.children.getOrNull(parent.children.indexOf(this)+1)
+                return parent?.children?.getOrNull(parent.children.indexOf(this)+1)
             }
         }
     }
 
-    data class ParseAttribute(val key: String, val value: String) {
+    data class ParseAttribute(val key: String, val value: Regex) {
 
     }
 
@@ -100,14 +100,14 @@ object Extractor2 {
                 for (attribute in attributes) {
                     htmlAttributes = htmlAttributes.map {
                         val value = it[attribute.key]
-                        check(value == attribute.value)
-                        it.filterNot { i -> i.key == attribute.key && i.value == attribute.value }
+                        check(attribute.value.matches(value!!))
+                        it.filterNot { i -> i.key == attribute.key && attribute.value.matches(i.value) }
                     }
                 }
                 if (!htmlAttributes.all { it.isEmpty() }) {
                     val nextAttributeKey = htmlAttributes.first().keys.first()
 
-                    val newAttributeParser = ParseAttribute(nextAttributeKey, htmlAttributes.map { it.getValue(nextAttributeKey) }.toSet().single())
+                    val newAttributeParser = ParseAttribute(nextAttributeKey, Regex(htmlAttributes.map { it.getValue(nextAttributeKey) }.toSet().map { "(" + Regex.escape(it) + ")" }.joinToString(",")))
 
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(attributes = this.attributes + newAttributeParser)))
                 }
@@ -151,8 +151,8 @@ object Extractor2 {
                 for (attribute in attributes) {
                     htmlAttributes = htmlAttributes.map {
                         val value = it[attribute.key]
-                        check(value == attribute.value)
-                        it.filterNot { i -> i.key == attribute.key && i.value == attribute.value }
+                        check(attribute.value.matches(value!!))
+                        it.filterNot { i -> i.key == attribute.key && attribute.value.matches(i.value) }
                     }
                 }
                 if (!htmlAttributes.all { it.isEmpty() }) {
