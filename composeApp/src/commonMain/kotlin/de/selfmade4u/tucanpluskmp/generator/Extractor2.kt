@@ -1,26 +1,4 @@
-package de.selfmade4u
-
-import java.util.PriorityQueue
-
-import com.intellij.lang.annotation.AnnotationHolder
-import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.diagnostic.thisLogger
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.vfs.findDirectory
-import com.intellij.openapi.vfs.findPsiFile
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.CachedValueProvider
-import com.intellij.psi.util.CachedValuesManager
-import com.intellij.psi.xml.*
-import com.jetbrains.rd.util.first
-import com.jetbrains.rd.util.restOrNull
-import org.jetbrains.kotlin.idea.base.util.projectScope
-import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
-import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
-import org.jetbrains.kotlin.util.collectionUtils.concat
-import org.jetbrains.kotlin.util.mapAll
+package de.selfmade4u.tucanpluskmp.generator
 
 object Extractor2 {
 
@@ -76,7 +54,7 @@ object Extractor2 {
         }
 
         data class ParseElement(val name: String, val attributes: List<ParseAttribute> = listOf(), val children: List<ParsingInstruction> = listOf()): ParsingInstruction() {
-            private fun cartesianProduct(input: List<List<Extractor2.ParsingInstruction>>): List<List<Extractor2.ParsingInstruction>> {
+            private fun cartesianProduct(input: List<List<ParsingInstruction>>): List<List<ParsingInstruction>> {
                 return input.fold(listOf(), { acc, elem ->
                     if (acc.isEmpty()) {
                         elem.map { listOf(it) }
@@ -112,8 +90,8 @@ object Extractor2 {
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(attributes = this.attributes + newAttributeParser)))
                 }
 
-                var newHtmls: List<Extractor2.MyHtml?> = htmls
-                val newChildren: List<List<Extractor2.ParsingInstruction>> = children.map { child ->
+                var newHtmls: List<MyHtml?> = htmls
+                val newChildren: List<List<ParsingInstruction>> = children.map { child ->
                     // TODO this will get funny if we have state? like if conditionals?
                     val steps = child.produceNextParsingSteps(newHtmls)
                     newHtmls = steps.parseNext
@@ -160,7 +138,7 @@ object Extractor2 {
                 }
 
                 var sum = 1 + attributes.size
-                var newHtmls: List<Extractor2.MyHtml?> = htmls
+                var newHtmls: List<MyHtml?> = htmls
                 for (child in children) {
                     // oh no this needs to return the new html elements?
                     val step = child.parsingProgress(newHtmls)
@@ -170,56 +148,6 @@ object Extractor2 {
                 return ParsingReturn(newHtmls, sum);
             }
         }
-    }
-
-    fun myFun(
-        project: Project,
-        annotationEntry: KtAnnotationEntry
-    ): CachedValueProvider.Result<MutableMap<PsiElement, Unit>> {
-        val annotations = mutableMapOf<PsiElement, Unit>()
-        val valueArg = annotationEntry.valueArgumentList!!.arguments.first()
-        val path = Extractor.getStringLiteral(valueArg.stringTemplateExpression!!)
-        thisLogger().warn("project dir ${project.guessProjectDir()} path $path");
-        thisLogger().warn("htmls ${project.guessProjectDir()!!.findDirectory(path)}")
-        val htmls = project.guessProjectDir()!!.findDirectory(path)!! // TODO FIXME error handling
-
-        val ktNamedFunction = annotationEntry.getParentOfType<KtNamedFunction>(strict = true)!!
-        //println("abc ${ktNamedFunction.text}")
-        val block = ktNamedFunction.bodyBlockExpression!!
-
-        val files = htmls.children
-        thisLogger().warn("htmls2 ${files.map { (it.findPsiFile(project) as XmlFile).rootTag }}")
-        val htmlFiles = files.map { (it.findPsiFile(project) as XmlFile).rootTag!! }
-
-        val htmlTree1 = MyHtml.Element(
-            name = "div",
-            attributes = mapOf("class" to "container"),
-            parent = null,
-            childrenConstructor = { parent -> listOf(
-                MyHtml.Element(
-                    name = "p",
-                    parent = parent,
-                    childrenConstructor = { parent -> listOf(MyHtml.Text("Hello World")) }
-                )
-            )}
-        )
-
-        val htmlTree2 = MyHtml.Element(
-            name = "div",
-            attributes = mapOf("class" to "somethingelse"),
-            parent = null,
-            childrenConstructor = { parent -> listOf(
-                MyHtml.Element(
-                    name = "p",
-                    parent = parent,
-                    childrenConstructor = { parent -> listOf(MyHtml.Text("something else")) }
-                )
-            )}
-        )
-
-        treesToParser(listOf(htmlTree1, htmlTree2))
-
-        return CachedValueProvider.Result(annotations, annotationEntry, htmls)
     }
 
     fun treesToParser(
@@ -250,36 +178,6 @@ object Extractor2 {
             for (parsingStep in nextParsingSteps.value) {
                 println("adding $parsingStep")
                 workToDo.add(parsingStep.let { Pair(it, it.parsingProgress(htmlTrees).value) })
-            }
-        }
-    }
-
-    fun process(project: Project, annotationContext: PsiElement?, holder: AnnotationHolder?) {
-        val annotations = KotlinAnnotationsIndex["HtmlFromResources", project, project.projectScope()];
-        //println("annotations $annotations")
-        for (annotationEntry in annotations) { // oh does the loop fail if one of them fails?
-            // https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/util/CachedValue.java
-
-            //ApplicationManager.getApplication().logError()
-
-            try {
-                val annotations =
-                    CachedValuesManager.getManager(project).getCachedValue(annotationEntry) {
-                        myFun(
-                            project,
-                            annotationEntry
-                        )
-                    }
-                /*if (annotationContext != null && holder != null) {
-                    annotations[annotationContext]?.let { info ->
-                        holder.newAnnotation(HighlightSeverity.ERROR, info.message)
-                            .range(annotationContext)
-                            .apply { info.quickFix?.let { withFix(it) } }
-                            .create()
-                    }
-                }*/
-            } catch (error: Throwable) {
-                //LOG.error(error)
             }
         }
     }

@@ -1,10 +1,6 @@
-package de.selfmade4u
+package de.selfmade4u.tucanpluskmp.generator
 
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.testFramework.common.ThreadLeakTracker
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 class Extractor2Test {
 
