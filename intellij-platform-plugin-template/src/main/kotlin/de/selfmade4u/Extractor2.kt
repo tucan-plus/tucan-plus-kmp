@@ -120,7 +120,6 @@ object Extractor2 {
                     return ParsingReturn(new.map { it.nextSibling() },newChildrenPossibilities.map { newChildren -> this.copy(children = newChildren) })
                 }
 
-                // TODO remaining children
                 val newChild = newHtmls.mapAll { it as MyHtml.Element }
 
                 if (newChild) {
@@ -153,12 +152,15 @@ object Extractor2 {
                     return ParsingReturn(htmls, 1 + attributes.size)
                 }
 
-                // TODO children
+                var sum = 1 + attributes.size
+                var newHtmls: List<Extractor2.MyHtml?> = htmls
                 for (child in children) {
                     // oh no this needs to return the new html elements?
-                    child.parsingProgress(htmls)
+                    val step = child.parsingProgress(newHtmls)
+                    newHtmls = step.parseNext
+                    sum += step.value
                 }
-                return ParsingReturn(htmls, 42);
+                return ParsingReturn(newHtmls, sum);
             }
         }
     }
@@ -221,12 +223,13 @@ object Extractor2 {
 
         // cache comparison value
         val workToDo = PriorityQueue<Pair<ParsingInstruction.ParseElement, Int>>({ a, b ->
-            a.second.compareTo(b.second)
+            b.second.compareTo(a.second)
         })
         workToDo.add(ParsingInstruction.ParseElement("div", listOf(), listOf()).let { Pair(it, it.parsingProgress(htmlTrees).value) })
 
         while (!workToDo.isEmpty()) {
             val first = workToDo.remove().first;
+            println("popping $first")
 
             // try adding a new element:
             // for efficiency the states should store where in the html they currently are and where in the html parsing state they currently are
@@ -235,7 +238,12 @@ object Extractor2 {
 
             // maybe for simplicity first don't do this storing the state.
 
+            // TODO we only need the progress here so if the steps would return the progress we don't need to calculate it twice
             val nextParsingSteps = first.produceNextParsingSteps(htmlTrees)
+            for (parsingStep in nextParsingSteps.value) {
+                println("adding $parsingStep")
+                workToDo.add(parsingStep.let { Pair(it, it.parsingProgress(htmlTrees).value) })
+            }
         }
     }
 
