@@ -86,7 +86,7 @@ object Extractor2 {
             }
 
             override fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>> {
-                var new = htmls.mapAll { it as MyHtml.Element }
+                val new = htmls.mapAll { it as MyHtml.Element }
 
                 if (new == null) {
                     check(false, { "Should never happen if not parsing incrementally" })
@@ -114,8 +114,21 @@ object Extractor2 {
                     // TODO maybe early return if more than 1 is returned
                     steps.value
                 }
+                val newChildrenPossibilities = cartesianProduct(newChildren)
 
-                return ParsingReturn(new.map { it.nextSibling() },listOf(this))
+                if (newChildrenPossibilities.size != 1) {
+                    return ParsingReturn(new.map { it.nextSibling() },newChildrenPossibilities.map { newChildren -> this.copy(children = newChildren) })
+                }
+
+                // TODO remaining children
+                val newChild = newHtmls.mapAll { it as MyHtml.Element }
+
+                if (newChild) {
+                    val newChildParser = ParseElement(newChild.map { it.name }.toSet().single())
+                    return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(children = this.children + newChildParser)))
+                } else {
+                    return ParsingReturn(new.map { it.nextSibling() },listOf(this))
+                }
             }
 
             override fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int> {
