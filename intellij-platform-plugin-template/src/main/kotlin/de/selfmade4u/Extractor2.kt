@@ -107,7 +107,7 @@ object Extractor2 {
                 if (!htmlAttributes.all { it.isEmpty() }) {
                     val nextAttributeKey = htmlAttributes.first().keys.first()
 
-                    val newAttributeParser = ParseAttribute(nextAttributeKey, Regex(htmlAttributes.map { it.getValue(nextAttributeKey) }.toSet().map { "(" + Regex.escape(it) + ")" }.joinToString(",")))
+                    val newAttributeParser = ParseAttribute(nextAttributeKey, Regex(htmlAttributes.map { it.getValue(nextAttributeKey) }.toSet().map { "(" + Regex.escape(it) + ")" }.joinToString("|")))
 
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(attributes = this.attributes + newAttributeParser)))
                 }
