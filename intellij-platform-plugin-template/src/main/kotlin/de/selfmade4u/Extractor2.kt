@@ -13,10 +13,12 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.xml.*
+import com.jetbrains.rd.util.restOrNull
 import org.jetbrains.kotlin.idea.base.util.projectScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
+import org.jetbrains.kotlin.util.collectionUtils.concat
 import org.jetbrains.kotlin.util.mapAll
 
 object Extractor2 {
@@ -73,6 +75,16 @@ object Extractor2 {
         }
 
         data class ParseElement(val name: String, val attributes: List<ParseAttribute>, val children: List<ParseElement>): ParsingInstruction() {
+            private fun cartesianProduct(input: List<List<Extractor2.ParsingInstruction>>): List<List<Extractor2.ParsingInstruction>> {
+                return input.fold(listOf(), { acc, elem ->
+                    if (acc.isEmpty()) {
+                        elem.map { listOf(it) }
+                    } else {
+                        acc.flatMap { accElem -> elem.map { e -> accElem + e } }
+                    }
+                })
+            }
+
             override fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>> {
                 var new = htmls.mapAll { it as MyHtml.Element }
 
