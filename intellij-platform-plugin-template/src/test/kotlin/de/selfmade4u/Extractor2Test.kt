@@ -10,23 +10,27 @@ class Extractor2Test {
         val htmlTree1 = Extractor2.MyHtml.Element(
             name = "div",
             attributes = mapOf("class" to "container"),
-            children = listOf(
+            parent = null,
+            childrenConstructor = { parent -> listOf(
                 Extractor2.MyHtml.Element(
                     name = "p",
-                    children = listOf(Extractor2.MyHtml.Text("Hello World"))
+                    parent = parent,
+                    childrenConstructor = { parent -> listOf(Extractor2.MyHtml.Text("Hello World")) }
                 )
-            )
+            )}
         )
 
         val htmlTree2 = Extractor2.MyHtml.Element(
             name = "div",
             attributes = mapOf("class" to "somethingelse"),
-            children = listOf(
+            parent = null,
+            childrenConstructor = { parent -> listOf(
                 Extractor2.MyHtml.Element(
                     name = "p",
-                    children = listOf(Extractor2.MyHtml.Text("something else"))
+                    parent = parent,
+                    childrenConstructor = { parent -> listOf(Extractor2.MyHtml.Text("something else")) }
                 )
-            )
+            )}
         )
 
         val result = Extractor2.treesToParser(listOf(htmlTree1, htmlTree2))

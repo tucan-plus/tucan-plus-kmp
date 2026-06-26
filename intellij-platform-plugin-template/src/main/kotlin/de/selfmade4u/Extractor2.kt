@@ -51,7 +51,7 @@ object Extractor2 {
         abstract fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>>
 
         // could be implemented in terms of the above function but that would likely be very inefficient
-        abstract fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int>
+        abstract fun parsingProgress(htmls: List<MyHtml?>): ParsingReturn<Int>
 
         data class ParseText(val text: Regex) : ParsingInstruction() {
             override fun produceNextParsingSteps(htmls: List<MyHtml?>): ParsingReturn<List<ParsingInstruction>> {
@@ -65,7 +65,7 @@ object Extractor2 {
                 return ParsingReturn(htmls.map { null }, listOf(this))
             }
 
-            override fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int> {
+            override fun parsingProgress(htmls: List<MyHtml?>): ParsingReturn<Int> {
                 return if (htmls.all { it is MyHtml.Text }) {
                     ParsingReturn(htmls.map { null },1)
                 } else {
@@ -74,7 +74,7 @@ object Extractor2 {
             }
         }
 
-        data class ParseElement(val name: String, val attributes: List<ParseAttribute>, val children: List<ParseElement>): ParsingInstruction() {
+        data class ParseElement(val name: String, val attributes: List<ParseAttribute> = listOf(), val children: List<ParsingInstruction> = listOf()): ParsingInstruction() {
             private fun cartesianProduct(input: List<List<Extractor2.ParsingInstruction>>): List<List<Extractor2.ParsingInstruction>> {
                 return input.fold(listOf(), { acc, elem ->
                     if (acc.isEmpty()) {
@@ -122,15 +122,15 @@ object Extractor2 {
 
                 val newChild = newHtmls.mapAll { it as MyHtml.Element }
 
-                if (newChild) {
-                    val newChildParser = ParseElement(newChild.map { it.name }.toSet().single())
+                if (newChild != null) {
+                    val newChildParser = ParseElement(name = newChild.map { it.name }.toSet().single())
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(children = this.children + newChildParser)))
                 } else {
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this))
                 }
             }
 
-            override fun parsingProgress(htmls: List<MyHtml>): ParsingReturn<Int> {
+            override fun parsingProgress(htmls: List<MyHtml?>): ParsingReturn<Int> {
                 val new = htmls.mapAll { it as MyHtml.Element }
 
                 if (new == null) {
@@ -222,7 +222,7 @@ object Extractor2 {
         // for now assume that we always create the parsers from scratch and that the input html files don't change. this should make it much simpler
 
         // cache comparison value
-        val workToDo = PriorityQueue<Pair<ParsingInstruction.ParseElement, Int>>({ a, b ->
+        val workToDo = PriorityQueue<Pair<ParsingInstruction, Int>>({ a, b ->
             b.second.compareTo(a.second)
         })
         workToDo.add(ParsingInstruction.ParseElement("div", listOf(), listOf()).let { Pair(it, it.parsingProgress(htmlTrees).value) })
