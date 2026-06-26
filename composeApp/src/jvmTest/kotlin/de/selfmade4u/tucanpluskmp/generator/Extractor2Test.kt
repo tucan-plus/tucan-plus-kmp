@@ -35,5 +35,6 @@ class Extractor2Test {
 
         val result = Extractor2.treesToParser(listOf(htmlTree1, htmlTree2))
 
+        // DONE ParseElement(name=div, attributes=[ParseAttribute(key=class, value=(\Qcontainer\E)|(\Qsomethingelse\E))], children=[ParseElement(name=p, attributes=[], children=[ParseText(text=(\QHello World\E)|(\Qsomething else\E))])])
     }
 }

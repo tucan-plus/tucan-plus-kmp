@@ -55,9 +55,9 @@ object Extractor2 {
 
             override fun parsingProgress(htmls: List<MyHtml?>): ParsingReturn<Int> {
                 return if (htmls.all { it is MyHtml.Text }) {
-                    ParsingReturn(htmls.map { null },1)
+                    ParsingReturn(htmls.map { it!!.nextSibling() },1)
                 } else {
-                    ParsingReturn(htmls ,0)
+                    ParsingReturn(htmls,0) // TODO FIXME
                 }
             }
         }
@@ -151,18 +151,17 @@ object Extractor2 {
                     }
                 }
                 if (!htmlAttributes.all { it.isEmpty() }) {
-                    return ParsingReturn(htmls, 1 + attributes.size)
+                    return ParsingReturn(new.map { it.nextSibling() }, 1 + attributes.size)
                 }
 
                 var sum = 1 + attributes.size
-                var newHtmls: List<MyHtml?> = htmls
+                var newHtmls: List<MyHtml?> = new.map { it.children.firstOrNull() }
                 for (child in children) {
-                    // oh no this needs to return the new html elements?
                     val step = child.parsingProgress(newHtmls)
                     newHtmls = step.parseNext
                     sum += step.value
                 }
-                return ParsingReturn(newHtmls, sum);
+                return ParsingReturn(new.map { it.nextSibling() }, sum);
             }
         }
     }
@@ -197,7 +196,7 @@ object Extractor2 {
             }
             for (parsingStep in nextParsingSteps.value) {
                 val progress = parsingStep.parsingProgress(htmlTrees).value
-                if (progress >= 3) {
+                if (progress >= 4) {
                     println("DONE $parsingStep")
                     return
                 }
