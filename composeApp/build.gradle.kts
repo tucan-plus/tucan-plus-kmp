@@ -1,4 +1,3 @@
-import de.selfmade4u.jacoco_report_multiple_plugin.JacocoReportMultiple
 import org.gradle.kotlin.dsl.androidTestUtil
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -14,15 +13,15 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.koin.compiler)
-    id("io.kotest") version "6.1.11"
+    id("io.kotest") version "6.2.1"
     jacoco
-    id("de.selfmade4u.jacoco_report_multiple_plugin")
+    //id("de.selfmade4u.jacoco_report_multiple_plugin")
 }
 
 koinCompiler {
-    userLogs = true
-    debugLogs = true
-    compileSafety = false // broken for separate module?
+    //userLogs = true
+    //debugLogs = true
+    //compileSafety = false // broken for separate module?
 }
 
 tasks.withType<Test>().configureEach {
@@ -106,6 +105,8 @@ kotlin {
             instrumentationRunnerArguments["listener"] = "de.selfmade4u.tucanpluskmp.MyRunListener"
             instrumentationRunnerArguments["coverage"] = "false"
         }
+
+        withHostTest {}
     }
 
     /*listOf(
@@ -283,11 +284,11 @@ fun getHtmlFilesCollection(execFiles: ConfigurableFileTree): FileCollection {
         locations.map { it.asFile.parentFile.resolve("html") }
     })
 }
-
+/*
 tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
     dependsOn(tasks.named("jvmTest"))
     val execData = fileTree(layout.buildDirectory.dir("jacoco")) {
-        include("**/*.exec")
+        include("**.../*.exec")
     }
     executionData.setFrom(execData)
 
@@ -298,9 +299,9 @@ tasks.register("jacocoReportAll", JacocoReportMultiple::class) {
         "src/jvmTest/kotlin",
     ))
     classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
-        exclude("**/R.class", "**/BuildConfig.*")
+        exclude("**.../R.class", "**.../BuildConfig.*")
     }, fileTree(layout.buildDirectory.dir("classes/kotlin/jvm/test")) {
-        exclude("**/R.class", "**/BuildConfig.*")
+        exclude("**.../R.class", "**.../BuildConfig.*")
     })
 
     reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
@@ -321,9 +322,9 @@ val androidJacoco = tasks.register("androidJacocoReportAll", JacocoReportMultipl
         "src/commonTest/kotlin",
     ))
     classDirectories.setFrom(fileTree(layout.buildDirectory.dir("classes/kotlin/android/main")) {
-        exclude("**/R.class", "**/BuildConfig.*")
+        exclude("**.../R.class", "**.../BuildConfig.*")
     }, fileTree(layout.buildDirectory.dir("classes/kotlin/android/deviceTest")) {
-        exclude("**/R.class", "**/BuildConfig.*")
+        exclude("**.../R.class", "**.../BuildConfig.*")
     })
 
     reports.xmlOutputLocation.setFrom(getXmlFilesCollection(execData))
@@ -336,3 +337,4 @@ tasks.withType<com.android.build.gradle.internal.tasks.DeviceProviderInstrumentT
 tasks.withType<com.android.build.gradle.internal.coverage.JacocoReportTask>().configureEach {
     enabled = false
 }
+*/

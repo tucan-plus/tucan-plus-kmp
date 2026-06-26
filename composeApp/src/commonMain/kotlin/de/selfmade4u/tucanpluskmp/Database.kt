@@ -1,5 +1,7 @@
 package de.selfmade4u.tucanpluskmp
 
+import androidx.room3.ColumnTypeConverter
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.ConstructedBy
 import androidx.room3.Dao
 import androidx.room3.Database
@@ -9,8 +11,6 @@ import androidx.room3.PrimaryKey
 import androidx.room3.Query
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
-import androidx.room3.TypeConverter
-import androidx.room3.TypeConverters
 import de.selfmade4u.tucanpluskmp.data.MyExams
 import de.selfmade4u.tucanpluskmp.database.ModuleResultDao
 import de.selfmade4u.tucanpluskmp.database.ModuleResultEntity
@@ -20,19 +20,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDateTime
 
 class Converters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromTimestamp(value: String?): LocalDateTime? {
         return value?.let { LocalDateTime.parse(it) }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun dateToTimestamp(date: LocalDateTime?): String? {
         return date?.toString()
     }
 }
 
 @Database(entities = [MyExams.MyExam::class, ModuleResultsEntity::class, ModuleResultEntity::class], version = 8)
-@TypeConverters(
+@ColumnTypeConverters(
     Converters::class,
 )
 @ConstructedBy(AppDatabaseConstructor::class)
