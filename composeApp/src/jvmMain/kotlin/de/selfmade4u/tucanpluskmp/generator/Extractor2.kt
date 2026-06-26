@@ -117,13 +117,18 @@ object Extractor2 {
 
                 println(newHtmls)
                 val newChild = newHtmls.mapAll { it as? MyHtml.Element }
+                val newChildText = newHtmls.mapAll { it as? MyHtml.Text }
 
                 if (newChild != null) {
                     val newChildParser = ParseElement(name = newChild.map { it.name }.toSet().single())
                     return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(children = this.children + newChildParser)))
+                } else if (newChildText != null) {
+                    println("GOT A CHLD TEXT")
+                    val newChildParser = ParseText(Regex(newChildText.map { it.text }.toSet().map { "(" + Regex.escape(it) + ")" }.joinToString("|")))
+                    return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(children = this.children + newChildParser)))
                 } else {
-                    println("no new child, returning self")
-                    return ParsingReturn(new.map { it.nextSibling() },listOf(this))
+                    println("no new child, returning self with children modified")
+                    return ParsingReturn(new.map { it.nextSibling() },listOf(this.copy(children = newChildrenPossibilities.single())))
                 }
             }
 

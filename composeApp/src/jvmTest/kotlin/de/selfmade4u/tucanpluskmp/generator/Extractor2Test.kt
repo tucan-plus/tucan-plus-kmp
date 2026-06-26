@@ -15,7 +15,7 @@ class Extractor2Test {
                 Extractor2.MyHtml.Element(
                     name = "p",
                     parent = parent,
-                    childrenConstructor = { parent -> listOf(Extractor2.MyHtml.Text("Hello World")) }
+                    childrenConstructor = { parent -> listOf(Extractor2.MyHtml.Text("Hello World", parent)) }
                 )
             )}
         )
@@ -28,7 +28,7 @@ class Extractor2Test {
                 Extractor2.MyHtml.Element(
                     name = "p",
                     parent = parent,
-                    childrenConstructor = { parent -> listOf(Extractor2.MyHtml.Text("something else")) }
+                    childrenConstructor = { parent -> listOf(Extractor2.MyHtml.Text("something else", parent)) }
                 )
             )}
         )
